@@ -3,7 +3,6 @@
 import React, { useState } from "react"
 import TicketDetail from "../ticket/ticket-detail"
 import ReasonDialog from "../ticket/reason-dialog"
-import CreateTicket from "../ticket/create-ticket"
 import {
   Select,
   SelectContent,
@@ -74,6 +73,7 @@ export interface Ticket {
   dueDate?: string | null
   projectId: string
   assignedUserId: string
+  groupId?: string | null
   project: {
     id: string
     title: string
@@ -88,6 +88,11 @@ export interface Ticket {
   timeLogs?: TimeLog[]
   reasonBlocked?: string | null
   reasonReopen?: string | null
+  group?: {
+    id: string
+    name: string
+    type: string
+  } | null
 }
 
 const STATUS_MAP: Record<string, string> = {
@@ -241,7 +246,6 @@ export default function TicketsView() {
 
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
-  const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [selectedProjectId, setSelectedProjectId] = useState<string>("all")
   const [pendingStatusChange, setPendingStatusChange] = useState<{
     ticketId: string
@@ -432,21 +436,11 @@ export default function TicketsView() {
 
   return (
     <div className="flex-1 flex flex-col gap-6 p-6 md:p-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-300">
-      {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground">My Tickets</h1>
           <p className="text-sm text-muted-foreground mt-1">Keep track of your projects and active responsibilities.</p>
         </div>
-        {isCreateAllowed && (
-          <button
-            onClick={() => setIsCreateOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/95 font-medium rounded-xl shadow-sm hover:shadow transition-all duration-200 cursor-pointer"
-          >
-            <PlusIcon className="size-4" />
-            Create Ticket
-          </button>
-        )}
       </div>
 
       {/* Filters, Search & Sorting */}
@@ -613,11 +607,6 @@ export default function TicketsView() {
           }}
         />
       )}
-
-      <CreateTicket
-        open={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-      />
     </div>
   )
 }
@@ -696,10 +685,17 @@ function DraggableTicketCard({ ticket, isOverlay = false, onClick }: DraggableTi
     <div className="flex flex-col justify-between gap-3 h-full" onClick={onClick}>
       {/* Ticket Header */}
       <div className="flex justify-between items-start gap-4">
-        <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
-            {ticket.project.title}
-          </span>
+        <div className="flex flex-col gap-1.5 min-w-0">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase truncate">
+              {ticket.project.title}
+            </span>
+            {ticket.group && (
+              <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-primary/10 text-primary border border-primary/20 capitalize truncate max-w-[120px]">
+                {ticket.group.name}
+              </span>
+            )}
+          </div>
           <h3 className="font-semibold text-sm text-foreground leading-snug group-hover:text-primary transition-colors duration-200">
             {ticket.title}
           </h3>

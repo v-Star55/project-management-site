@@ -9,7 +9,10 @@ import {
   ClockIcon,
   AlertCircleIcon,
   RotateCcwIcon,
-  EyeIcon
+  EyeIcon,
+  MoreVertical as MoreVerticalIcon,
+  Trash as TrashIcon,
+  Edit as EditIcon
 } from "lucide-react"
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
@@ -42,6 +45,22 @@ import {
 import TicketDetail from "../ticket/ticket-detail"
 import ReasonDialog from "../ticket/reason-dialog"
 import CreateTicket from "../ticket/create-ticket"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface ProjectTicketsProps {
   projectData: ProjectDetail
@@ -151,8 +170,11 @@ export default function ProjectTickets({ projectData, userId }: ProjectTicketsPr
   const queryClient = useQueryClient()
   const { user } = useSelector((state: RootState) => state.user)
   const userRole = user?.role || ""
-  const isCreateAllowed = userRole === "owner" || userRole === "admin"
-  const canDrag = userRole === "owner" || userRole === "admin"
+  const isProjectAdmin = projectData.admins?.some((a) => a.id === user?.id)
+  const isOwner = userRole === "owner"
+  const isProjectAdminOrOwner = isOwner || !!isProjectAdmin
+  const isCreateAllowed = isProjectAdminOrOwner
+  const canDrag = isProjectAdminOrOwner
 
   const [activeId, setActiveId] = useState<string | null>(null)
   const [selectedTicket, setSelectedTicket] = useState<any | null>(null)
@@ -233,6 +255,49 @@ export default function ProjectTickets({ projectData, userId }: ProjectTicketsPr
       queryClient.invalidateQueries({ queryKey: ["tickets"] })
     },
   })
+
+  // Mutation to delete a ticket
+  const deleteTicketMutation = useMutation({
+    mutationFn: async (ticketId: string) => {
+      const res = await fetch(`/api/tickets?id=${ticketId}`, {
+        method: "DELETE",
+      })
+      if (!res.ok) throw new Error("Failed to delete ticket")
+      return res.json()
+    },
+    onMutate: async (ticketId) => {
+      await queryClient.cancelQueries({ queryKey: ["project", projectData.id] })
+      const previousProjectData = queryClient.getQueryData(["project", projectData.id])
+
+      // Optimistically remove ticket
+      queryClient.setQueryData(["project", projectData.id], (old: any) => {
+        if (!old) return old
+        return {
+          ...old,
+          tickets: old.tickets.filter((t: any) => t.id !== ticketId),
+        }
+      })
+
+      return { previousProjectData }
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousProjectData) {
+        queryClient.setQueryData(["project", projectData.id], context.previousProjectData)
+      }
+      toast.error("Failed to delete ticket")
+    },
+    onSuccess: () => {
+      toast.success("Ticket deleted successfully!")
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["project", projectData.id] })
+      queryClient.invalidateQueries({ queryKey: ["tickets"] })
+    },
+  })
+
+  const handleDeleteTicket = (ticketId: string) => {
+    deleteTicketMutation.mutate(ticketId)
+  }
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -505,7 +570,12 @@ interface DraggableTicketCardProps {
   canDrag: boolean
 }
 
-function DraggableTicketCard({ ticket, isOverlay = false, onClick, canDrag }: DraggableTicketCardProps) {
+function DraggableTicketCard({
+  ticket,
+  isOverlay = false,
+  onClick,
+  canDrag,
+}: DraggableTicketCardProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: ticket.id,
     data: { ticket },
@@ -523,7 +593,12 @@ function DraggableTicketCard({ ticket, isOverlay = false, onClick, canDrag }: Dr
     <div className="flex flex-col justify-between gap-3 h-full" onClick={onClick}>
       {/* Ticket Header */}
       <div className="flex justify-between items-start gap-3">
-        <div className="flex flex-col gap-1 min-w-0">
+        <div className="flex flex-col gap-1.5 min-w-0">
+          {ticket.group && (
+            <span className="self-start px-1.5 py-0.5 text-[9px] font-bold rounded bg-primary/10 text-primary border border-primary/20 capitalize truncate max-w-[120px]">
+              {ticket.group.name}
+            </span>
+          )}
           <h3 className="font-semibold text-xs text-foreground leading-snug group-hover:text-primary transition-colors duration-200 truncate max-w-[160px]">
             {ticket.title}
           </h3>

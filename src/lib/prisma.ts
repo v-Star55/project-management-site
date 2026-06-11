@@ -21,7 +21,13 @@ let prismaInstance =
 
 // Handle Next.js dev server caching after client regeneration
 if (process.env.NODE_ENV !== "production") {
-  if (prismaInstance && (!("note" in prismaInstance) || !("calendarEvent" in prismaInstance))) {
+  if (
+    prismaInstance &&
+    (!("note" in prismaInstance) ||
+      !("calendarEvent" in prismaInstance) ||
+      !("projectGroup" in prismaInstance) ||
+      !("activityLog" in prismaInstance))
+  ) {
     prismaInstance = new PrismaClient({ adapter });
   }
   globalForPrisma.prisma = prismaInstance;

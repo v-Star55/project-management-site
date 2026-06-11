@@ -15,12 +15,43 @@ import {
   LayersIcon,
   MessageSquareIcon,
   CalendarClockIcon,
+  MoreVertical as MoreVerticalIcon,
+  Trash as TrashIcon,
+  Edit as EditIcon,
+  Loader2Icon,
 } from "lucide-react"
 import Image from "next/image"
 import TicketAttachments from "./ticket-attachments"
 import TicketTimeLogs from "./ticket-time-logs"
 import ReasonDialog from "./reason-dialog"
 import TicketComments from "./ticket-comments"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 const STATUS_MAP: Record<string, string> = {
   pending: "Todo",
@@ -121,9 +152,73 @@ export default function TicketDetail({
   onPriorityUpdate,
 }: TicketDetailProps) {
   const overlayRef = useRef<HTMLDivElement>(null)
+  const queryClient = useQueryClient()
+  
   const [pendingStatus, setPendingStatus] = useState<"blocked" | "reopen" | null>(null)
   const currentUser = useSelector((state: RootState) => state.user.user)
   const [activeTab, setActiveTab] = useState<"details" | "comments">("details")
+
+  // Editing state
+  const [isEditing, setIsEditing] = useState(false)
+  const [editTitle, setEditTitle] = useState("")
+  const [editDescription, setEditDescription] = useState("")
+  const [editPriority, setEditPriority] = useState<"low" | "medium" | "high">("low")
+  const [editAssignedUserId, setEditAssignedUserId] = useState<string>("unassigned")
+  const [editGroupId, setEditGroupId] = useState<string>("none")
+  const [editDueDate, setEditDueDate] = useState<string | undefined>(undefined)
+
+  const [isSaving, setIsSaving] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+
+  // Sync edits when ticket changes
+  useEffect(() => {
+    if (ticket) {
+      setEditTitle(ticket.title)
+      setEditDescription(ticket.description || "")
+      setEditPriority((ticket.priority?.toLowerCase() as any) || "low")
+      setEditAssignedUserId(ticket.assignedUserId || "unassigned")
+      setEditGroupId(ticket.groupId || "none")
+      setEditDueDate(ticket.dueDate || undefined)
+      setIsEditing(false)
+    }
+  }, [ticket])
+
+  // Fetch Project details for member list and admin checks
+  const { data: projectDetails } = useQuery({
+    queryKey: ["project-edit", ticket?.projectId],
+    queryFn: async () => {
+      const res = await fetch(`/api/projects/${ticket?.projectId}`)
+      if (!res.ok) throw new Error("Failed to fetch project")
+      const data = await res.json()
+      return data.project
+    },
+    enabled: open && !!ticket?.projectId,
+  })
+
+  // Fetch groups details
+  const { data: groupsData } = useQuery({
+    queryKey: ["project-groups-edit", ticket?.projectId],
+    queryFn: async () => {
+      const res = await fetch(`/api/projects/${ticket?.projectId}/groups`)
+      if (!res.ok) throw new Error("Failed to fetch groups")
+      const data = await res.json()
+      return data.groups
+    },
+    enabled: open && !!ticket?.projectId,
+  })
+
+  const projectMembers: any[] = []
+  if (projectDetails) {
+    if (projectDetails.admins) projectMembers.push(...projectDetails.admins)
+    if (projectDetails.members) projectMembers.push(...projectDetails.members)
+  }
+  const projectGroups = groupsData || []
+
+  // Check roles
+  const isOwner = currentUser?.role === "owner"
+  const isProjectAdmin = projectDetails?.admins?.some((a: any) => a.id === currentUser?.id)
+  const isProjectAdminOrOwner = isOwner || !!isProjectAdmin
 
   // Reset active tab to details when ticket changes
   useEffect(() => {
@@ -146,6 +241,78 @@ export default function TicketDetail({
   }, [open])
 
   if (!ticket) return null
+
+  const handleSave = async () => {
+    if (!editTitle.trim()) {
+      toast.error("Title is required")
+      return
+    }
+    setIsSaving(true)
+    try {
+      const payload: any = {
+        id: ticket.id,
+        title: editTitle.trim(),
+        description: editDescription.trim(),
+        priority: editPriority,
+        assignedUserId: editAssignedUserId === "unassigned" ? "unassigned" : editAssignedUserId,
+        groupId: editGroupId === "none" ? "none" : editGroupId,
+        dueDate: editDueDate || null,
+      }
+
+      const res = await fetch("/api/tickets", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "Failed to update ticket")
+      }
+
+      toast.success("Ticket updated successfully!")
+      setIsEditing(false)
+      
+      // Invalidate queries to refresh Kanban and all states
+      queryClient.invalidateQueries({ queryKey: ["project", ticket.projectId] })
+      queryClient.invalidateQueries({ queryKey: ["tickets"] })
+      queryClient.invalidateQueries({ queryKey: ["schedule"] })
+      
+      onOpenChange(false)
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save changes")
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    setIsDeleting(true)
+    try {
+      const res = await fetch(`/api/tickets?id=${ticket.id}`, {
+        method: "DELETE",
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "Failed to delete ticket")
+      }
+
+      toast.success("Ticket deleted successfully!")
+      setIsDeleteDialogOpen(false)
+      onOpenChange(false)
+
+      queryClient.invalidateQueries({ queryKey: ["project", ticket.projectId] })
+      queryClient.invalidateQueries({ queryKey: ["tickets"] })
+      queryClient.invalidateQueries({ queryKey: ["schedule"] })
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete ticket")
+    } finally {
+      setIsDeleting(false)
+    }
+  }
 
   const { color: statusColor, dot: statusDot, icon: statusIcon } = getStatusMeta(ticket.status)
 
@@ -188,6 +355,12 @@ export default function TicketDetail({
                     <LayersIcon className="size-3" />
                     {ticket.project?.title || "No Project"}
                   </span>
+                  {ticket.group && (
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-widest uppercase bg-stone-100 text-stone-600 dark:bg-stone-500/10 dark:text-stone-400 px-2.5 py-1 rounded-lg border border-stone-200 dark:border-stone-500/20">
+                      <LayersIcon className="size-3" />
+                      Group: {ticket.group.name}
+                    </span>
+                  )}
                   <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-lg border ${statusColor}`}>
                     {statusIcon}
                     {getDisplayStatus(ticket.status)}
@@ -195,9 +368,21 @@ export default function TicketDetail({
                 </div>
 
                 {/* Title */}
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight leading-tight pr-8">
-                  {ticket.title}
-                </h2>
+                {isEditing ? (
+                  <div className="mr-8 mt-1">
+                    <input
+                      type="text"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight leading-tight bg-transparent border-b border-border/80 focus:outline-none focus:border-primary w-full py-1"
+                      placeholder="Ticket Title"
+                    />
+                  </div>
+                ) : (
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight leading-tight pr-8">
+                    {ticket.title}
+                  </h2>
+                )}
 
                 {/* Meta row */}
                 <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-muted-foreground mt-0.5">
@@ -210,7 +395,7 @@ export default function TicketDetail({
                     <ClockIcon className="size-3.5 opacity-60" />
                     <span>Updated <strong className="text-foreground/80 font-semibold">{formatDateTime(ticket.updatedAt)}</strong></span>
                   </span>
-                  {ticket.dueDate && (
+                  {ticket.dueDate && !isEditing && (
                     <>
                       <span className="h-3 w-px bg-border/60 hidden sm:block" />
                       <span className={`flex items-center gap-1.5 ${
@@ -226,13 +411,45 @@ export default function TicketDetail({
                 </div>
               </div>
 
-              {/* Close */}
-              <button
-                onClick={() => onOpenChange(false)}
-                className="flex-shrink-0 p-2 rounded-xl hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-all duration-150 cursor-pointer mt-0.5"
-              >
-                <XIcon className="size-5" />
-              </button>
+              {/* Header Actions */}
+              <div className="flex items-center gap-1.5 flex-shrink-0 mt-0.5">
+                {isProjectAdminOrOwner && !isEditing && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        className="p-2 rounded-xl hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-all duration-150 cursor-pointer"
+                      >
+                        <MoreVerticalIcon className="size-5" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-36 z-[100] bg-popover border border-border/50 rounded-2xl shadow-xl">
+                      <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer" onClick={() => setIsEditing(true)}>
+                        <EditIcon className="size-4" />
+                        Edit Ticket
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        variant="destructive"
+                        className="rounded-xl flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                        onClick={() => setIsDeleteDialogOpen(true)}
+                      >
+                        <TrashIcon className="size-4" />
+                        Delete Ticket
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+
+                {/* Close */}
+                <button
+                  onClick={() => {
+                    setIsEditing(false)
+                    onOpenChange(false)
+                  }}
+                  className="p-2 rounded-xl hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-all duration-150 cursor-pointer"
+                >
+                  <XIcon className="size-5" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -255,7 +472,31 @@ export default function TicketDetail({
                 {/* Priority Selection */}
                 <div className="mb-5">
                   <p className="text-[9px] font-bold tracking-widest text-muted-foreground uppercase mb-2.5">Priority</p>
-                  {onPriorityUpdate ? (
+                  {isEditing ? (
+                    <div className="flex gap-1.5">
+                      {["low", "medium", "high"].map((p) => {
+                        const isSelected = editPriority === p
+                        let priorityColorClass = ""
+                        if (isSelected) {
+                          if (p === "high") priorityColorClass = "bg-red-500 text-white border-red-500 shadow-sm font-bold"
+                          else if (p === "medium") priorityColorClass = "bg-amber-500 text-white border-amber-500 shadow-sm font-bold"
+                          else priorityColorClass = "bg-blue-500 text-white border-blue-500 shadow-sm font-bold"
+                        } else {
+                          priorityColorClass = "bg-card hover:bg-muted/60 text-muted-foreground border-border/40"
+                        }
+                        return (
+                          <button
+                            key={p}
+                            type="button"
+                            onClick={() => setEditPriority(p as any)}
+                            className={`flex-1 text-center py-1.5 rounded-xl text-xs capitalize border transition-all duration-150 cursor-pointer ${priorityColorClass}`}
+                          >
+                            {p}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  ) : onPriorityUpdate ? (
                     <div className="flex gap-1.5">
                       {["low", "medium", "high"].map((p) => {
                         const isSelected = ticket.priority?.toLowerCase() === p
@@ -287,7 +528,24 @@ export default function TicketDetail({
                 </div>
 
                 {/* Assignee */}
-                {ticket.assignedUser ? (
+                {isEditing ? (
+                  <div className="mb-5">
+                    <p className="text-[9px] font-bold tracking-widest text-muted-foreground uppercase mb-2.5">Assigned To</p>
+                    <Select value={editAssignedUserId} onValueChange={setEditAssignedUserId}>
+                      <SelectTrigger className="w-full bg-card border border-border/50 rounded-2xl h-10 px-3 text-xs">
+                        <SelectValue placeholder="Select Assignee" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border border-border/50 rounded-2xl shadow-xl z-[200] max-h-60 overflow-y-auto">
+                        <SelectItem value="unassigned" className="rounded-xl cursor-pointer">Unassigned</SelectItem>
+                        {projectMembers.map((member: any) => (
+                          <SelectItem key={member.id} value={member.id} className="rounded-xl cursor-pointer">
+                            {member.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ) : ticket.assignedUser ? (
                   <div className="mb-5">
                     <p className="text-[9px] font-bold tracking-widest text-muted-foreground uppercase mb-2.5">Assigned To</p>
                     <div className="flex items-center gap-3 p-3 bg-card border border-border/50 rounded-2xl shadow-xs">
@@ -320,8 +578,53 @@ export default function TicketDetail({
                   </div>
                 )}
 
-                {/* Update Status Quick Actions */}
-                {onStatusUpdate && (
+                {/* Group (Only shown in Editing mode or if it is present) */}
+                {isEditing ? (
+                  <div className="mb-5">
+                    <p className="text-[9px] font-bold tracking-widest text-muted-foreground uppercase mb-2.5">Project Group</p>
+                    <Select value={editGroupId} onValueChange={setEditGroupId}>
+                      <SelectTrigger className="w-full bg-card border border-border/50 rounded-2xl h-10 px-3 text-xs">
+                        <SelectValue placeholder="Select Group" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border border-border/50 rounded-2xl shadow-xl z-[200] max-h-60 overflow-y-auto">
+                        <SelectItem value="none" className="rounded-xl cursor-pointer">None</SelectItem>
+                        {projectGroups.map((g: any) => (
+                          <SelectItem key={g.id} value={g.id} className="rounded-xl cursor-pointer">
+                            {g.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ) : null}
+
+                {/* Due Date (Only shown in Editing mode) */}
+                {isEditing ? (
+                  <div className="mb-5">
+                    <p className="text-[9px] font-bold tracking-widest text-muted-foreground uppercase mb-2.5">Due Date</p>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className="w-full flex items-center justify-start text-left font-normal bg-card border border-border/50 hover:bg-muted/20 text-foreground rounded-2xl h-10 px-3 text-xs cursor-pointer"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground shrink-0" />
+                          {editDueDate ? new Date(editDueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : <span>Pick a date</span>}
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 rounded-2xl border border-border/50 z-[200] bg-popover shadow-xl" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={editDueDate ? new Date(editDueDate) : undefined}
+                          onSelect={(date) => setEditDueDate(date ? date.toISOString() : undefined)}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                ) : null}
+
+                {/* Update Status Quick Actions (Only when not editing) */}
+                {!isEditing && onStatusUpdate && (
                   <div>
                     <p className="text-[9px] font-bold tracking-widest text-muted-foreground uppercase mb-2.5">Update Status</p>
                     <div className="flex flex-col gap-1.5">
@@ -355,6 +658,29 @@ export default function TicketDetail({
                         )
                       })}
                     </div>
+                  </div>
+                )}
+
+                {/* Save/Cancel actions for editing */}
+                {isEditing && (
+                  <div className="mt-auto pt-6 flex flex-col gap-2.5">
+                    <button
+                      type="button"
+                      onClick={handleSave}
+                      disabled={isSaving}
+                      className="w-full py-2.5 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      {isSaving && <Loader2Icon className="size-3.5 animate-spin" />}
+                      Save Changes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(false)}
+                      disabled={isSaving}
+                      className="w-full py-2.5 bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground text-xs font-bold rounded-xl border border-border/40 transition-all cursor-pointer text-center"
+                    >
+                      Cancel
+                    </button>
                   </div>
                 )}
               </aside>
@@ -414,13 +740,22 @@ export default function TicketDetail({
                     {/* Description */}
                     <section>
                       <h3 className="text-[9px] font-bold tracking-widest text-muted-foreground uppercase mb-3">Description</h3>
-                      <div className="relative bg-muted/20 border border-border/40 rounded-2xl p-5 min-h-[100px] text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap">
-                        {ticket.description ? (
-                          ticket.description
-                        ) : (
-                          <span className="text-muted-foreground italic">No description provided for this ticket.</span>
-                        )}
-                      </div>
+                      {isEditing ? (
+                        <textarea
+                          value={editDescription}
+                          onChange={(e) => setEditDescription(e.target.value)}
+                          className="w-full min-h-[150px] bg-muted/15 border border-border/40 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-2xl p-5 text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap"
+                          placeholder="Provide a detailed description of the ticket..."
+                        />
+                      ) : (
+                        <div className="relative bg-muted/20 border border-border/40 rounded-2xl p-5 min-h-[100px] text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap">
+                          {ticket.description ? (
+                            ticket.description
+                          ) : (
+                            <span className="text-muted-foreground italic">No description provided for this ticket.</span>
+                          )}
+                        </div>
+                      )}
                     </section>
 
                     {/* Divider */}
@@ -445,6 +780,7 @@ export default function TicketDetail({
           </div>
         </div>
       </div>
+
       {pendingStatus && (
         <ReasonDialog
           open={!!pendingStatus}
@@ -456,6 +792,32 @@ export default function TicketDetail({
           }}
         />
       )}
+
+      {/* Delete Confirmation Alert Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Ticket</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this ticket? This action is permanent and will soft-delete the ticket from active tracking.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting} onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={isDeleting}
+              onClick={handleDelete}
+              className="flex items-center gap-1.5"
+            >
+              {isDeleting && <Loader2Icon className="size-3.5 animate-spin" />}
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }

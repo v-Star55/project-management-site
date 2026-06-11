@@ -41,9 +41,27 @@ export async function GET(
                         designation: true,
                     },
                 },
+                admins: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        role: true,
+                        imageUrl: true,
+                        designation: true,
+                    },
+                },
                 tickets: {
+                    where: { isDeleted: false },
                     orderBy: { createdAt: "desc" },
                     include: {
+                        group: {
+                            select: {
+                                id: true,
+                                name: true,
+                                type: true,
+                            },
+                        },
                         assignedUser: {
                             select: {
                                 id: true,
@@ -62,13 +80,14 @@ export async function GET(
         }
 
         // Access control:
-        // owner & admin can access any project in the company.
-        // member & client can only access if they are a member of the project.
-        if (dbUser.role !== "owner" && dbUser.role !== "admin") {
+        // owner can access any project in the company.
+        // admin, member & client can only access if they are a member or admin of the project.
+        if (dbUser.role !== "owner") {
             const isMember = project.members.some((m) => m.id === dbUser.id);
-            if (!isMember) {
+            const isProjectAdmin = project.admins.some((a) => a.id === dbUser.id);
+            if (!isMember && !isProjectAdmin) {
                 return NextResponse.json(
-                    { error: "Forbidden: You are not a member of this project" },
+                    { error: "Forbidden: You are not a member or admin of this project" },
                     { status: 403 }
                 );
             }
@@ -85,8 +104,8 @@ export async function PATCH(
     req: NextRequest,
     { params }: { params: Promise<{ projectId?: string }> }
 ) {
-    // Only owner and admin roles can edit
-    const user = await requireRole(["owner", "admin"], req);
+    // Allow owner, admin, and member roles to call this (members are checked dynamically)
+    const user = await requireRole(["owner", "admin", "member"], req);
     if (user instanceof NextResponse) return user;
 
     const { projectId } = await params;
@@ -111,6 +130,7 @@ export async function PATCH(
             where: { id: projectId },
             include: {
                 members: { select: { id: true } },
+                admins: { select: { id: true } },
             },
         });
 
@@ -118,8 +138,21 @@ export async function PATCH(
             return NextResponse.json({ error: "Project not found" }, { status: 404 });
         }
 
+        // Access Control:
+        // owner can edit any project in their company.
+        // admin and members can edit only if they are a project admin of this project.
+        if (dbUser.role !== "owner") {
+            const isProjectAdmin = project.admins.some((a) => a.id === dbUser.id);
+            if (!isProjectAdmin) {
+                return NextResponse.json(
+                    { error: "Forbidden: You are not an admin of this project" },
+                    { status: 403 }
+                );
+            }
+        }
+
         const body = await req.json();
-        const { title, description, status, startDate, completedDate, memberIds } = body;
+        const { title, description, status, startDate, completedDate, targetDate, phase, category, memberIds, adminIds } = body;
 
         const updateData: any = {};
         if (title !== undefined) updateData.title = title;
@@ -127,6 +160,9 @@ export async function PATCH(
         if (status !== undefined) updateData.status = status as $Enums.ProjectStatus;
         if (startDate !== undefined) updateData.startDate = startDate ? new Date(startDate) : null;
         if (completedDate !== undefined) updateData.completedDate = completedDate ? new Date(completedDate) : null;
+        if (targetDate !== undefined) updateData.targetDate = targetDate ? new Date(targetDate) : null;
+        if (phase !== undefined) updateData.phase = phase as $Enums.ProjectPhase;
+        if (category !== undefined) updateData.category = category as $Enums.ProjectCategory;
 
         if (memberIds !== undefined && Array.isArray(memberIds)) {
             // Validate all memberIds exist in the company
@@ -139,6 +175,21 @@ export async function PATCH(
             });
             const validIds = companyUsers.map((u) => u.id);
             updateData.members = {
+                set: validIds.map((id) => ({ id })),
+            };
+        }
+
+        if (adminIds !== undefined && Array.isArray(adminIds)) {
+            // Validate all adminIds exist in the company
+            const companyUsers = await prisma.user.findMany({
+                where: {
+                    id: { in: adminIds },
+                    companyId: dbUser.companyId,
+                },
+                select: { id: true },
+            });
+            const validIds = companyUsers.map((u) => u.id);
+            updateData.admins = {
                 set: validIds.map((id) => ({ id })),
             };
         }
@@ -157,7 +208,18 @@ export async function PATCH(
                         designation: true,
                     },
                 },
+                admins: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        role: true,
+                        imageUrl: true,
+                        designation: true,
+                    },
+                },
                 tickets: {
+                    where: { isDeleted: false },
                     orderBy: { createdAt: "desc" },
                     include: {
                         assignedUser: {

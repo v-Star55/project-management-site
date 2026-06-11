@@ -156,8 +156,27 @@ exports.Prisma.ProjectScalarFieldEnum = {
   imageUrl: 'imageUrl',
   isActive: 'isActive',
   completedDate: 'completedDate',
+  targetDate: 'targetDate',
   startDate: 'startDate',
+  phase: 'phase',
+  category: 'category',
   companyId: 'companyId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ProjectGroupScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  goal: 'goal',
+  type: 'type',
+  isActive: 'isActive',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  status: 'status',
+  companyId: 'companyId',
+  projectId: 'projectId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -177,7 +196,9 @@ exports.Prisma.TicketScalarFieldEnum = {
   deletedAt: 'deletedAt',
   reasonBlocked: 'reasonBlocked',
   reasonReopen: 'reasonReopen',
+  type: 'type',
   projectId: 'projectId',
+  groupId: 'groupId',
   assignedUserId: 'assignedUserId'
 };
 
@@ -242,9 +263,27 @@ exports.Prisma.CalendarEventScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ActivityLogScalarFieldEnum = {
+  id: 'id',
+  action: 'action',
+  description: 'description',
+  metadata: 'metadata',
+  userId: 'userId',
+  targetUserId: 'targetUserId',
+  projectId: 'projectId',
+  ticketId: 'ticketId',
+  groupId: 'groupId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -256,6 +295,12 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
 exports.CompanyStatus = exports.$Enums.CompanyStatus = {
   active: 'active',
   inactive: 'inactive'
@@ -265,6 +310,7 @@ exports.Role = exports.$Enums.Role = {
   owner: 'owner',
   admin: 'admin',
   member: 'member',
+  qa: 'qa',
   client: 'client'
 };
 
@@ -274,19 +320,69 @@ exports.ProjectStatus = exports.$Enums.ProjectStatus = {
   completed: 'completed'
 };
 
+exports.ProjectPhase = exports.$Enums.ProjectPhase = {
+  idea: 'idea',
+  discovery: 'discovery',
+  requirement_gathering: 'requirement_gathering',
+  prototype: 'prototype',
+  planning: 'planning',
+  design: 'design',
+  development: 'development',
+  testing: 'testing',
+  review: 'review',
+  deployment: 'deployment',
+  maintenance: 'maintenance',
+  completed: 'completed'
+};
+
+exports.ProjectCategory = exports.$Enums.ProjectCategory = {
+  software: 'software',
+  marketing: 'marketing',
+  design: 'design',
+  interior: 'interior',
+  other: 'other'
+};
+
+exports.ProjectGroupType = exports.$Enums.ProjectGroupType = {
+  sprint: 'sprint',
+  phase: 'phase',
+  section: 'section',
+  milestone: 'milestone',
+  campaign_stage: 'campaign_stage',
+  custom: 'custom'
+};
+
+exports.GroupStatus = exports.$Enums.GroupStatus = {
+  not_started: 'not_started',
+  in_progress: 'in_progress',
+  completed: 'completed',
+  cancelled: 'cancelled',
+  on_hold: 'on_hold'
+};
+
 exports.TicketStatus = exports.$Enums.TicketStatus = {
   pending: 'pending',
   in_progress: 'in_progress',
   completed: 'completed',
   reopen: 'reopen',
   in_review: 'in_review',
-  blocked: 'blocked'
+  blocked: 'blocked',
+  backlog: 'backlog'
 };
 
 exports.Priority = exports.$Enums.Priority = {
   high: 'high',
   medium: 'medium',
   low: 'low'
+};
+
+exports.TicketType = exports.$Enums.TicketType = {
+  feature: 'feature',
+  bug: 'bug',
+  task: 'task',
+  improvement: 'improvement',
+  documentation: 'documentation',
+  other: 'other'
 };
 
 exports.CalendarEventType = exports.$Enums.CalendarEventType = {
@@ -298,16 +394,41 @@ exports.CalendarEventType = exports.$Enums.CalendarEventType = {
   other: 'other'
 };
 
+exports.ActivityAction = exports.$Enums.ActivityAction = {
+  PROJECT_CREATED: 'PROJECT_CREATED',
+  PROJECT_UPDATED: 'PROJECT_UPDATED',
+  PROJECT_ARCHIVED: 'PROJECT_ARCHIVED',
+  GROUP_CREATED: 'GROUP_CREATED',
+  GROUP_UPDATED: 'GROUP_UPDATED',
+  GROUP_DELETED: 'GROUP_DELETED',
+  TICKET_CREATED: 'TICKET_CREATED',
+  TICKET_UPDATED: 'TICKET_UPDATED',
+  TICKET_DELETED: 'TICKET_DELETED',
+  TICKET_ASSIGNED: 'TICKET_ASSIGNED',
+  TICKET_UNASSIGNED: 'TICKET_UNASSIGNED',
+  TICKET_STATUS_CHANGED: 'TICKET_STATUS_CHANGED',
+  TICKET_PRIORITY_CHANGED: 'TICKET_PRIORITY_CHANGED',
+  TICKET_MOVED: 'TICKET_MOVED',
+  COMMENT_CREATED: 'COMMENT_CREATED',
+  FILE_UPLOADED: 'FILE_UPLOADED',
+  MEMBER_INVITED: 'MEMBER_INVITED',
+  MEMBER_JOINED: 'MEMBER_JOINED',
+  MEMBER_REMOVED: 'MEMBER_REMOVED',
+  ROLE_CHANGED: 'ROLE_CHANGED'
+};
+
 exports.Prisma.ModelName = {
   Company: 'Company',
   user: 'user',
   Project: 'Project',
+  ProjectGroup: 'ProjectGroup',
   Ticket: 'Ticket',
   TicketAttachment: 'TicketAttachment',
   Message: 'Message',
   timeLog: 'timeLog',
   Note: 'Note',
-  CalendarEvent: 'CalendarEvent'
+  CalendarEvent: 'CalendarEvent',
+  ActivityLog: 'ActivityLog'
 };
 
 /**

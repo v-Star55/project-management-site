@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/helpers/permission";
+import { $Enums } from "@/generated/prisma";
 
 export async function GET(req: NextRequest) {
     const user = await requireRole(["owner", "admin", "member", "client"], req);
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
 
         let projects;
 
-        if (dbUser.role === "owner" || dbUser.role === "admin") {
+        if (dbUser.role === "owner") {
             // Show all projects of the company
             projects = await prisma.project.findMany({
                 where: {
@@ -36,16 +37,27 @@ export async function GET(req: NextRequest) {
                 orderBy: { createdAt: "desc" },
             });
         } else {
-            // member or client: show projects on which user is currently working
+            // member or client: show projects on which user is currently working or is an admin of
             projects = await prisma.project.findMany({
                 where: {
                     companyId: dbUser.companyId,
                     isActive: true,
-                    members: {
-                        some: {
-                            id: dbUser.id,
+                    OR: [
+                        {
+                            members: {
+                                some: {
+                                    id: dbUser.id,
+                                },
+                            },
                         },
-                    },
+                        {
+                            admins: {
+                                some: {
+                                    id: dbUser.id,
+                                },
+                            },
+                        },
+                    ],
                 },
                 orderBy: { createdAt: "desc" },
             });
@@ -57,3 +69,111 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "Failed to fetch projects" }, { status: 500 });
     }
 }
+
+export async function POST(req: NextRequest) {
+    // Only owner role can create projects
+    const user = await requireRole(["owner"], req);
+    if (user instanceof NextResponse) return user;
+
+    try {
+        const dbUser = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { id: true, role: true, companyId: true },
+        });
+
+        if (!dbUser || !dbUser.companyId) {
+            return NextResponse.json(
+                { error: "User is not associated with a company" },
+                { status: 403 }
+            );
+        }
+
+        const body = await req.json();
+        const { title, description, status, startDate, completedDate, targetDate, phase, category, memberIds, adminIds } = body;
+
+        if (!title || !title.trim()) {
+            return NextResponse.json({ error: "Project title is required" }, { status: 400 });
+        }
+
+        const createData: any = {
+            title: title.trim(),
+            description: description || null,
+            status: (status || "pending") as $Enums.ProjectStatus,
+            phase: (phase || "idea") as $Enums.ProjectPhase,
+            category: (category || "software") as $Enums.ProjectCategory,
+            companyId: dbUser.companyId,
+        };
+
+        if (startDate) {
+            createData.startDate = new Date(startDate);
+        }
+        if (completedDate) {
+            createData.completedDate = new Date(completedDate);
+        }
+        if (targetDate) {
+            createData.targetDate = new Date(targetDate);
+        }
+
+        if (memberIds !== undefined && Array.isArray(memberIds)) {
+            // Validate all memberIds exist in the company
+            const companyUsers = await prisma.user.findMany({
+                where: {
+                    id: { in: memberIds },
+                    companyId: dbUser.companyId,
+                },
+                select: { id: true },
+            });
+            const validIds = companyUsers.map((u) => u.id);
+            createData.members = {
+                connect: validIds.map((id) => ({ id })),
+            };
+        }
+
+        if (adminIds !== undefined && Array.isArray(adminIds)) {
+            // Validate all adminIds exist in the company
+            const companyUsers = await prisma.user.findMany({
+                where: {
+                    id: { in: adminIds },
+                    companyId: dbUser.companyId,
+                },
+                select: { id: true },
+            });
+            const validIds = companyUsers.map((u) => u.id);
+            createData.admins = {
+                connect: validIds.map((id) => ({ id })),
+            };
+        }
+
+        const project = await prisma.project.create({
+            data: createData,
+            include: {
+                members: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        role: true,
+                        imageUrl: true,
+                        designation: true,
+                    },
+                },
+                admins: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        role: true,
+                        imageUrl: true,
+                        designation: true,
+                    },
+                },
+            },
+        });
+
+        return NextResponse.json({ project });
+    } catch (error) {
+        console.error("Error creating project:", error);
+        return NextResponse.json({ error: "Failed to create project" }, { status: 500 });
+    }
+}
+

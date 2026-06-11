@@ -29,6 +29,12 @@ export interface ProjectTicket {
     email?: string
     imageUrl: string | null
   } | null
+  groupId?: string | null
+  group?: {
+    id: string
+    name: string
+    type: string
+  } | null
 }
 
 export interface ProjectDetail {
@@ -38,7 +44,11 @@ export interface ProjectDetail {
   status: string
   startDate: string | null
   completedDate: string | null
+  targetDate: string | null
+  phase: string
+  category: string
   members: ProjectMember[]
+  admins: ProjectMember[]
   tickets: ProjectTicket[]
 }
 

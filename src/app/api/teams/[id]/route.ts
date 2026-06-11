@@ -19,14 +19,14 @@ export async function GET(
         // Fetch user from DB to verify they are in this company/workspace
         const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
-            select: { companyId: true, role: true },
+            select: { id: true, companyId: true, role: true },
         });
 
         if (!dbUser || dbUser.companyId !== workspaceId) {
             return NextResponse.json({ message: "Forbidden: unauthorized company access" }, { status: 403 });
         }
 
-        const isRestrictedRole = dbUser.role === "member" || dbUser.role === "client";
+        const isRestrictedRole = dbUser.role !== "owner";
 
         const dbUsers = await prisma.user.findMany({
             where: {
@@ -37,9 +37,20 @@ export async function GET(
                         {
                             projects: {
                                 some: {
-                                    members: {
-                                        some: { id: user.id }
-                                    }
+                                    OR: [
+                                        { members: { some: { id: user.id } } },
+                                        { admins: { some: { id: user.id } } }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            adminProjects: {
+                                some: {
+                                    OR: [
+                                        { members: { some: { id: user.id } } },
+                                        { admins: { some: { id: user.id } } }
+                                    ]
                                 }
                             }
                         }

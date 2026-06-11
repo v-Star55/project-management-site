@@ -33,6 +33,7 @@ export async function GET(req: NextRequest) {
 
         const ticketInclude = {
             project: { select: { id: true, title: true } },
+            group: { select: { id: true, name: true, type: true } },
             assignedUser: { select: { id: true, name: true, email: true, imageUrl: true } },
             attachments: {
                 orderBy: { createdAt: "desc" as const }
@@ -45,29 +46,36 @@ export async function GET(req: NextRequest) {
             }
         };
 
-        if (dbUser.role === "owner" || dbUser.role === "admin") {
+        if (dbUser.role === "owner") {
             // All tickets across every project in the company.
             tickets = await prisma.ticket.findMany({
                 where: {
                     project: { companyId: dbUser.companyId },
-                },
-                include: ticketInclude,
-                orderBy: { createdAt: "desc" },
-            });
-        } else if (dbUser.role === "member") {
-            // Tickets assigned directly to the member.
-            tickets = await prisma.ticket.findMany({
-                where: {
-                    assignedUserId: dbUser.id,
+                    isDeleted: false,
                 },
                 include: ticketInclude,
                 orderBy: { createdAt: "desc" },
             });
         } else {
-            // client: read-only view of all company project tickets.
+            // admin, member, client: only tickets they are assigned to, or tickets of projects they are admin/member of.
             tickets = await prisma.ticket.findMany({
                 where: {
-                    project: { companyId: dbUser.companyId },
+                    project: {
+                        companyId: dbUser.companyId,
+                        isActive: true,
+                    },
+                    isDeleted: false,
+                    OR: [
+                        { assignedUserId: dbUser.id },
+                        {
+                            project: {
+                                OR: [
+                                    { members: { some: { id: dbUser.id } } },
+                                    { admins: { some: { id: dbUser.id } } }
+                                ]
+                            }
+                        }
+                    ]
                 },
                 include: ticketInclude,
                 orderBy: { createdAt: "desc" },
@@ -82,15 +90,15 @@ export async function GET(req: NextRequest) {
 }
 
 // ─── POST /api/tickets ─────────────────────────────────────────────────────────
-// Create a new ticket. Only owner and admin roles can create tickets.
+// Create a new ticket. Only owner, admin, and project-admin members can create tickets.
 export async function POST(req: NextRequest) {
-    const user = await requireRole(["owner", "admin"], req);
+    const user = await requireRole(["owner", "admin", "member"], req);
 
     if (user instanceof NextResponse) return user;
 
     try {
         const body = await req.json();
-        const { title, description, projectId, status, assignedUserId, priority } = body;
+        const { title, description, projectId, status, assignedUserId, priority, groupId, dueDate, type } = body;
 
         if (!title || !description || !projectId) {
             return NextResponse.json(
@@ -102,7 +110,7 @@ export async function POST(req: NextRequest) {
         // Ensure the project belongs to the user's company before creating.
         const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
-            select: { companyId: true },
+            select: { id: true, role: true, companyId: true },
         });
 
         if (!dbUser?.companyId) {
@@ -114,6 +122,9 @@ export async function POST(req: NextRequest) {
 
         const project = await prisma.project.findFirst({
             where: { id: projectId, companyId: dbUser.companyId },
+            include: {
+                admins: { select: { id: true } },
+            },
         });
 
         if (!project) {
@@ -123,6 +134,19 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        // Access Control:
+        // owner can create tickets for any project in their company.
+        // admin and members can create tickets only if they are a project admin of this project.
+        if (dbUser.role !== "owner") {
+            const isProjectAdmin = project.admins.some((a) => a.id === dbUser.id);
+            if (!isProjectAdmin) {
+                return NextResponse.json(
+                    { error: "Forbidden: You are not an admin of this project" },
+                    { status: 403 }
+                );
+            }
+        }
+
         const ticket = await prisma.ticket.create({
             data: {
                 title,
@@ -130,7 +154,10 @@ export async function POST(req: NextRequest) {
                 projectId,
                 status: (status as $Enums.TicketStatus) ?? "pending",
                 priority: (priority as $Enums.Priority) ?? "low",
+                type: (type as $Enums.TicketType) ?? "task",
                 ...(assignedUserId ? { assignedUserId } : {}),
+                ...(groupId && groupId !== "none" ? { groupId } : {}),
+                ...(dueDate ? { dueDate: new Date(dueDate) } : {}),
             },
         });
 
@@ -142,7 +169,7 @@ export async function POST(req: NextRequest) {
 }
 
 // ─── PATCH /api/tickets ────────────────────────────────────────────────────────
-// Update ticket status or priority.
+// Update ticket status, priority, or other metadata fields.
 export async function PATCH(req: NextRequest) {
     const user = await requireRole(["owner", "admin", "member"], req);
 
@@ -150,7 +177,19 @@ export async function PATCH(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { id, status, priority, reasonBlocked, reasonReopen } = body;
+        const {
+            id,
+            status,
+            priority,
+            reasonBlocked,
+            reasonReopen,
+            title,
+            description,
+            assignedUserId,
+            groupId,
+            dueDate,
+            type
+        } = body;
 
         if (!id) {
             return NextResponse.json(
@@ -159,9 +198,22 @@ export async function PATCH(req: NextRequest) {
             );
         }
 
-        if (status === undefined && priority === undefined) {
+        const isEditingMetadata = (
+            title !== undefined ||
+            description !== undefined ||
+            assignedUserId !== undefined ||
+            groupId !== undefined ||
+            dueDate !== undefined ||
+            type !== undefined
+        );
+
+        if (
+            status === undefined &&
+            priority === undefined &&
+            !isEditingMetadata
+        ) {
             return NextResponse.json(
-                { error: "Either status or priority is required" },
+                { error: "No fields to update provided" },
                 { status: 400 }
             );
         }
@@ -169,7 +221,7 @@ export async function PATCH(req: NextRequest) {
         // Fetch user's company info to check permissions.
         const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
-            select: { companyId: true },
+            select: { id: true, companyId: true, role: true },
         });
 
         if (!dbUser?.companyId) {
@@ -179,10 +231,17 @@ export async function PATCH(req: NextRequest) {
             );
         }
 
-        // Verify ticket belongs to user's company.
+        // Verify ticket belongs to user's company and include project details.
         const ticket = await prisma.ticket.findUnique({
             where: { id },
-            include: { project: true },
+            include: {
+                project: {
+                    include: {
+                        admins: { select: { id: true } },
+                        members: { select: { id: true } },
+                    }
+                }
+            },
         });
 
         if (!ticket || ticket.project.companyId !== dbUser.companyId) {
@@ -192,7 +251,47 @@ export async function PATCH(req: NextRequest) {
             );
         }
 
+        // Access Control for update:
+        // owner can update any ticket.
+        if (dbUser.role !== "owner") {
+            const isProjectAdmin = ticket.project.admins.some((a) => a.id === dbUser.id);
+            if (isEditingMetadata) {
+                // Only project admins or owners can edit ticket details (metadata)
+                if (!isProjectAdmin) {
+                    return NextResponse.json(
+                        { error: "Forbidden: Only project admins or owners can edit ticket details" },
+                        { status: 403 }
+                    );
+                }
+            } else {
+                // Changing only status or priority
+                const isProjectMember = ticket.project.members.some((m) => m.id === dbUser.id);
+                const isAssignee = ticket.assignedUserId === dbUser.id;
+                if (!isProjectAdmin && !isProjectMember && !isAssignee) {
+                    return NextResponse.json(
+                        { error: "Forbidden: You do not have permission to update this ticket" },
+                        { status: 403 }
+                    );
+                }
+            }
+        }
+
         const updateData: any = {};
+        if (title !== undefined) updateData.title = title;
+        if (description !== undefined) updateData.description = description;
+        if (assignedUserId !== undefined) {
+            updateData.assignedUserId = assignedUserId === "unassigned" ? null : assignedUserId;
+        }
+        if (groupId !== undefined) {
+            updateData.groupId = groupId === "none" ? null : groupId;
+        }
+        if (dueDate !== undefined) {
+            updateData.dueDate = dueDate ? new Date(dueDate) : null;
+        }
+        if (type !== undefined) {
+            updateData.type = type as $Enums.TicketType;
+        }
+
         if (status !== undefined) {
             updateData.status = status as $Enums.TicketStatus;
             if (status === "blocked") {
@@ -217,5 +316,77 @@ export async function PATCH(req: NextRequest) {
     } catch (error) {
         console.error(error);
         return NextResponse.json({ error: "Failed to update ticket" }, { status: 500 });
+    }
+}
+
+// ─── DELETE /api/tickets ──────────────────────────────────────────────────────
+export async function DELETE(req: NextRequest) {
+    const user = await requireRole(["owner", "admin", "member"], req);
+    if (user instanceof NextResponse) return user;
+
+    try {
+        const { searchParams } = new URL(req.url);
+        const id = searchParams.get("id");
+
+        if (!id) {
+            return NextResponse.json({ error: "id is required" }, { status: 400 });
+        }
+
+        const dbUser = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { id: true, role: true, companyId: true },
+        });
+
+        if (!dbUser?.companyId) {
+            return NextResponse.json(
+                { error: "User is not associated with a company" },
+                { status: 403 }
+            );
+        }
+
+        const ticket = await prisma.ticket.findUnique({
+            where: { id },
+            include: {
+                project: {
+                    include: {
+                        admins: { select: { id: true } },
+                    },
+                },
+            },
+        });
+
+        if (!ticket || ticket.project.companyId !== dbUser.companyId) {
+            return NextResponse.json(
+                { error: "Ticket not found or unauthorized" },
+                { status: 404 }
+            );
+        }
+
+        // Access Control:
+        // owner can delete any ticket.
+        // admin and members can delete only if they are a project admin of this project.
+        if (dbUser.role !== "owner") {
+            const isProjectAdmin = ticket.project.admins.some((a) => a.id === dbUser.id);
+            if (!isProjectAdmin) {
+                return NextResponse.json(
+                    { error: "Forbidden: You are not an admin of this project" },
+                    { status: 403 }
+                );
+            }
+        }
+
+        // Soft delete the ticket
+        const deletedTicket = await prisma.ticket.update({
+            where: { id },
+            data: {
+                isDeleted: true,
+                deletedAt: new Date(),
+            },
+        });
+
+        return NextResponse.json({ success: true, ticket: deletedTicket });
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json({ error: "Failed to delete ticket" }, { status: 500 });
     }
 }
