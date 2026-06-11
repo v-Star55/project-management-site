@@ -1,0 +1,254 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  owner
+  admin
+  member
+  client
+}
+
+enum CompanyStatus {
+  active
+  inactive
+}
+
+enum ProjectStatus {
+  pending
+  in_progress
+  completed
+}
+
+enum TicketStatus {
+  pending
+  in_progress
+  completed
+  reopen
+  in_review
+  blocked
+}
+
+enum Priority {
+  high
+  medium
+  low
+}
+
+enum CalendarEventType {
+  meeting
+  reminder
+  sprint
+  call
+  task
+  other
+}
+
+model Company {
+  id          String        @id @default(cuid())
+  name        String
+  description String
+  status      CompanyStatus @default(active)
+  imageUrl    String
+  projects    Project[]
+  user        user[]
+  notes       Note[]
+}
+
+model user {
+  id          String    @id @default(cuid())
+  name        String
+  email       String    @unique
+  password    String
+  role        Role      @default(member)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  imageUrl    String?
+  isActive    Boolean   @default(true)
+  lastActive  DateTime?
+  designation String?
+
+  //auth
+  forgotPasswordToken       String?
+  forgotPasswordTokenExpiry DateTime?
+  isVerified                Boolean   @default(false)
+  verifyToken               String?
+  verifyTokenExpiry         DateTime?
+
+  //relationships
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id])
+
+  timeLogs timeLog[]
+
+  projects Project[]
+
+  messages Message[]
+
+  assignedTickets Ticket[] @relation("assignedTickets")
+
+  notes Note[]
+
+  calendarEvents CalendarEvent[] @relation("CalendarEventAssignees")
+}
+
+model Project {
+  id            String        @id @default(cuid())
+  title         String
+  description   String?
+  status        ProjectStatus @default(pending)
+  imageUrl      String?
+  isActive      Boolean       @default(true)
+  completedDate DateTime?
+  startDate     DateTime?
+
+  members user[]
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  messages Message[]
+
+  timeLogs timeLog[]
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  tickets        Ticket[]
+  calendarEvents CalendarEvent[]
+}
+
+model Ticket {
+  id            String       @id @default(cuid())
+  title         String
+  description   String
+  status        TicketStatus @default(pending)
+  priority      Priority     @default(low)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  dueDate       DateTime?
+  isCompleted   Boolean      @default(false)
+  completedAt   DateTime?
+  isDeleted     Boolean      @default(false)
+  deletedAt     DateTime?
+  reasonBlocked String?
+  reasonReopen  String?
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
+
+  assignedUserId String?
+  assignedUser   user?   @relation("assignedTickets", fields: [assignedUserId], references: [id])
+
+  timeLogs timeLog[]
+
+  attachments TicketAttachment[]
+
+  messages Message[]
+}
+
+model TicketAttachment {
+  id        String   @id @default(cuid())
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ticketId  String
+  fileName  String
+  fileUrl   String
+  createdAt DateTime @default(now())
+
+  @@index([ticketId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  text      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isRead    Boolean  @default(false)
+  isStarred Boolean  @default(false)
+  isDeleted Boolean  @default(false)
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
+
+  userId String
+  user   user   @relation(fields: [userId], references: [id])
+
+  ticketId String?
+  ticket   Ticket? @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+}
+
+model timeLog {
+  id String @id @default(cuid())
+
+  startTime DateTime  @default(now())
+  endTime   DateTime?
+  duration  Int?
+
+  description String?
+
+  userId String
+  user   user   @relation(fields: [userId], references: [id])
+
+  ticketId String?
+  ticket   Ticket? @relation(fields: [ticketId], references: [id])
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([ticketId])
+  @@index([projectId])
+  @@index([userId, startTime])
+}
+
+model Note {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId    String
+  user      user    @relation(fields: [userId], references: [id])
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  @@index([userId])
+}
+
+model CalendarEvent {
+  id          String            @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  startTime   String
+  endTime     String?
+  type        CalendarEventType
+  priority    Priority          @default(low)
+  status      String            @default("scheduled")
+  link        String?
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+
+  assignedTo user[] @relation("CalendarEventAssignees")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([date])
+}
