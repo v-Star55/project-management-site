@@ -85,6 +85,7 @@ export async function POST(req: NextRequest) {
                 ticketId,
                 fileName,
                 fileUrl,
+                uploadedById: user.id,
             },
         });
 

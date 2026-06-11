@@ -28,6 +28,7 @@ import ProjectTeam from "@/components/project/project-team"
 import ProjectDiscussions from "@/components/project/project-discussions"
 import EditProjectForm from "@/components/project/edit-project-form"
 import ProjectGroups from "@/components/project/project-groups"
+import ProjectFiles from "@/components/project/project-files"
 
 export default function ProjectDetailPage() {
   const params = useParams()
@@ -40,7 +41,7 @@ export default function ProjectDetailPage() {
   const userRole = user?.role || ""
 
   const [isEditing, setIsEditing] = useState(false)
-  const tabParam = searchParams?.get("tab") as "overview" | "groups" | "board" | "team" | "messages" | null
+  const tabParam = searchParams?.get("tab") as "overview" | "groups" | "board" | "team" | "messages" | "files" | null
   const activeTab = tabParam || "overview"
 
   // Fetch Project Details
@@ -168,6 +169,11 @@ export default function ProjectDetailPage() {
             /* Project Team tab */
             <div className="animate-in fade-in duration-200">
               <ProjectTeam projectData={projectData} userId={userId as string} />
+            </div>
+          ) : activeTab === "files" ? (
+            /* Files tab */
+            <div className="animate-in fade-in duration-200">
+              <ProjectFiles projectId={projectId as string} />
             </div>
           ) : (
             /* Discussions tab */

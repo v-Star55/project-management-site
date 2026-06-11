@@ -1,14 +1,42 @@
 "use client"
 
 import React, { useState } from "react"
-import { UsersIcon, UserPlusIcon, MailIcon, ShieldCheckIcon, MoreVerticalIcon, SearchIcon, FilterIcon, CrownIcon } from "lucide-react"
+import { UsersIcon, UserPlusIcon, MoreVerticalIcon, SearchIcon, FilterIcon } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
 import { Spinner } from "@/components/ui/spinner"
 import { useRouter } from "next/navigation"
-
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import InviteMemberForm from "@/components/dashboard/invite-member-form"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface TeamMember {
   id: string
@@ -19,17 +47,21 @@ interface TeamMember {
   lastActive: string
   initials: string
   projects?: { id: string; title: string }[]
+  designation?: string | null
+  createdAt?: string
+  imageUrl?: string | null
 }
-
 
 export default function TeamsView() {
   const router = useRouter()
   const [search, setSearch] = useState<string>("")
   const [selectedProjectId, setSelectedProjectId] = useState<string>("all")
+  const [isInviteOpen, setIsInviteOpen] = useState<boolean>(false)
+  
   const { user } = useSelector((state: RootState) => state.user)
   const companyId = user?.company?.id
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["teams", companyId],
     queryFn: async () => {
       if (!companyId) return { teams: [] }
@@ -49,7 +81,6 @@ export default function TeamsView() {
   })
 
   const projectsList = projectsData || []
-
   const teamList: TeamMember[] = (data?.teams || []).filter((member: TeamMember) => member.role !== "Client")
 
   const filteredTeam = teamList.filter(member => {
@@ -64,10 +95,6 @@ export default function TeamsView() {
 
     return matchesSearch && matchesProject
   })
-
-  const owners  = filteredTeam.filter(m => m.role === "Owner")
-  const admins  = filteredTeam.filter(m => m.role === "Admin")
-  const members = filteredTeam.filter(m => m.role === "Member")
 
   if (isLoading) {
     return (
@@ -107,87 +134,14 @@ export default function TeamsView() {
     }
   }
 
-  const canViewProfile = (memberId: string) =>
-    user?.role === "owner" || user?.role === "admin" || memberId === user?.id
-
-  /** Shared member card — size variant controls scale for the owner tier */
-  const MemberCard = ({ member, size = "normal" }: { member: TeamMember; size?: "large" | "normal" }) => (
-    <div
-      id={member.id}
-      className={`group bg-card border border-border/60 rounded-2xl shadow-xs hover:shadow-lg hover:-translate-y-0.5 hover:border-primary/30 transition-all duration-300 flex flex-col justify-between gap-4 ${
-        size === "large" ? "p-6" : "p-5"
-      }`}
-    >
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className={`rounded-full bg-stone-200 dark:bg-stone-800 flex items-center justify-center font-bold text-stone-700 dark:text-stone-300 border border-border/40 ${size === "large" ? "size-14 text-base" : "size-10 text-xs"}`}>
-              {member.initials}
-            </div>
-            <span className={`absolute bottom-0 right-0 rounded-full border-2 border-card ${getStatusColor(member.status)} ${size === "large" ? "size-3.5" : "size-2.5"}`} />
-          </div>
-          <div>
-            <h3 className={`font-bold text-foreground group-hover:text-primary transition-colors duration-200 ${size === "large" ? "text-base" : "text-sm"}`}>
-              {member.name}
-            </h3>
-            <span className="text-xs text-muted-foreground">{member.lastActive}</span>
-          </div>
-        </div>
-        <button className="p-1 rounded-lg text-muted-foreground hover:bg-muted transition-colors">
-          <MoreVerticalIcon className="size-4" />
-        </button>
-      </div>
-
-      {/* Info */}
-      <div className="space-y-2 text-xs border-t border-border/40 pt-3">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <MailIcon className="size-3.5 shrink-0" />
-          <span className="text-foreground/80 truncate">{member.email}</span>
-        </div>
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <ShieldCheckIcon className="size-3.5 shrink-0" />
-          <span className={`px-2 py-0.5 text-[10px] font-bold rounded-md border ${getRoleBadge(member.role)}`}>
-            {member.role}
-          </span>
-        </div>
-        {member.projects && member.projects.length > 0 && (
-          <div className="flex flex-wrap gap-1 pt-0.5">
-            {member.projects.map(proj => (
-              <span
-                key={proj.id}
-                title={proj.title}
-                className="text-[9px] px-1.5 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 border border-border/40 truncate max-w-[110px]"
-              >
-                {proj.title}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Actions */}
-      <div className="flex items-center gap-2">
-        {canViewProfile(member.id) ? (
-          <>
-            <button
-              onClick={() => router.push(`/dashboard/${member.id}/profile`)}
-              className="flex-1 py-1.5 border border-border bg-transparent hover:bg-muted text-foreground/90 font-medium text-xs rounded-lg transition-colors cursor-pointer text-center"
-            >
-              View Profile
-            </button>
-            <button className="flex-1 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary font-semibold text-xs rounded-lg transition-colors cursor-pointer text-center">
-              Message
-            </button>
-          </>
-        ) : (
-          <button className="w-full py-1.5 bg-primary/10 hover:bg-primary/20 text-primary font-semibold text-xs rounded-lg transition-colors cursor-pointer text-center">
-            Message
-          </button>
-        )}
-      </div>
-    </div>
-  )
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return "—"
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })
+  }
 
   const hasResults = filteredTeam.length > 0
 
@@ -201,7 +155,10 @@ export default function TeamsView() {
           <p className="text-sm text-muted-foreground mt-1">Manage, add, and review roles of members in your workspace.</p>
         </div>
         {(user?.role === "owner" || user?.role === "admin") && (
-          <button className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/95 font-medium rounded-xl shadow-sm hover:shadow transition-all duration-200 cursor-pointer">
+          <button 
+            onClick={() => setIsInviteOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/95 font-medium rounded-xl shadow-sm hover:shadow transition-all duration-200 cursor-pointer"
+          >
             <UserPlusIcon className="size-4" />
             Invite Member
           </button>
@@ -236,133 +193,123 @@ export default function TeamsView() {
             className="w-full pl-9 pr-4 py-2 bg-muted/50 rounded-xl border border-border/40 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 text-sm outline-none transition-all"
           />
         </div>
-        <div className="relative w-full sm:w-52">
-          <select
+        <div className="w-full sm:w-52">
+          <Select
             value={selectedProjectId}
-            onChange={e => setSelectedProjectId(e.target.value)}
-            className="w-full pl-3 pr-8 py-2 bg-muted/50 rounded-xl border border-border/40 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 text-sm outline-none appearance-none cursor-pointer text-foreground transition-all"
+            onValueChange={setSelectedProjectId}
           >
-            <option value="all" className="bg-background">All Projects</option>
-            {projectsList.map((project: any) => (
-              <option key={project.id} value={project.id} className="bg-background">{project.title}</option>
-            ))}
-          </select>
-          <FilterIcon className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+            <SelectTrigger className="w-full bg-muted/50 rounded-xl border border-border/40 text-sm cursor-pointer text-foreground py-2 h-9 flex items-center justify-between">
+              <SelectValue placeholder="All Projects" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl border border-border bg-popover text-popover-foreground">
+              <SelectItem value="all">All Projects</SelectItem>
+              {projectsList.map((project: { id: string; title: string }) => (
+                <SelectItem key={project.id} value={project.id}>
+                  {project.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      {/* ─── Hierarchy Tree ─── */}
+      {/* Team Table */}
       {hasResults ? (
-        <div className="flex flex-col items-center gap-0">
-
-          {/* ── Level 1: Owner ── */}
-          {owners.length > 0 && (
-            <div className="w-full flex flex-col items-center">
-              {/* Label */}
-              <div className="flex items-center gap-2 mb-3">
-                <CrownIcon className="size-3.5 text-purple-400" />
-                <span className="text-[11px] font-bold uppercase tracking-widest text-purple-400">Owner</span>
-              </div>
-
-              {/* Owner card(s) — centered, capped width */}
-              <div className="flex gap-4 justify-center flex-wrap">
-                {owners.map(m => (
-                  <div key={m.id} className="w-full max-w-sm">
-                    <div className="ring-1 ring-purple-500/30 rounded-2xl shadow-lg shadow-purple-500/5">
-                      <MemberCard member={m} size="large" />
+        <div className="bg-card border border-border/60 rounded-2xl overflow-hidden shadow-xs">
+          <Table>
+            <TableHeader className="bg-muted/30">
+              <TableRow className="border-border/60 hover:bg-transparent">
+                <TableHead className="font-semibold text-muted-foreground py-3.5 pl-6">Basic Detail</TableHead>
+                <TableHead className="font-semibold text-muted-foreground py-3.5">Role</TableHead>
+                <TableHead className="font-semibold text-muted-foreground py-3.5">Designation</TableHead>
+                <TableHead className="font-semibold text-muted-foreground py-3.5">Projects</TableHead>
+                <TableHead className="font-semibold text-muted-foreground py-3.5">Joined Date</TableHead>
+                <TableHead className="w-[50px] py-3.5 pr-6"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredTeam.map((member) => (
+                <TableRow
+                  key={member.id}
+                  onClick={() => router.push(`/dashboard/${member.id}/profile`)}
+                  className="border-border/40 hover:bg-muted/15 cursor-pointer transition-colors duration-200"
+                >
+                  <TableCell className="py-4 pl-6">
+                     <div className="flex items-center gap-3">
+                       <div className="relative shrink-0">
+                         <Avatar className="size-10 border border-border/40">
+                           <AvatarImage src={member.imageUrl || "https://github.com/shadcn.png"} alt={member.name} />
+                           <AvatarFallback className="font-bold text-stone-700 dark:text-stone-300 text-xs bg-stone-200 dark:bg-stone-800 rounded-full flex items-center justify-center size-full">
+                             {member.initials}
+                           </AvatarFallback>
+                         </Avatar>
+                         <span className={`absolute bottom-0 right-0 rounded-full border-2 border-card size-2.5 ${getStatusColor(member.status)}`} />
+                       </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-bold text-sm text-foreground hover:text-primary transition-colors truncate">
+                          {member.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground truncate">{member.email}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Connector down */}
-              {(admins.length > 0 || members.length > 0) && (
-                <div className="flex flex-col items-center mt-1">
-                  <div className="w-px h-8 bg-border/60" />
-                  <div className="w-2 h-2 rounded-full bg-border/80" />
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ── Level 2: Admins ── */}
-          {admins.length > 0 && (
-            <div className="w-full flex flex-col items-center">
-              {/* Label */}
-              <div className="flex items-center gap-2 mt-2 mb-3">
-                <ShieldCheckIcon className="size-3.5 text-rose-400" />
-                <span className="text-[11px] font-bold uppercase tracking-widest text-rose-400">Admins</span>
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/30">
-                  {admins.length}
-                </span>
-              </div>
-
-              {/* Horizontal spread line if multiple admins */}
-              {admins.length > 1 && (
-                <div className="relative flex justify-center w-full mb-3">
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-px bg-border/60" />
-                  <div className="flex justify-around w-2/3">
-                    {admins.map(m => (
-                      <div key={m.id} className="w-px h-4 bg-border/60" />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className={`w-full grid gap-4 ${
-                admins.length === 1 ? "max-w-sm mx-auto" :
-                admins.length === 2 ? "grid-cols-2 max-w-2xl mx-auto" :
-                "grid-cols-2 lg:grid-cols-3"
-              }`}>
-                {admins.map(m => (
-                  <div key={m.id} className="ring-1 ring-rose-500/20 rounded-2xl shadow-md shadow-rose-500/5">
-                    <MemberCard member={m} />
-                  </div>
-                ))}
-              </div>
-
-              {/* Connector down */}
-              {members.length > 0 && (
-                <div className="flex flex-col items-center mt-1">
-                  <div className="w-px h-8 bg-border/60" />
-                  <div className="w-2 h-2 rounded-full bg-border/80" />
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ── Level 3: Members ── */}
-          {members.length > 0 && (
-            <div className="w-full flex flex-col items-center">
-              {/* Label */}
-              <div className="flex items-center gap-2 mt-2 mb-3">
-                <UsersIcon className="size-3.5 text-primary" />
-                <span className="text-[11px] font-bold uppercase tracking-widest text-primary">Members</span>
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/30">
-                  {members.length}
-                </span>
-              </div>
-
-              {/* Spread line */}
-              {members.length > 1 && (
-                <div className="relative flex justify-center w-full mb-3">
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-border/60" />
-                  <div className="flex justify-around w-full">
-                    {members.map(m => (
-                      <div key={m.id} className="w-px h-4 bg-border/60" />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="w-full grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {members.map(m => (
-                  <MemberCard key={m.id} member={m} />
-                ))}
-              </div>
-            </div>
-          )}
-
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded-md border ${getRoleBadge(member.role)}`}>
+                      {member.role}
+                    </span>
+                  </TableCell>
+                  <TableCell className="py-4 text-xs font-medium text-foreground/80">
+                    {member.designation || <span className="text-muted-foreground/60">—</span>}
+                  </TableCell>
+                  <TableCell className="py-4">
+                    {member.projects && member.projects.length > 0 ? (
+                      <div className="flex flex-wrap gap-1 items-center max-w-[200px]">
+                        {member.projects.slice(0, 2).map((proj) => (
+                          <span
+                            key={proj.id}
+                            title={proj.title}
+                            className="text-[9px] px-1.5 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 border border-border/40 truncate max-w-[100px]"
+                          >
+                            {proj.title}
+                          </span>
+                        ))}
+                        {member.projects.length > 2 && (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 font-semibold">
+                            +{member.projects.length - 2} more
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-muted-foreground/60 italic">No projects</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="py-4 text-xs text-muted-foreground">
+                    {formatDate(member.createdAt)}
+                  </TableCell>
+                  <TableCell className="py-4 pr-6 text-right" onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="p-1 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer">
+                          <MoreVerticalIcon className="size-4" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-40">
+                        <DropdownMenuItem onClick={() => router.push(`/dashboard/${member.id}/profile`)}>
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push(`/dashboard/${member.id}/profile`)}>
+                          View Full Profile
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          Message
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       ) : (
         <div className="py-16 flex flex-col items-center justify-center bg-card/40 rounded-2xl border border-dashed border-border/80 text-center">
@@ -371,6 +318,24 @@ export default function TeamsView() {
           <p className="text-sm text-muted-foreground mt-1">No team members match your search or filter.</p>
         </div>
       )}
+
+      {/* Side Details Drawer (Sheet) */}
+      <Sheet open={isInviteOpen} onOpenChange={setIsInviteOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md p-6 overflow-y-auto flex flex-col gap-6">
+          <SheetHeader className="pb-4 border-b border-border/40">
+            <SheetTitle className="text-xl font-bold text-foreground">Invite New Team Member</SheetTitle>
+          </SheetHeader>
+          {companyId && (
+            <InviteMemberForm
+              companyId={companyId}
+              onSuccess={() => {
+                setIsInviteOpen(false)
+                refetch()
+              }}
+            />
+          )}
+        </SheetContent>
+      </Sheet>
 
     </div>
   )

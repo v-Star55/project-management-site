@@ -55,31 +55,40 @@ export async function GET(
             return NextResponse.json({ error: "Forbidden: you can only view your own profile" }, { status: 403 });
         }
 
-        // Fetch all active projects where this target user is a member
-        const allActiveProjects = await prisma.project.findMany({
+        // Fetch all projects where the target user is a member
+        const allProjects = await prisma.project.findMany({
             where: {
                 members: {
                     some: { id },
                 },
-                isActive: true,
             },
             orderBy: { updatedAt: "desc" },
             include: {
                 tickets: {
-                    where: { isDeleted: false },
+                    where: { isDeleted: false, assignedUserId: id },
                     include: {
                         assignedUser: {
                             select: { id: true, name: true, email: true, imageUrl: true },
                         },
+                        group: true,
                     },
+                },
+                groups: {
+                    where: { isActive: true },
+                },
+                admins: {
+                    select: { id: true, name: true, email: true, imageUrl: true, role: true },
+                },
+                members: {
+                    select: { id: true, name: true, email: true, imageUrl: true, role: true },
                 },
             },
         });
 
-        // Identify current project: prioritise in_progress, fallback to first active project
-        const currentProject = allActiveProjects.find(p => p.status === "in_progress") || allActiveProjects[0] || null;
+        // Identify current project: prioritise active in_progress, fallback to first active project
+        const currentProject = allProjects.find(p => p.status === "in_progress" && p.isActive) || allProjects.find(p => p.isActive) || allProjects[0] || null;
 
-        // Fetch previous projects names/statuses (completed, inactive, or not the current project)
+        // Fetch previous projects names/statuses (strictly completed or inactive)
         const previousProjects = await prisma.project.findMany({
             where: {
                 members: {
@@ -88,7 +97,6 @@ export async function GET(
                 OR: [
                     { status: "completed" },
                     { isActive: false },
-                    { id: { not: currentProject?.id || "" } },
                 ],
             },
             select: {
@@ -100,7 +108,7 @@ export async function GET(
                 isActive: true,
             },
             orderBy: { updatedAt: "desc" },
-        }).then(projects => projects.filter(p => p.id !== currentProject?.id));
+        });
 
         // Sum up total duration logged in minutes
         const totalLogMinutes = targetUser.timeLogs.reduce((sum, log) => sum + (log.duration || 0), 0);
@@ -109,10 +117,27 @@ export async function GET(
         const totalTasksCount = await prisma.ticket.count({
             where: { assignedUserId: id, isDeleted: false }
         });
-        const completedTasksCount = await prisma.ticket.count({
-            where: { assignedUserId: id, isDeleted: false, status: "completed" }
+        const userTickets = await prisma.ticket.findMany({
+            where: { assignedUserId: id, isDeleted: false },
+            select: { status: true }
         });
-        const pendingTasksCount = totalTasksCount - completedTasksCount;
+
+        let todoCount = 0;
+        let inProgressCount = 0;
+        let inReviewCount = 0;
+        let completedCount = 0;
+
+        userTickets.forEach(ticket => {
+            if (ticket.status === "pending" || ticket.status === "backlog") {
+                todoCount++;
+            } else if (ticket.status === "in_progress" || ticket.status === "reopen" || ticket.status === "blocked") {
+                inProgressCount++;
+            } else if (ticket.status === "in_review") {
+                inReviewCount++;
+            } else if (ticket.status === "completed") {
+                completedCount++;
+            }
+        });
 
         const basicInfo = {
             id: targetUser.id,
@@ -144,8 +169,44 @@ export async function GET(
                     priority: t.priority,
                     dueDate: t.dueDate,
                     assignedUser: t.assignedUser,
+                    type: t.type,
+                    groupId: t.groupId,
+                    groupName: t.group?.name || null,
                 })),
+                groups: currentProject.groups.map(g => ({
+                    id: g.id,
+                    name: g.name,
+                })),
+                admins: currentProject.admins,
+                members: currentProject.members,
             } : null,
+            projects: allProjects.map(p => ({
+                id: p.id,
+                title: p.title,
+                description: p.description,
+                status: p.status,
+                startDate: p.startDate,
+                completedDate: p.completedDate,
+                isActive: p.isActive,
+                tickets: p.tickets.map(t => ({
+                    id: t.id,
+                    title: t.title,
+                    description: t.description,
+                    status: t.status,
+                    priority: t.priority,
+                    dueDate: t.dueDate,
+                    assignedUser: t.assignedUser,
+                    type: t.type,
+                    groupId: t.groupId,
+                    groupName: t.group?.name || null,
+                })),
+                groups: p.groups.map(g => ({
+                    id: g.id,
+                    name: g.name,
+                })),
+                admins: p.admins,
+                members: p.members,
+            })),
             previousProjects,
             timeLogs: targetUser.timeLogs.map(log => ({
                 id: log.id,
@@ -165,8 +226,11 @@ export async function GET(
             totalLog: totalLogMinutes,
             ticketStats: {
                 total: totalTasksCount,
-                completed: completedTasksCount,
-                pending: pendingTasksCount,
+                completed: completedCount,
+                pending: totalTasksCount - completedCount,
+                todo: todoCount,
+                inProgress: inProgressCount,
+                inReview: inReviewCount,
             },
         });
 

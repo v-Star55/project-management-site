@@ -164,20 +164,14 @@ export default function TicketComments({ ticketId, currentUser }: TicketComments
               return (
                 <div key={msg.id} className={`flex gap-4 items-start ${index > 0 ? "pt-4" : ""}`}>
                   {/* Author Avatar */}
-                  {msg.user?.imageUrl ? (
-                    <Image
-                      src={msg.user.imageUrl}
-                      alt={msg.user.name}
-                      width={32}
-                      height={32}
-                      className="size-8 rounded-full object-cover border border-border shrink-0 mt-0.5"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="size-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-[10px] font-bold text-primary shrink-0 mt-0.5 select-none">
-                      {authorInitials}
-                    </div>
-                  )}
+                  <Image
+                    src={msg.user?.imageUrl || "https://github.com/shadcn.png"}
+                    alt={msg.user?.name || "User"}
+                    width={32}
+                    height={32}
+                    className="size-8 rounded-full object-cover border border-border shrink-0 mt-0.5"
+                    unoptimized
+                  />
 
                   {/* Comment Bubble Content */}
                   <div className="flex-1 min-w-0 flex flex-col">
@@ -300,20 +294,14 @@ export default function TicketComments({ ticketId, currentUser }: TicketComments
         {!isExpanded ? (
           <div className="flex gap-3 items-center">
             {/* User Avatar */}
-            {currentUser.imageUrl ? (
-              <Image
-                src={currentUser.imageUrl}
-                alt={currentUser.name}
-                width={32}
-                height={32}
-                className="size-8 rounded-full object-cover border border-border shrink-0"
-                unoptimized
-              />
-            ) : (
-              <div className="size-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-[10px] font-bold text-primary shrink-0 select-none">
-                {currentUserInitials}
-              </div>
-            )}
+            <Image
+              src={currentUser.imageUrl || "https://github.com/shadcn.png"}
+              alt={currentUser.name}
+              width={32}
+              height={32}
+              className="size-8 rounded-full object-cover border border-border shrink-0"
+              unoptimized
+            />
             {/* Collapsed Button Input */}
             <button
               type="button"
@@ -326,20 +314,14 @@ export default function TicketComments({ ticketId, currentUser }: TicketComments
         ) : (
           <form onSubmit={handleAddCommentSubmit} className="flex gap-3 items-start animate-in fade-in slide-in-from-bottom-2 duration-200">
             {/* User Avatar */}
-            {currentUser.imageUrl ? (
-              <Image
-                src={currentUser.imageUrl}
-                alt={currentUser.name}
-                width={32}
-                height={32}
-                className="size-8 rounded-full object-cover border border-border shrink-0 mt-0.5"
-                unoptimized
-              />
-            ) : (
-              <div className="size-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-[10px] font-bold text-primary shrink-0 mt-0.5 select-none">
-                {currentUserInitials}
-              </div>
-            )}
+            <Image
+              src={currentUser.imageUrl || "https://github.com/shadcn.png"}
+              alt={currentUser.name}
+              width={32}
+              height={32}
+              className="size-8 rounded-full object-cover border border-border shrink-0 mt-0.5"
+              unoptimized
+            />
             {/* Expanded Textarea Form */}
             <div className="flex-1 flex flex-col gap-2">
               <textarea

@@ -61,9 +61,7 @@ export function NavUser({
       .slice(0, 2);
   }
 
-  const defaultAvatar = user?.name
-    ? `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name)}&backgroundType=gradientLinear&fontSize=40`
-    : undefined;
+  const defaultAvatar = "https://github.com/shadcn.png";
 
   return (
     <SidebarMenu>

@@ -139,6 +139,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             board: "Board",
             team: "Team",
             messages: "Discussions",
+            files: "Files",
           }
           items.push({
             label: tabLabels[tab] || "Overview",

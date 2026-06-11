@@ -40,6 +40,7 @@ import {
   CheckSquareIcon,
   UsersIcon,
   MessageSquareIcon,
+  PaperclipIcon,
 } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -131,6 +132,12 @@ export function NavProjects({
                 url: `${item.url}?tab=messages`,
                 icon: <MessageSquareIcon className="size-4" />,
                 isActive: isProjectActive && activeTab === "messages",
+              },
+              {
+                title: "Files",
+                url: `${item.url}?tab=files`,
+                icon: <PaperclipIcon className="size-4" />,
+                isActive: isProjectActive && activeTab === "files",
               },
             ]
 

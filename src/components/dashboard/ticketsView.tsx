@@ -743,37 +743,25 @@ function DraggableTicketCard({ ticket, isOverlay = false, onClick }: DraggableTi
           {/* Assignee */}
           {ticket.assignedUser && (
             <div className="relative group/avatar cursor-pointer flex items-center">
-              {ticket.assignedUser.imageUrl ? (
-                <Image
-                  src={ticket.assignedUser.imageUrl}
-                  alt={ticket.assignedUser.name}
-                  width={20}
-                  height={20}
-                  className="size-5 rounded-full border border-card object-cover"
-                  unoptimized
-                />
-              ) : (
-                <div className="size-5 rounded-full bg-stone-200 dark:bg-stone-800 border border-card flex items-center justify-center text-[9px] font-bold text-stone-700 dark:text-stone-300">
-                  {getInitials(ticket.assignedUser.name)}
-                </div>
-              )}
+              <Image
+                src={ticket.assignedUser.imageUrl || "https://github.com/shadcn.png"}
+                alt={ticket.assignedUser.name}
+                width={20}
+                height={20}
+                className="size-5 rounded-full border border-card object-cover"
+                unoptimized
+              />
 
               {/* Hover Card */}
               <div className="absolute right-0 bottom-full mb-2 w-56 bg-card/95 backdrop-blur-md border border-border/80 p-3 rounded-xl shadow-xl opacity-0 scale-95 pointer-events-none group-hover/avatar:opacity-100 group-hover/avatar:scale-100 transition-all duration-200 ease-out z-50 flex items-center gap-3">
-                {ticket.assignedUser.imageUrl ? (
-                  <Image
-                    src={ticket.assignedUser.imageUrl}
-                    alt={ticket.assignedUser.name}
-                    width={36}
-                    height={36}
-                    className="size-9 rounded-full border border-border/50 object-cover shrink-0"
-                    unoptimized
-                  />
-                ) : (
-                  <div className="size-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-extrabold text-primary shrink-0">
-                    {getInitials(ticket.assignedUser.name)}
-                  </div>
-                )}
+                <Image
+                  src={ticket.assignedUser.imageUrl || "https://github.com/shadcn.png"}
+                  alt={ticket.assignedUser.name}
+                  width={36}
+                  height={36}
+                  className="size-9 rounded-full border border-border/50 object-cover shrink-0"
+                  unoptimized
+                />
                 <div className="flex flex-col min-w-0">
                   <span className="text-xs font-bold text-foreground truncate">
                     {ticket.assignedUser.name}

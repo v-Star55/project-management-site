@@ -549,20 +549,14 @@ export default function TicketDetail({
                   <div className="mb-5">
                     <p className="text-[9px] font-bold tracking-widest text-muted-foreground uppercase mb-2.5">Assigned To</p>
                     <div className="flex items-center gap-3 p-3 bg-card border border-border/50 rounded-2xl shadow-xs">
-                      {ticket.assignedUser.imageUrl ? (
-                        <Image
-                          src={ticket.assignedUser.imageUrl}
-                          alt={ticket.assignedUser.name}
-                          width={40}
-                          height={40}
-                          className="size-10 rounded-full border border-border object-cover shrink-0"
-                          unoptimized
-                        />
-                      ) : (
-                        <div className="size-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-sm font-extrabold text-primary shrink-0">
-                          {getInitials(ticket.assignedUser.name)}
-                        </div>
-                      )}
+                      <Image
+                        src={ticket.assignedUser.imageUrl || "https://github.com/shadcn.png"}
+                        alt={ticket.assignedUser.name}
+                        width={40}
+                        height={40}
+                        className="size-10 rounded-full border border-border object-cover shrink-0"
+                        unoptimized
+                      />
                       <div className="flex flex-col min-w-0">
                         <span className="text-sm font-bold text-foreground truncate">{ticket.assignedUser.name}</span>
                         <span className="text-[11px] text-muted-foreground truncate">{ticket.assignedUser.email}</span>

@@ -16,6 +16,7 @@ enum Role {
   owner
   admin
   member
+  manager
   qa
   client
 }
@@ -186,8 +187,9 @@ model user {
 
   calendarEvents CalendarEvent[] @relation("CalendarEventAssignees")
 
-  activityLogs       ActivityLog[]
-  targetActivityLogs ActivityLog[] @relation("ActivityTargetUser")
+  activityLogs        ActivityLog[]
+  targetActivityLogs  ActivityLog[]      @relation("ActivityTargetUser")
+  uploadedAttachments TicketAttachment[] @relation("UploadedAttachments")
 }
 
 model Project {
@@ -279,12 +281,14 @@ model Ticket {
 }
 
 model TicketAttachment {
-  id        String   @id @default(cuid())
-  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  ticketId  String
-  fileName  String
-  fileUrl   String
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  ticket       Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ticketId     String
+  fileName     String
+  fileUrl      String
+  createdAt    DateTime @default(now())
+  uploadedById String?
+  uploadedBy   user?    @relation("UploadedAttachments", fields: [uploadedById], references: [id], onDelete: SetNull)
 
   @@index([ticketId])
 }

@@ -16,6 +16,7 @@ enum Role {
   owner
   admin
   member
+  manager
   qa
   client
 }
@@ -65,8 +66,7 @@ enum CalendarEventType {
   other
 }
 
-
-enum ProjectPhase{
+enum ProjectPhase {
   idea
   discovery
   requirement_gathering
@@ -81,8 +81,7 @@ enum ProjectPhase{
   completed
 }
 
-
-enum ProjectCategory{
+enum ProjectCategory {
   software
   marketing
   design
@@ -90,7 +89,7 @@ enum ProjectCategory{
   other
 }
 
-enum ProjectGroupType{
+enum ProjectGroupType {
   sprint
   phase
   section
@@ -99,14 +98,12 @@ enum ProjectGroupType{
   custom
 }
 
-
-enum GroupStatus{
+enum GroupStatus {
   not_started
   in_progress
   completed
   cancelled
   on_hold
-
 }
 
 enum ActivityAction {
@@ -141,17 +138,15 @@ enum ActivityAction {
   ROLE_CHANGED
 }
 
-
-
 model Company {
-  id          String        @id @default(cuid())
-  name        String
-  description String
-  status      CompanyStatus @default(active)
-  imageUrl    String
-  projects    Project[]
-  user        user[]
-  notes       Note[]
+  id            String         @id @default(cuid())
+  name          String
+  description   String
+  status        CompanyStatus  @default(active)
+  imageUrl      String
+  projects      Project[]
+  user          user[]
+  notes         Note[]
   projectGroups ProjectGroup[]
 }
 
@@ -181,7 +176,7 @@ model user {
 
   timeLogs timeLog[]
 
-  projects Project[] @relation("ProjectMembers")
+  projects      Project[] @relation("ProjectMembers")
   adminProjects Project[] @relation("ProjectAdmins")
 
   messages Message[]
@@ -194,23 +189,24 @@ model user {
 
   activityLogs       ActivityLog[]
   targetActivityLogs ActivityLog[] @relation("ActivityTargetUser")
+  uploadedAttachments TicketAttachment[] @relation("UploadedAttachments")
 }
 
 model Project {
-  id            String        @id @default(cuid())
+  id            String          @id @default(cuid())
   title         String
   description   String?
-  status        ProjectStatus @default(pending)
+  status        ProjectStatus   @default(pending)
   imageUrl      String?
-  isActive      Boolean       @default(true)
+  isActive      Boolean         @default(true)
   completedDate DateTime?
   targetDate    DateTime?
   startDate     DateTime?
-  phase         ProjectPhase  @default(idea)
+  phase         ProjectPhase    @default(idea)
   category      ProjectCategory @default(software)
 
   members user[] @relation("ProjectMembers")
-  admins user[] @relation("ProjectAdmins")
+  admins  user[] @relation("ProjectAdmins")
 
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
@@ -227,22 +223,20 @@ model Project {
   calendarEvents CalendarEvent[]
 }
 
-
-model ProjectGroup{
-  id String @id @default(cuid())
-  name String
+model ProjectGroup {
+  id          String           @id @default(cuid())
+  name        String
   description String
-  goal String ?
-  type ProjectGroupType @default(sprint)
+  goal        String?
+  type        ProjectGroupType @default(sprint)
 
-  isActive Boolean @default(true)
+  isActive  Boolean     @default(true)
   startDate DateTime
-  endDate DateTime?
-  status GroupStatus @default(not_started)
+  endDate   DateTime?
+  status    GroupStatus @default(not_started)
 
-  
   tickets Ticket[]
-  
+
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
 
@@ -252,8 +246,6 @@ model ProjectGroup{
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
-
 
 model Ticket {
   id            String       @id @default(cuid())
@@ -289,12 +281,14 @@ model Ticket {
 }
 
 model TicketAttachment {
-  id        String   @id @default(cuid())
-  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  ticketId  String
-  fileName  String
-  fileUrl   String
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  ticket       Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ticketId     String
+  fileName     String
+  fileUrl      String
+  createdAt    DateTime @default(now())
+  uploadedById String?
+  uploadedBy   user?    @relation("UploadedAttachments", fields: [uploadedById], references: [id], onDelete: SetNull)
 
   @@index([ticketId])
 }
@@ -385,28 +379,26 @@ model CalendarEvent {
   @@index([date])
 }
 
-
-
 model ActivityLog {
-  id            String @id @default(cuid())
+  id String @id @default(cuid())
 
-  action        ActivityAction
+  action ActivityAction
 
-  description   String?
+  description String?
 
-  metadata      Json?
+  metadata Json?
 
-  userId        String
-  user          user @relation(fields: [userId], references: [id])
+  userId String
+  user   user   @relation(fields: [userId], references: [id])
 
-  targetUserId  String?
-  targetUser    user? @relation("ActivityTargetUser", fields: [targetUserId], references: [id])
+  targetUserId String?
+  targetUser   user?   @relation("ActivityTargetUser", fields: [targetUserId], references: [id])
 
-  projectId     String?
-  ticketId      String?
-  groupId       String?
+  projectId String?
+  ticketId  String?
+  groupId   String?
 
-  createdAt     DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([projectId])
   @@index([ticketId])

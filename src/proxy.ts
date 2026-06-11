@@ -39,7 +39,7 @@ export async function proxy(request: NextRequest) {
         }
 
         if (isPublicPath) {
-            return NextResponse.redirect(new URL(`/profile/${payload.id}`, request.url));
+            return NextResponse.redirect(new URL(`/dashboard/${payload.id}`, request.url));
         }
 
 

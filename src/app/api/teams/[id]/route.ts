@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/helpers/permission";
+import bcryptjs from "bcryptjs";
+
 
 export async function GET(
     req: NextRequest,
@@ -63,6 +65,8 @@ export async function GET(
                 email: true,
                 role: true,
                 lastActive: true,
+                designation: true,
+                createdAt: true,
                 projects: {
                     select: {
                         id: true,
@@ -113,6 +117,8 @@ export async function GET(
                 lastActive: lastActiveStr,
                 initials,
                 projects: u.projects,
+                designation: u.designation,
+                createdAt: u.createdAt,
             };
         });
 
@@ -122,3 +128,94 @@ export async function GET(
         return NextResponse.json({ message: "Failed to fetch teams" }, { status: 500 });
     }
 }
+
+export async function POST(
+    req: NextRequest,
+    { params }: { params: Promise<{ id?: string }> }
+) {
+    try {
+        const user = await requireRole(["owner", "admin"], req);
+        if (user instanceof NextResponse) return user;
+
+        const { id: workspaceId } = await params;
+        if (!workspaceId) {
+            return NextResponse.json({ error: "Workspace ID is missing" }, { status: 400 });
+        }
+
+        // Verify that the current user belongs to this company and is owner/admin
+        const dbUser = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { id: true, companyId: true, role: true },
+        });
+
+        if (!dbUser || dbUser.companyId !== workspaceId) {
+            return NextResponse.json({ error: "Forbidden: unauthorized company access" }, { status: 403 });
+        }
+
+        if (dbUser.role !== "owner" && dbUser.role !== "admin") {
+            return NextResponse.json({ error: "Forbidden: only owners and admins can invite members" }, { status: 403 });
+        }
+
+        const reqBody = await req.json();
+        const { name, email, password, role, designation } = reqBody;
+
+        if (!name || !email || !password || !role) {
+            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+        }
+
+        // Validate role is lowercase matching Role enum
+        const validRoles = ["owner", "admin", "member", "manager", "qa", "client"];
+        const lowerRole = role.toLowerCase();
+        if (!validRoles.includes(lowerRole)) {
+            return NextResponse.json({ error: `Invalid role: ${role}` }, { status: 400 });
+        }
+
+        // Check if user already exists
+        const existingUser = await prisma.user.findUnique({
+            where: { email },
+        });
+
+        if (existingUser) {
+            // If the user already belongs to a company, don't allow re-assigning
+            if (existingUser.companyId) {
+                if (existingUser.companyId === workspaceId) {
+                    return NextResponse.json({ error: "User is already a member of this company" }, { status: 400 });
+                } else {
+                    return NextResponse.json({ error: "User is already associated with another company" }, { status: 400 });
+                }
+            }
+
+            // If user has no company associated, we associate them
+            const updatedUser = await prisma.user.update({
+                where: { email },
+                data: {
+                    companyId: workspaceId,
+                    role: lowerRole as any,
+                    designation: designation || existingUser.designation,
+                },
+            });
+            return NextResponse.json({ message: "Existing user associated with company successfully", user: updatedUser }, { status: 200 });
+        }
+
+        // Create new user
+        const salt = await bcryptjs.genSalt(10);
+        const hashedPassword = await bcryptjs.hash(password, salt);
+
+        const newUser = await prisma.user.create({
+            data: {
+                name,
+                email,
+                password: hashedPassword,
+                role: lowerRole as any,
+                designation: designation || null,
+                companyId: workspaceId,
+            },
+        });
+
+        return NextResponse.json({ message: "Team member invited successfully", user: newUser }, { status: 201 });
+
+    } catch (error: any) {
+        console.error("Error creating team member:", error);
+        return NextResponse.json({ error: error.message || "Failed to create team member" }, { status: 500 });
+    }
+}

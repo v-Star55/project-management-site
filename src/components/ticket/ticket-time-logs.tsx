@@ -358,20 +358,14 @@ export default function TicketTimeLogs({ ticket }: TicketTimeLogsProps) {
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  {log.user.imageUrl ? (
                     <Image
-                      src={log.user.imageUrl}
+                      src={log.user.imageUrl || "https://github.com/shadcn.png"}
                       alt={log.user.name}
                       width={28}
                       height={28}
                       className="size-7 rounded-full object-cover border border-border"
                       unoptimized
                     />
-                  ) : (
-                    <div className="size-7 rounded-full bg-primary/10 border border-primary/25 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">
-                      {getInitials(log.user.name)}
-                    </div>
-                  )}
                   <div className="flex flex-col min-w-0">
                     <span className="text-xs font-bold text-foreground truncate">
                       {log.user.name}

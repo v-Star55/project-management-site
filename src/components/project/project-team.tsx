@@ -35,20 +35,14 @@ export default function ProjectTeam({ projectData, userId }: ProjectTeamProps) {
                 className="bg-card border border-border/65 hover:border-primary/45 p-5 hover:bg-muted/15 rounded-2xl transition-all hover:shadow-xs cursor-pointer group flex flex-col items-center text-center gap-3.5 relative"
                 onClick={() => router.push(`/dashboard/${userId}/profile?targetUserId=${member.id}`)}
               >
-                {member.imageUrl ? (
-                  <Image 
-                    src={member.imageUrl}
-                    alt={member.name}
-                    width={64}
-                    height={64}
-                    className="size-16 rounded-full object-cover border-2 border-primary/30 group-hover:border-primary/50 transition-colors duration-200 shadow-2xs"
-                    unoptimized
-                  />
-                ) : (
-                  <div className="size-16 rounded-full bg-primary/5 dark:bg-primary/10 flex items-center justify-center text-lg font-bold text-primary border-2 border-primary/20 group-hover:border-primary/50 transition-colors duration-200 shadow-2xs">
-                    {getInitials(member.name)}
-                  </div>
-                )}
+                <Image 
+                  src={member.imageUrl || "https://github.com/shadcn.png"}
+                  alt={member.name}
+                  width={64}
+                  height={64}
+                  className="size-16 rounded-full object-cover border-2 border-primary/30 group-hover:border-primary/50 transition-colors duration-200 shadow-2xs"
+                  unoptimized
+                />
                 
                 <div className="flex flex-col min-w-0 items-center">
                   <span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate w-full max-w-[200px]">
@@ -89,20 +83,14 @@ export default function ProjectTeam({ projectData, userId }: ProjectTeamProps) {
                 className="bg-card border border-border/60 hover:border-primary/30 p-5 hover:bg-muted/15 rounded-2xl transition-all hover:shadow-xs cursor-pointer group flex flex-col items-center text-center gap-3.5 relative"
                 onClick={() => router.push(`/dashboard/${userId}/profile?targetUserId=${member.id}`)}
               >
-                {member.imageUrl ? (
-                  <Image 
-                    src={member.imageUrl}
-                    alt={member.name}
-                    width={64}
-                    height={64}
-                    className="size-16 rounded-full object-cover border-2 border-border group-hover:border-primary/50 transition-colors duration-200 shadow-2xs"
-                    unoptimized
-                  />
-                ) : (
-                  <div className="size-16 rounded-full bg-stone-200 dark:bg-stone-800 flex items-center justify-center text-lg font-bold text-stone-700 dark:text-stone-300 border-2 border-border group-hover:border-primary/50 transition-colors duration-200 shadow-2xs">
-                    {getInitials(member.name)}
-                  </div>
-                )}
+                <Image 
+                  src={member.imageUrl || "https://github.com/shadcn.png"}
+                  alt={member.name}
+                  width={64}
+                  height={64}
+                  className="size-16 rounded-full object-cover border-2 border-border group-hover:border-primary/50 transition-colors duration-200 shadow-2xs"
+                  unoptimized
+                />
                 
                 <div className="flex flex-col min-w-0 items-center">
                   <span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate w-full max-w-[200px]">

@@ -569,7 +569,7 @@ export default function SprintDetail({ projectId, groupId, userRole, onBack }: S
                               {ticket.assignedUser ? (
                                 <div className="flex items-center gap-2">
                                   <Avatar className="size-6 border">
-                                    <AvatarImage src={ticket.assignedUser.imageUrl} />
+                                    <AvatarImage src={ticket.assignedUser.imageUrl || "https://github.com/shadcn.png"} />
                                     <AvatarFallback className="text-[9px] font-bold">{ticket.assignedUser.name.slice(0,2).toUpperCase()}</AvatarFallback>
                                   </Avatar>
                                   <span className="text-xs font-medium text-foreground">{ticket.assignedUser.name}</span>
@@ -679,7 +679,7 @@ export default function SprintDetail({ projectId, groupId, userRole, onBack }: S
                   allActivityLogs.map((log: any, index: number) => (
                     <div key={log.id} className="flex gap-3 relative group">
                       <Avatar className="size-8 border border-border bg-background z-10 relative mt-0.5 shrink-0">
-                        <AvatarImage src={log.user.imageUrl} />
+                        <AvatarImage src={log.user.imageUrl || "https://github.com/shadcn.png"} />
                         <AvatarFallback className="text-[10px] font-bold">{log.user.name.slice(0,2).toUpperCase()}</AvatarFallback>
                       </Avatar>
                       
@@ -768,7 +768,7 @@ export default function SprintDetail({ projectId, groupId, userRole, onBack }: S
             {projectMembers?.slice(0, 4).map((member: any) => (
               <div key={member.id} className="flex items-center gap-2.5">
                 <Avatar className="size-8 border border-border">
-                  <AvatarImage src={member.imageUrl} />
+                  <AvatarImage src={member.imageUrl || "https://github.com/shadcn.png"} />
                   <AvatarFallback className="text-[10px] font-bold">{member.name.slice(0,2).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col min-w-0">

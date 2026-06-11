@@ -207,7 +207,8 @@ exports.Prisma.TicketAttachmentScalarFieldEnum = {
   ticketId: 'ticketId',
   fileName: 'fileName',
   fileUrl: 'fileUrl',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  uploadedById: 'uploadedById'
 };
 
 exports.Prisma.MessageScalarFieldEnum = {
@@ -310,6 +311,7 @@ exports.Role = exports.$Enums.Role = {
   owner: 'owner',
   admin: 'admin',
   member: 'member',
+  manager: 'manager',
   qa: 'qa',
   client: 'client'
 };

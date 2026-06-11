@@ -77,6 +77,7 @@ export namespace $Enums {
   owner: 'owner',
   admin: 'admin',
   member: 'member',
+  manager: 'manager',
   qa: 'qa',
   client: 'client'
 };
@@ -2048,6 +2049,7 @@ export namespace Prisma {
     calendarEvents: number
     activityLogs: number
     targetActivityLogs: number
+    uploadedAttachments: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2060,6 +2062,7 @@ export namespace Prisma {
     calendarEvents?: boolean | UserCountOutputTypeCountCalendarEventsArgs
     activityLogs?: boolean | UserCountOutputTypeCountActivityLogsArgs
     targetActivityLogs?: boolean | UserCountOutputTypeCountTargetActivityLogsArgs
+    uploadedAttachments?: boolean | UserCountOutputTypeCountUploadedAttachmentsArgs
   }
 
   // Custom InputTypes
@@ -2134,6 +2137,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountTargetActivityLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ActivityLogWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountUploadedAttachmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TicketAttachmentWhereInput
   }
 
 
@@ -3766,6 +3776,7 @@ export namespace Prisma {
     calendarEvents?: boolean | user$calendarEventsArgs<ExtArgs>
     activityLogs?: boolean | user$activityLogsArgs<ExtArgs>
     targetActivityLogs?: boolean | user$targetActivityLogsArgs<ExtArgs>
+    uploadedAttachments?: boolean | user$uploadedAttachmentsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -3843,6 +3854,7 @@ export namespace Prisma {
     calendarEvents?: boolean | user$calendarEventsArgs<ExtArgs>
     activityLogs?: boolean | user$activityLogsArgs<ExtArgs>
     targetActivityLogs?: boolean | user$targetActivityLogsArgs<ExtArgs>
+    uploadedAttachments?: boolean | user$uploadedAttachmentsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type userIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3865,6 +3877,7 @@ export namespace Prisma {
       calendarEvents: Prisma.$CalendarEventPayload<ExtArgs>[]
       activityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
       targetActivityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
+      uploadedAttachments: Prisma.$TicketAttachmentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4288,6 +4301,7 @@ export namespace Prisma {
     calendarEvents<T extends user$calendarEventsArgs<ExtArgs> = {}>(args?: Subset<T, user$calendarEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CalendarEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     activityLogs<T extends user$activityLogsArgs<ExtArgs> = {}>(args?: Subset<T, user$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     targetActivityLogs<T extends user$targetActivityLogsArgs<ExtArgs> = {}>(args?: Subset<T, user$targetActivityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    uploadedAttachments<T extends user$uploadedAttachmentsArgs<ExtArgs> = {}>(args?: Subset<T, user$uploadedAttachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4967,6 +4981,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ActivityLogScalarFieldEnum | ActivityLogScalarFieldEnum[]
+  }
+
+  /**
+   * user.uploadedAttachments
+   */
+  export type user$uploadedAttachmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketAttachment
+     */
+    select?: TicketAttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketAttachment
+     */
+    omit?: TicketAttachmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketAttachmentInclude<ExtArgs> | null
+    where?: TicketAttachmentWhereInput
+    orderBy?: TicketAttachmentOrderByWithRelationInput | TicketAttachmentOrderByWithRelationInput[]
+    cursor?: TicketAttachmentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TicketAttachmentScalarFieldEnum | TicketAttachmentScalarFieldEnum[]
   }
 
   /**
@@ -8959,6 +8997,7 @@ export namespace Prisma {
     fileName: string | null
     fileUrl: string | null
     createdAt: Date | null
+    uploadedById: string | null
   }
 
   export type TicketAttachmentMaxAggregateOutputType = {
@@ -8967,6 +9006,7 @@ export namespace Prisma {
     fileName: string | null
     fileUrl: string | null
     createdAt: Date | null
+    uploadedById: string | null
   }
 
   export type TicketAttachmentCountAggregateOutputType = {
@@ -8975,6 +9015,7 @@ export namespace Prisma {
     fileName: number
     fileUrl: number
     createdAt: number
+    uploadedById: number
     _all: number
   }
 
@@ -8985,6 +9026,7 @@ export namespace Prisma {
     fileName?: true
     fileUrl?: true
     createdAt?: true
+    uploadedById?: true
   }
 
   export type TicketAttachmentMaxAggregateInputType = {
@@ -8993,6 +9035,7 @@ export namespace Prisma {
     fileName?: true
     fileUrl?: true
     createdAt?: true
+    uploadedById?: true
   }
 
   export type TicketAttachmentCountAggregateInputType = {
@@ -9001,6 +9044,7 @@ export namespace Prisma {
     fileName?: true
     fileUrl?: true
     createdAt?: true
+    uploadedById?: true
     _all?: true
   }
 
@@ -9082,6 +9126,7 @@ export namespace Prisma {
     fileName: string
     fileUrl: string
     createdAt: Date
+    uploadedById: string | null
     _count: TicketAttachmentCountAggregateOutputType | null
     _min: TicketAttachmentMinAggregateOutputType | null
     _max: TicketAttachmentMaxAggregateOutputType | null
@@ -9107,7 +9152,9 @@ export namespace Prisma {
     fileName?: boolean
     fileUrl?: boolean
     createdAt?: boolean
+    uploadedById?: boolean
     ticket?: boolean | TicketDefaultArgs<ExtArgs>
+    uploadedBy?: boolean | TicketAttachment$uploadedByArgs<ExtArgs>
   }, ExtArgs["result"]["ticketAttachment"]>
 
   export type TicketAttachmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -9116,7 +9163,9 @@ export namespace Prisma {
     fileName?: boolean
     fileUrl?: boolean
     createdAt?: boolean
+    uploadedById?: boolean
     ticket?: boolean | TicketDefaultArgs<ExtArgs>
+    uploadedBy?: boolean | TicketAttachment$uploadedByArgs<ExtArgs>
   }, ExtArgs["result"]["ticketAttachment"]>
 
   export type TicketAttachmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -9125,7 +9174,9 @@ export namespace Prisma {
     fileName?: boolean
     fileUrl?: boolean
     createdAt?: boolean
+    uploadedById?: boolean
     ticket?: boolean | TicketDefaultArgs<ExtArgs>
+    uploadedBy?: boolean | TicketAttachment$uploadedByArgs<ExtArgs>
   }, ExtArgs["result"]["ticketAttachment"]>
 
   export type TicketAttachmentSelectScalar = {
@@ -9134,23 +9185,28 @@ export namespace Prisma {
     fileName?: boolean
     fileUrl?: boolean
     createdAt?: boolean
+    uploadedById?: boolean
   }
 
-  export type TicketAttachmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ticketId" | "fileName" | "fileUrl" | "createdAt", ExtArgs["result"]["ticketAttachment"]>
+  export type TicketAttachmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ticketId" | "fileName" | "fileUrl" | "createdAt" | "uploadedById", ExtArgs["result"]["ticketAttachment"]>
   export type TicketAttachmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     ticket?: boolean | TicketDefaultArgs<ExtArgs>
+    uploadedBy?: boolean | TicketAttachment$uploadedByArgs<ExtArgs>
   }
   export type TicketAttachmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     ticket?: boolean | TicketDefaultArgs<ExtArgs>
+    uploadedBy?: boolean | TicketAttachment$uploadedByArgs<ExtArgs>
   }
   export type TicketAttachmentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     ticket?: boolean | TicketDefaultArgs<ExtArgs>
+    uploadedBy?: boolean | TicketAttachment$uploadedByArgs<ExtArgs>
   }
 
   export type $TicketAttachmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "TicketAttachment"
     objects: {
       ticket: Prisma.$TicketPayload<ExtArgs>
+      uploadedBy: Prisma.$userPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -9158,6 +9214,7 @@ export namespace Prisma {
       fileName: string
       fileUrl: string
       createdAt: Date
+      uploadedById: string | null
     }, ExtArgs["result"]["ticketAttachment"]>
     composites: {}
   }
@@ -9553,6 +9610,7 @@ export namespace Prisma {
   export interface Prisma__TicketAttachmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     ticket<T extends TicketDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TicketDefaultArgs<ExtArgs>>): Prisma__TicketClient<$Result.GetResult<Prisma.$TicketPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    uploadedBy<T extends TicketAttachment$uploadedByArgs<ExtArgs> = {}>(args?: Subset<T, TicketAttachment$uploadedByArgs<ExtArgs>>): Prisma__userClient<$Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9587,6 +9645,7 @@ export namespace Prisma {
     readonly fileName: FieldRef<"TicketAttachment", 'String'>
     readonly fileUrl: FieldRef<"TicketAttachment", 'String'>
     readonly createdAt: FieldRef<"TicketAttachment", 'DateTime'>
+    readonly uploadedById: FieldRef<"TicketAttachment", 'String'>
   }
     
 
@@ -9985,6 +10044,25 @@ export namespace Prisma {
      * Limit how many TicketAttachments to delete.
      */
     limit?: number
+  }
+
+  /**
+   * TicketAttachment.uploadedBy
+   */
+  export type TicketAttachment$uploadedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user
+     */
+    select?: userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user
+     */
+    omit?: userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: userInclude<ExtArgs> | null
+    where?: userWhereInput
   }
 
   /**
@@ -15978,7 +16056,8 @@ export namespace Prisma {
     ticketId: 'ticketId',
     fileName: 'fileName',
     fileUrl: 'fileUrl',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    uploadedById: 'uploadedById'
   };
 
   export type TicketAttachmentScalarFieldEnum = (typeof TicketAttachmentScalarFieldEnum)[keyof typeof TicketAttachmentScalarFieldEnum]
@@ -16454,6 +16533,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventListRelationFilter
     activityLogs?: ActivityLogListRelationFilter
     targetActivityLogs?: ActivityLogListRelationFilter
+    uploadedAttachments?: TicketAttachmentListRelationFilter
   }
 
   export type userOrderByWithRelationInput = {
@@ -16484,6 +16564,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventOrderByRelationAggregateInput
     activityLogs?: ActivityLogOrderByRelationAggregateInput
     targetActivityLogs?: ActivityLogOrderByRelationAggregateInput
+    uploadedAttachments?: TicketAttachmentOrderByRelationAggregateInput
   }
 
   export type userWhereUniqueInput = Prisma.AtLeast<{
@@ -16517,6 +16598,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventListRelationFilter
     activityLogs?: ActivityLogListRelationFilter
     targetActivityLogs?: ActivityLogListRelationFilter
+    uploadedAttachments?: TicketAttachmentListRelationFilter
   }, "id" | "email">
 
   export type userOrderByWithAggregationInput = {
@@ -16931,7 +17013,9 @@ export namespace Prisma {
     fileName?: StringFilter<"TicketAttachment"> | string
     fileUrl?: StringFilter<"TicketAttachment"> | string
     createdAt?: DateTimeFilter<"TicketAttachment"> | Date | string
+    uploadedById?: StringNullableFilter<"TicketAttachment"> | string | null
     ticket?: XOR<TicketScalarRelationFilter, TicketWhereInput>
+    uploadedBy?: XOR<UserNullableScalarRelationFilter, userWhereInput> | null
   }
 
   export type TicketAttachmentOrderByWithRelationInput = {
@@ -16940,7 +17024,9 @@ export namespace Prisma {
     fileName?: SortOrder
     fileUrl?: SortOrder
     createdAt?: SortOrder
+    uploadedById?: SortOrderInput | SortOrder
     ticket?: TicketOrderByWithRelationInput
+    uploadedBy?: userOrderByWithRelationInput
   }
 
   export type TicketAttachmentWhereUniqueInput = Prisma.AtLeast<{
@@ -16952,7 +17038,9 @@ export namespace Prisma {
     fileName?: StringFilter<"TicketAttachment"> | string
     fileUrl?: StringFilter<"TicketAttachment"> | string
     createdAt?: DateTimeFilter<"TicketAttachment"> | Date | string
+    uploadedById?: StringNullableFilter<"TicketAttachment"> | string | null
     ticket?: XOR<TicketScalarRelationFilter, TicketWhereInput>
+    uploadedBy?: XOR<UserNullableScalarRelationFilter, userWhereInput> | null
   }, "id">
 
   export type TicketAttachmentOrderByWithAggregationInput = {
@@ -16961,6 +17049,7 @@ export namespace Prisma {
     fileName?: SortOrder
     fileUrl?: SortOrder
     createdAt?: SortOrder
+    uploadedById?: SortOrderInput | SortOrder
     _count?: TicketAttachmentCountOrderByAggregateInput
     _max?: TicketAttachmentMaxOrderByAggregateInput
     _min?: TicketAttachmentMinOrderByAggregateInput
@@ -16975,6 +17064,7 @@ export namespace Prisma {
     fileName?: StringWithAggregatesFilter<"TicketAttachment"> | string
     fileUrl?: StringWithAggregatesFilter<"TicketAttachment"> | string
     createdAt?: DateTimeWithAggregatesFilter<"TicketAttachment"> | Date | string
+    uploadedById?: StringNullableWithAggregatesFilter<"TicketAttachment"> | string | null
   }
 
   export type MessageWhereInput = {
@@ -17504,6 +17594,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
   }
 
   export type userUncheckedCreateInput = {
@@ -17533,6 +17624,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   }
 
   export type userUpdateInput = {
@@ -17562,6 +17654,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
   }
 
   export type userUncheckedUpdateInput = {
@@ -17591,6 +17684,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   }
 
   export type userCreateManyInput = {
@@ -18074,6 +18168,7 @@ export namespace Prisma {
     fileUrl: string
     createdAt?: Date | string
     ticket: TicketCreateNestedOneWithoutAttachmentsInput
+    uploadedBy?: userCreateNestedOneWithoutUploadedAttachmentsInput
   }
 
   export type TicketAttachmentUncheckedCreateInput = {
@@ -18082,6 +18177,7 @@ export namespace Prisma {
     fileName: string
     fileUrl: string
     createdAt?: Date | string
+    uploadedById?: string | null
   }
 
   export type TicketAttachmentUpdateInput = {
@@ -18090,6 +18186,7 @@ export namespace Prisma {
     fileUrl?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ticket?: TicketUpdateOneRequiredWithoutAttachmentsNestedInput
+    uploadedBy?: userUpdateOneWithoutUploadedAttachmentsNestedInput
   }
 
   export type TicketAttachmentUncheckedUpdateInput = {
@@ -18098,6 +18195,7 @@ export namespace Prisma {
     fileName?: StringFieldUpdateOperationsInput | string
     fileUrl?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TicketAttachmentCreateManyInput = {
@@ -18106,6 +18204,7 @@ export namespace Prisma {
     fileName: string
     fileUrl: string
     createdAt?: Date | string
+    uploadedById?: string | null
   }
 
   export type TicketAttachmentUpdateManyMutationInput = {
@@ -18121,6 +18220,7 @@ export namespace Prisma {
     fileName?: StringFieldUpdateOperationsInput | string
     fileUrl?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MessageCreateInput = {
@@ -18776,6 +18876,12 @@ export namespace Prisma {
     none?: ActivityLogWhereInput
   }
 
+  export type TicketAttachmentListRelationFilter = {
+    every?: TicketAttachmentWhereInput
+    some?: TicketAttachmentWhereInput
+    none?: TicketAttachmentWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -18798,6 +18904,10 @@ export namespace Prisma {
   }
 
   export type ActivityLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TicketAttachmentOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -19150,16 +19260,6 @@ export namespace Prisma {
     isNot?: userWhereInput | null
   }
 
-  export type TicketAttachmentListRelationFilter = {
-    every?: TicketAttachmentWhereInput
-    some?: TicketAttachmentWhereInput
-    none?: TicketAttachmentWhereInput
-  }
-
-  export type TicketAttachmentOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
   export type TicketCountOrderByAggregateInput = {
     id?: SortOrder
     title?: SortOrder
@@ -19264,6 +19364,7 @@ export namespace Prisma {
     fileName?: SortOrder
     fileUrl?: SortOrder
     createdAt?: SortOrder
+    uploadedById?: SortOrder
   }
 
   export type TicketAttachmentMaxOrderByAggregateInput = {
@@ -19272,6 +19373,7 @@ export namespace Prisma {
     fileName?: SortOrder
     fileUrl?: SortOrder
     createdAt?: SortOrder
+    uploadedById?: SortOrder
   }
 
   export type TicketAttachmentMinOrderByAggregateInput = {
@@ -19280,6 +19382,7 @@ export namespace Prisma {
     fileName?: SortOrder
     fileUrl?: SortOrder
     createdAt?: SortOrder
+    uploadedById?: SortOrder
   }
 
   export type UserScalarRelationFilter = {
@@ -19853,6 +19956,13 @@ export namespace Prisma {
     connect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
   }
 
+  export type TicketAttachmentCreateNestedManyWithoutUploadedByInput = {
+    create?: XOR<TicketAttachmentCreateWithoutUploadedByInput, TicketAttachmentUncheckedCreateWithoutUploadedByInput> | TicketAttachmentCreateWithoutUploadedByInput[] | TicketAttachmentUncheckedCreateWithoutUploadedByInput[]
+    connectOrCreate?: TicketAttachmentCreateOrConnectWithoutUploadedByInput | TicketAttachmentCreateOrConnectWithoutUploadedByInput[]
+    createMany?: TicketAttachmentCreateManyUploadedByInputEnvelope
+    connect?: TicketAttachmentWhereUniqueInput | TicketAttachmentWhereUniqueInput[]
+  }
+
   export type timeLogUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<timeLogCreateWithoutUserInput, timeLogUncheckedCreateWithoutUserInput> | timeLogCreateWithoutUserInput[] | timeLogUncheckedCreateWithoutUserInput[]
     connectOrCreate?: timeLogCreateOrConnectWithoutUserInput | timeLogCreateOrConnectWithoutUserInput[]
@@ -19911,6 +20021,13 @@ export namespace Prisma {
     connectOrCreate?: ActivityLogCreateOrConnectWithoutTargetUserInput | ActivityLogCreateOrConnectWithoutTargetUserInput[]
     createMany?: ActivityLogCreateManyTargetUserInputEnvelope
     connect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+  }
+
+  export type TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput = {
+    create?: XOR<TicketAttachmentCreateWithoutUploadedByInput, TicketAttachmentUncheckedCreateWithoutUploadedByInput> | TicketAttachmentCreateWithoutUploadedByInput[] | TicketAttachmentUncheckedCreateWithoutUploadedByInput[]
+    connectOrCreate?: TicketAttachmentCreateOrConnectWithoutUploadedByInput | TicketAttachmentCreateOrConnectWithoutUploadedByInput[]
+    createMany?: TicketAttachmentCreateManyUploadedByInputEnvelope
+    connect?: TicketAttachmentWhereUniqueInput | TicketAttachmentWhereUniqueInput[]
   }
 
   export type EnumRoleFieldUpdateOperationsInput = {
@@ -20066,6 +20183,20 @@ export namespace Prisma {
     deleteMany?: ActivityLogScalarWhereInput | ActivityLogScalarWhereInput[]
   }
 
+  export type TicketAttachmentUpdateManyWithoutUploadedByNestedInput = {
+    create?: XOR<TicketAttachmentCreateWithoutUploadedByInput, TicketAttachmentUncheckedCreateWithoutUploadedByInput> | TicketAttachmentCreateWithoutUploadedByInput[] | TicketAttachmentUncheckedCreateWithoutUploadedByInput[]
+    connectOrCreate?: TicketAttachmentCreateOrConnectWithoutUploadedByInput | TicketAttachmentCreateOrConnectWithoutUploadedByInput[]
+    upsert?: TicketAttachmentUpsertWithWhereUniqueWithoutUploadedByInput | TicketAttachmentUpsertWithWhereUniqueWithoutUploadedByInput[]
+    createMany?: TicketAttachmentCreateManyUploadedByInputEnvelope
+    set?: TicketAttachmentWhereUniqueInput | TicketAttachmentWhereUniqueInput[]
+    disconnect?: TicketAttachmentWhereUniqueInput | TicketAttachmentWhereUniqueInput[]
+    delete?: TicketAttachmentWhereUniqueInput | TicketAttachmentWhereUniqueInput[]
+    connect?: TicketAttachmentWhereUniqueInput | TicketAttachmentWhereUniqueInput[]
+    update?: TicketAttachmentUpdateWithWhereUniqueWithoutUploadedByInput | TicketAttachmentUpdateWithWhereUniqueWithoutUploadedByInput[]
+    updateMany?: TicketAttachmentUpdateManyWithWhereWithoutUploadedByInput | TicketAttachmentUpdateManyWithWhereWithoutUploadedByInput[]
+    deleteMany?: TicketAttachmentScalarWhereInput | TicketAttachmentScalarWhereInput[]
+  }
+
   export type timeLogUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<timeLogCreateWithoutUserInput, timeLogUncheckedCreateWithoutUserInput> | timeLogCreateWithoutUserInput[] | timeLogUncheckedCreateWithoutUserInput[]
     connectOrCreate?: timeLogCreateOrConnectWithoutUserInput | timeLogCreateOrConnectWithoutUserInput[]
@@ -20187,6 +20318,20 @@ export namespace Prisma {
     update?: ActivityLogUpdateWithWhereUniqueWithoutTargetUserInput | ActivityLogUpdateWithWhereUniqueWithoutTargetUserInput[]
     updateMany?: ActivityLogUpdateManyWithWhereWithoutTargetUserInput | ActivityLogUpdateManyWithWhereWithoutTargetUserInput[]
     deleteMany?: ActivityLogScalarWhereInput | ActivityLogScalarWhereInput[]
+  }
+
+  export type TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput = {
+    create?: XOR<TicketAttachmentCreateWithoutUploadedByInput, TicketAttachmentUncheckedCreateWithoutUploadedByInput> | TicketAttachmentCreateWithoutUploadedByInput[] | TicketAttachmentUncheckedCreateWithoutUploadedByInput[]
+    connectOrCreate?: TicketAttachmentCreateOrConnectWithoutUploadedByInput | TicketAttachmentCreateOrConnectWithoutUploadedByInput[]
+    upsert?: TicketAttachmentUpsertWithWhereUniqueWithoutUploadedByInput | TicketAttachmentUpsertWithWhereUniqueWithoutUploadedByInput[]
+    createMany?: TicketAttachmentCreateManyUploadedByInputEnvelope
+    set?: TicketAttachmentWhereUniqueInput | TicketAttachmentWhereUniqueInput[]
+    disconnect?: TicketAttachmentWhereUniqueInput | TicketAttachmentWhereUniqueInput[]
+    delete?: TicketAttachmentWhereUniqueInput | TicketAttachmentWhereUniqueInput[]
+    connect?: TicketAttachmentWhereUniqueInput | TicketAttachmentWhereUniqueInput[]
+    update?: TicketAttachmentUpdateWithWhereUniqueWithoutUploadedByInput | TicketAttachmentUpdateWithWhereUniqueWithoutUploadedByInput[]
+    updateMany?: TicketAttachmentUpdateManyWithWhereWithoutUploadedByInput | TicketAttachmentUpdateManyWithWhereWithoutUploadedByInput[]
+    deleteMany?: TicketAttachmentScalarWhereInput | TicketAttachmentScalarWhereInput[]
   }
 
   export type userCreateNestedManyWithoutProjectsInput = {
@@ -20769,12 +20914,28 @@ export namespace Prisma {
     connect?: TicketWhereUniqueInput
   }
 
+  export type userCreateNestedOneWithoutUploadedAttachmentsInput = {
+    create?: XOR<userCreateWithoutUploadedAttachmentsInput, userUncheckedCreateWithoutUploadedAttachmentsInput>
+    connectOrCreate?: userCreateOrConnectWithoutUploadedAttachmentsInput
+    connect?: userWhereUniqueInput
+  }
+
   export type TicketUpdateOneRequiredWithoutAttachmentsNestedInput = {
     create?: XOR<TicketCreateWithoutAttachmentsInput, TicketUncheckedCreateWithoutAttachmentsInput>
     connectOrCreate?: TicketCreateOrConnectWithoutAttachmentsInput
     upsert?: TicketUpsertWithoutAttachmentsInput
     connect?: TicketWhereUniqueInput
     update?: XOR<XOR<TicketUpdateToOneWithWhereWithoutAttachmentsInput, TicketUpdateWithoutAttachmentsInput>, TicketUncheckedUpdateWithoutAttachmentsInput>
+  }
+
+  export type userUpdateOneWithoutUploadedAttachmentsNestedInput = {
+    create?: XOR<userCreateWithoutUploadedAttachmentsInput, userUncheckedCreateWithoutUploadedAttachmentsInput>
+    connectOrCreate?: userCreateOrConnectWithoutUploadedAttachmentsInput
+    upsert?: userUpsertWithoutUploadedAttachmentsInput
+    disconnect?: userWhereInput | boolean
+    delete?: userWhereInput | boolean
+    connect?: userWhereUniqueInput
+    update?: XOR<XOR<userUpdateToOneWithWhereWithoutUploadedAttachmentsInput, userUpdateWithoutUploadedAttachmentsInput>, userUncheckedUpdateWithoutUploadedAttachmentsInput>
   }
 
   export type ProjectCreateNestedOneWithoutMessagesInput = {
@@ -21478,6 +21639,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
   }
 
   export type userUncheckedCreateWithoutCompanyInput = {
@@ -21506,6 +21668,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   }
 
   export type userCreateOrConnectWithoutCompanyInput = {
@@ -22118,6 +22281,32 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type TicketAttachmentCreateWithoutUploadedByInput = {
+    id?: string
+    fileName: string
+    fileUrl: string
+    createdAt?: Date | string
+    ticket: TicketCreateNestedOneWithoutAttachmentsInput
+  }
+
+  export type TicketAttachmentUncheckedCreateWithoutUploadedByInput = {
+    id?: string
+    ticketId: string
+    fileName: string
+    fileUrl: string
+    createdAt?: Date | string
+  }
+
+  export type TicketAttachmentCreateOrConnectWithoutUploadedByInput = {
+    where: TicketAttachmentWhereUniqueInput
+    create: XOR<TicketAttachmentCreateWithoutUploadedByInput, TicketAttachmentUncheckedCreateWithoutUploadedByInput>
+  }
+
+  export type TicketAttachmentCreateManyUploadedByInputEnvelope = {
+    data: TicketAttachmentCreateManyUploadedByInput | TicketAttachmentCreateManyUploadedByInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CompanyUpsertWithoutUserInput = {
     update: XOR<CompanyUpdateWithoutUserInput, CompanyUncheckedUpdateWithoutUserInput>
     create: XOR<CompanyCreateWithoutUserInput, CompanyUncheckedCreateWithoutUserInput>
@@ -22386,6 +22575,34 @@ export namespace Prisma {
     data: XOR<ActivityLogUpdateManyMutationInput, ActivityLogUncheckedUpdateManyWithoutTargetUserInput>
   }
 
+  export type TicketAttachmentUpsertWithWhereUniqueWithoutUploadedByInput = {
+    where: TicketAttachmentWhereUniqueInput
+    update: XOR<TicketAttachmentUpdateWithoutUploadedByInput, TicketAttachmentUncheckedUpdateWithoutUploadedByInput>
+    create: XOR<TicketAttachmentCreateWithoutUploadedByInput, TicketAttachmentUncheckedCreateWithoutUploadedByInput>
+  }
+
+  export type TicketAttachmentUpdateWithWhereUniqueWithoutUploadedByInput = {
+    where: TicketAttachmentWhereUniqueInput
+    data: XOR<TicketAttachmentUpdateWithoutUploadedByInput, TicketAttachmentUncheckedUpdateWithoutUploadedByInput>
+  }
+
+  export type TicketAttachmentUpdateManyWithWhereWithoutUploadedByInput = {
+    where: TicketAttachmentScalarWhereInput
+    data: XOR<TicketAttachmentUpdateManyMutationInput, TicketAttachmentUncheckedUpdateManyWithoutUploadedByInput>
+  }
+
+  export type TicketAttachmentScalarWhereInput = {
+    AND?: TicketAttachmentScalarWhereInput | TicketAttachmentScalarWhereInput[]
+    OR?: TicketAttachmentScalarWhereInput[]
+    NOT?: TicketAttachmentScalarWhereInput | TicketAttachmentScalarWhereInput[]
+    id?: StringFilter<"TicketAttachment"> | string
+    ticketId?: StringFilter<"TicketAttachment"> | string
+    fileName?: StringFilter<"TicketAttachment"> | string
+    fileUrl?: StringFilter<"TicketAttachment"> | string
+    createdAt?: DateTimeFilter<"TicketAttachment"> | Date | string
+    uploadedById?: StringNullableFilter<"TicketAttachment"> | string | null
+  }
+
   export type userCreateWithoutProjectsInput = {
     id?: string
     name: string
@@ -22412,6 +22629,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
   }
 
   export type userUncheckedCreateWithoutProjectsInput = {
@@ -22440,6 +22658,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   }
 
   export type userCreateOrConnectWithoutProjectsInput = {
@@ -22473,6 +22692,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
   }
 
   export type userUncheckedCreateWithoutAdminProjectsInput = {
@@ -22501,6 +22721,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   }
 
   export type userCreateOrConnectWithoutAdminProjectsInput = {
@@ -23242,6 +23463,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
   }
 
   export type userUncheckedCreateWithoutAssignedTicketsInput = {
@@ -23270,6 +23492,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   }
 
   export type userCreateOrConnectWithoutAssignedTicketsInput = {
@@ -23316,6 +23539,7 @@ export namespace Prisma {
     fileName: string
     fileUrl: string
     createdAt?: Date | string
+    uploadedBy?: userCreateNestedOneWithoutUploadedAttachmentsInput
   }
 
   export type TicketAttachmentUncheckedCreateWithoutTicketInput = {
@@ -23323,6 +23547,7 @@ export namespace Prisma {
     fileName: string
     fileUrl: string
     createdAt?: Date | string
+    uploadedById?: string | null
   }
 
   export type TicketAttachmentCreateOrConnectWithoutTicketInput = {
@@ -23506,6 +23731,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
   }
 
   export type userUncheckedUpdateWithoutAssignedTicketsInput = {
@@ -23534,6 +23760,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   }
 
   export type timeLogUpsertWithWhereUniqueWithoutTicketInput = {
@@ -23566,17 +23793,6 @@ export namespace Prisma {
   export type TicketAttachmentUpdateManyWithWhereWithoutTicketInput = {
     where: TicketAttachmentScalarWhereInput
     data: XOR<TicketAttachmentUpdateManyMutationInput, TicketAttachmentUncheckedUpdateManyWithoutTicketInput>
-  }
-
-  export type TicketAttachmentScalarWhereInput = {
-    AND?: TicketAttachmentScalarWhereInput | TicketAttachmentScalarWhereInput[]
-    OR?: TicketAttachmentScalarWhereInput[]
-    NOT?: TicketAttachmentScalarWhereInput | TicketAttachmentScalarWhereInput[]
-    id?: StringFilter<"TicketAttachment"> | string
-    ticketId?: StringFilter<"TicketAttachment"> | string
-    fileName?: StringFilter<"TicketAttachment"> | string
-    fileUrl?: StringFilter<"TicketAttachment"> | string
-    createdAt?: DateTimeFilter<"TicketAttachment"> | Date | string
   }
 
   export type MessageUpsertWithWhereUniqueWithoutTicketInput = {
@@ -23646,6 +23862,69 @@ export namespace Prisma {
     create: XOR<TicketCreateWithoutAttachmentsInput, TicketUncheckedCreateWithoutAttachmentsInput>
   }
 
+  export type userCreateWithoutUploadedAttachmentsInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    role?: $Enums.Role
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    imageUrl?: string | null
+    isActive?: boolean
+    lastActive?: Date | string | null
+    designation?: string | null
+    forgotPasswordToken?: string | null
+    forgotPasswordTokenExpiry?: Date | string | null
+    isVerified?: boolean
+    verifyToken?: string | null
+    verifyTokenExpiry?: Date | string | null
+    company?: CompanyCreateNestedOneWithoutUserInput
+    timeLogs?: timeLogCreateNestedManyWithoutUserInput
+    projects?: ProjectCreateNestedManyWithoutMembersInput
+    adminProjects?: ProjectCreateNestedManyWithoutAdminsInput
+    messages?: MessageCreateNestedManyWithoutUserInput
+    assignedTickets?: TicketCreateNestedManyWithoutAssignedUserInput
+    notes?: NoteCreateNestedManyWithoutUserInput
+    calendarEvents?: CalendarEventCreateNestedManyWithoutAssignedToInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
+    targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
+  }
+
+  export type userUncheckedCreateWithoutUploadedAttachmentsInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    role?: $Enums.Role
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    imageUrl?: string | null
+    isActive?: boolean
+    lastActive?: Date | string | null
+    designation?: string | null
+    forgotPasswordToken?: string | null
+    forgotPasswordTokenExpiry?: Date | string | null
+    isVerified?: boolean
+    verifyToken?: string | null
+    verifyTokenExpiry?: Date | string | null
+    companyId?: string | null
+    timeLogs?: timeLogUncheckedCreateNestedManyWithoutUserInput
+    projects?: ProjectUncheckedCreateNestedManyWithoutMembersInput
+    adminProjects?: ProjectUncheckedCreateNestedManyWithoutAdminsInput
+    messages?: MessageUncheckedCreateNestedManyWithoutUserInput
+    assignedTickets?: TicketUncheckedCreateNestedManyWithoutAssignedUserInput
+    notes?: NoteUncheckedCreateNestedManyWithoutUserInput
+    calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutAssignedToInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
+    targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
+  }
+
+  export type userCreateOrConnectWithoutUploadedAttachmentsInput = {
+    where: userWhereUniqueInput
+    create: XOR<userCreateWithoutUploadedAttachmentsInput, userUncheckedCreateWithoutUploadedAttachmentsInput>
+  }
+
   export type TicketUpsertWithoutAttachmentsInput = {
     update: XOR<TicketUpdateWithoutAttachmentsInput, TicketUncheckedUpdateWithoutAttachmentsInput>
     create: XOR<TicketCreateWithoutAttachmentsInput, TicketUncheckedCreateWithoutAttachmentsInput>
@@ -23701,6 +23980,75 @@ export namespace Prisma {
     assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
     timeLogs?: timeLogUncheckedUpdateManyWithoutTicketNestedInput
     messages?: MessageUncheckedUpdateManyWithoutTicketNestedInput
+  }
+
+  export type userUpsertWithoutUploadedAttachmentsInput = {
+    update: XOR<userUpdateWithoutUploadedAttachmentsInput, userUncheckedUpdateWithoutUploadedAttachmentsInput>
+    create: XOR<userCreateWithoutUploadedAttachmentsInput, userUncheckedCreateWithoutUploadedAttachmentsInput>
+    where?: userWhereInput
+  }
+
+  export type userUpdateToOneWithWhereWithoutUploadedAttachmentsInput = {
+    where?: userWhereInput
+    data: XOR<userUpdateWithoutUploadedAttachmentsInput, userUncheckedUpdateWithoutUploadedAttachmentsInput>
+  }
+
+  export type userUpdateWithoutUploadedAttachmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
+    forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifyTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: CompanyUpdateOneWithoutUserNestedInput
+    timeLogs?: timeLogUpdateManyWithoutUserNestedInput
+    projects?: ProjectUpdateManyWithoutMembersNestedInput
+    adminProjects?: ProjectUpdateManyWithoutAdminsNestedInput
+    messages?: MessageUpdateManyWithoutUserNestedInput
+    assignedTickets?: TicketUpdateManyWithoutAssignedUserNestedInput
+    notes?: NoteUpdateManyWithoutUserNestedInput
+    calendarEvents?: CalendarEventUpdateManyWithoutAssignedToNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
+    targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
+  }
+
+  export type userUncheckedUpdateWithoutUploadedAttachmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
+    forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifyTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    timeLogs?: timeLogUncheckedUpdateManyWithoutUserNestedInput
+    projects?: ProjectUncheckedUpdateManyWithoutMembersNestedInput
+    adminProjects?: ProjectUncheckedUpdateManyWithoutAdminsNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
+    assignedTickets?: TicketUncheckedUpdateManyWithoutAssignedUserNestedInput
+    notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
+    calendarEvents?: CalendarEventUncheckedUpdateManyWithoutAssignedToNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+    targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
   }
 
   export type ProjectCreateWithoutMessagesInput = {
@@ -23780,6 +24128,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
   }
 
   export type userUncheckedCreateWithoutMessagesInput = {
@@ -23808,6 +24157,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   }
 
   export type userCreateOrConnectWithoutMessagesInput = {
@@ -23960,6 +24310,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
   }
 
   export type userUncheckedUpdateWithoutMessagesInput = {
@@ -23988,6 +24339,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   }
 
   export type TicketUpsertWithoutMessagesInput = {
@@ -24073,6 +24425,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
   }
 
   export type userUncheckedCreateWithoutTimeLogsInput = {
@@ -24101,6 +24454,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   }
 
   export type userCreateOrConnectWithoutTimeLogsInput = {
@@ -24247,6 +24601,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
   }
 
   export type userUncheckedUpdateWithoutTimeLogsInput = {
@@ -24275,6 +24630,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   }
 
   export type TicketUpsertWithoutTimeLogsInput = {
@@ -24417,6 +24773,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
   }
 
   export type userUncheckedCreateWithoutNotesInput = {
@@ -24445,6 +24802,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   }
 
   export type userCreateOrConnectWithoutNotesInput = {
@@ -24516,6 +24874,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
   }
 
   export type userUncheckedUpdateWithoutNotesInput = {
@@ -24544,6 +24903,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   }
 
   export type CompanyUpsertWithoutNotesInput = {
@@ -24656,6 +25016,7 @@ export namespace Prisma {
     notes?: NoteCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
   }
 
   export type userUncheckedCreateWithoutCalendarEventsInput = {
@@ -24684,6 +25045,7 @@ export namespace Prisma {
     notes?: NoteUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   }
 
   export type userCreateOrConnectWithoutCalendarEventsInput = {
@@ -24790,6 +25152,7 @@ export namespace Prisma {
     notes?: NoteCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutAssignedToInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
   }
 
   export type userUncheckedCreateWithoutActivityLogsInput = {
@@ -24818,6 +25181,7 @@ export namespace Prisma {
     notes?: NoteUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutAssignedToInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   }
 
   export type userCreateOrConnectWithoutActivityLogsInput = {
@@ -24851,6 +25215,7 @@ export namespace Prisma {
     notes?: NoteCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
+    uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
   }
 
   export type userUncheckedCreateWithoutTargetActivityLogsInput = {
@@ -24879,6 +25244,7 @@ export namespace Prisma {
     notes?: NoteUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutAssignedToInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
+    uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   }
 
   export type userCreateOrConnectWithoutTargetActivityLogsInput = {
@@ -24923,6 +25289,7 @@ export namespace Prisma {
     notes?: NoteUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutAssignedToNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
   }
 
   export type userUncheckedUpdateWithoutActivityLogsInput = {
@@ -24951,6 +25318,7 @@ export namespace Prisma {
     notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutAssignedToNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   }
 
   export type userUpsertWithoutTargetActivityLogsInput = {
@@ -24990,6 +25358,7 @@ export namespace Prisma {
     notes?: NoteUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
+    uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
   }
 
   export type userUncheckedUpdateWithoutTargetActivityLogsInput = {
@@ -25018,6 +25387,7 @@ export namespace Prisma {
     notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+    uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   }
 
   export type ProjectCreateManyCompanyInput = {
@@ -25168,6 +25538,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
   }
 
   export type userUncheckedUpdateWithoutCompanyInput = {
@@ -25196,6 +25567,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   }
 
   export type userUncheckedUpdateManyWithoutCompanyInput = {
@@ -25369,6 +25741,14 @@ export namespace Prisma {
     projectId?: string | null
     ticketId?: string | null
     groupId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type TicketAttachmentCreateManyUploadedByInput = {
+    id?: string
+    ticketId: string
+    fileName: string
+    fileUrl: string
     createdAt?: Date | string
   }
 
@@ -25786,6 +26166,30 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type TicketAttachmentUpdateWithoutUploadedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ticket?: TicketUpdateOneRequiredWithoutAttachmentsNestedInput
+  }
+
+  export type TicketAttachmentUncheckedUpdateWithoutUploadedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketId?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TicketAttachmentUncheckedUpdateManyWithoutUploadedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketId?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type MessageCreateManyProjectInput = {
     id?: string
     text: string
@@ -25886,6 +26290,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
   }
 
   export type userUncheckedUpdateWithoutProjectsInput = {
@@ -25914,6 +26319,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   }
 
   export type userUncheckedUpdateManyWithoutProjectsInput = {
@@ -25962,6 +26368,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
   }
 
   export type userUncheckedUpdateWithoutAdminProjectsInput = {
@@ -25990,6 +26397,7 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutAssignedToNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   }
 
   export type userUncheckedUpdateManyWithoutAdminProjectsInput = {
@@ -26347,6 +26755,7 @@ export namespace Prisma {
     fileName: string
     fileUrl: string
     createdAt?: Date | string
+    uploadedById?: string | null
   }
 
   export type MessageCreateManyTicketInput = {
@@ -26402,6 +26811,7 @@ export namespace Prisma {
     fileName?: StringFieldUpdateOperationsInput | string
     fileUrl?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    uploadedBy?: userUpdateOneWithoutUploadedAttachmentsNestedInput
   }
 
   export type TicketAttachmentUncheckedUpdateWithoutTicketInput = {
@@ -26409,6 +26819,7 @@ export namespace Prisma {
     fileName?: StringFieldUpdateOperationsInput | string
     fileUrl?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TicketAttachmentUncheckedUpdateManyWithoutTicketInput = {
@@ -26416,6 +26827,7 @@ export namespace Prisma {
     fileName?: StringFieldUpdateOperationsInput | string
     fileUrl?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MessageUpdateWithoutTicketInput = {
@@ -26480,6 +26892,7 @@ export namespace Prisma {
     notes?: NoteUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
   }
 
   export type userUncheckedUpdateWithoutCalendarEventsInput = {
@@ -26508,6 +26921,7 @@ export namespace Prisma {
     notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   }
 
   export type userUncheckedUpdateManyWithoutCalendarEventsInput = {
