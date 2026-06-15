@@ -22,6 +22,157 @@ export async function GET(req: NextRequest) {
         const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
 
+        // If the user is a client, return project-level aggregated details
+        if (dbUser.role === "client") {
+            const { searchParams } = new URL(req.url);
+            const onlyActivities = searchParams.get("onlyActivities") === "true";
+            const page = parseInt(searchParams.get("page") || "1", 10);
+            const limit = parseInt(searchParams.get("limit") || "5", 10);
+            const skip = (page - 1) * limit;
+
+            // Fetch basic project info to get IDs
+            const projects = await prisma.project.findMany({
+                where: {
+                    companyId: dbUser.companyId,
+                    isActive: true,
+                    OR: [
+                        { members: { some: { id: dbUser.id } } },
+                        { admins: { some: { id: dbUser.id } } },
+                    ],
+                },
+                select: {
+                    id: true,
+                    title: true,
+                },
+            });
+
+            const projectIds = projects.map((p) => p.id);
+
+            if (onlyActivities) {
+                const recentActivities = await prisma.activityLog.findMany({
+                    where: {
+                        projectId: { in: projectIds },
+                    },
+                    include: {
+                        user: {
+                            select: { id: true, name: true, imageUrl: true, role: true },
+                        },
+                    },
+                    orderBy: { createdAt: "desc" },
+                    skip,
+                    take: limit,
+                });
+
+                const totalActivities = await prisma.activityLog.count({
+                    where: {
+                        projectId: { in: projectIds },
+                    },
+                });
+
+                const hasMore = skip + recentActivities.length < totalActivities;
+                const nextPage = hasMore ? page + 1 : null;
+
+                return NextResponse.json({
+                    activityLogs: recentActivities.map((log) => {
+                        const project = projects.find((p) => p.id === log.projectId);
+                        return {
+                            id: log.id,
+                            action: log.action,
+                            description: log.description,
+                            createdAt: log.createdAt,
+                            user: log.user,
+                            project: project ? { id: project.id, title: project.title } : null,
+                        };
+                    }),
+                    nextPage,
+                });
+            }
+
+            // Normal Dashboard Fetch
+            const fullProjects = await prisma.project.findMany({
+                where: {
+                    id: { in: projectIds },
+                },
+                include: {
+                    admins: {
+                        select: { id: true, name: true, email: true, imageUrl: true, designation: true },
+                    },
+                    members: {
+                        select: { id: true, name: true, email: true, imageUrl: true, designation: true, role: true },
+                    },
+                    tickets: {
+                        where: { isDeleted: false },
+                        select: { id: true, status: true, dueDate: true, priority: true },
+                    },
+                    groups: {
+                        where: { isActive: true },
+                        select: { id: true, name: true, description: true, goal: true, startDate: true, endDate: true, status: true },
+                    },
+                },
+                orderBy: { createdAt: "desc" },
+            });
+
+            const totalProjects = fullProjects.length;
+            const activeProjects = fullProjects.filter((p) => p.status !== "completed").length;
+            const completedProjects = fullProjects.filter((p) => p.status === "completed").length;
+
+            let totalTickets = 0;
+            let completedTickets = 0;
+            let inProgressTickets = 0;
+            let inReviewTickets = 0;
+            let blockedTickets = 0;
+            let reopenTickets = 0;
+
+            fullProjects.forEach((p) => {
+                p.tickets.forEach((t) => {
+                    totalTickets++;
+                    if (t.status === "completed") completedTickets++;
+                    else if (t.status === "in_progress") inProgressTickets++;
+                    else if (t.status === "in_review") inReviewTickets++;
+                    else if (t.status === "blocked") blockedTickets++;
+                    else if (t.status === "reopen") reopenTickets++;
+                });
+            });
+
+            const projectsWithActivity = fullProjects.map((p) => {
+                return {
+                    id: p.id,
+                    title: p.title,
+                    description: p.description,
+                    status: p.status,
+                    phase: p.phase,
+                    category: p.category,
+                    startDate: p.startDate,
+                    targetDate: p.targetDate,
+                    completedDate: p.completedDate,
+                    totalTickets: p.tickets.length,
+                    completedTickets: p.tickets.filter((t) => t.status === "completed").length,
+                    inProgressTickets: p.tickets.filter((t) => t.status === "in_progress").length,
+                    admins: p.admins,
+                    members: p.members,
+                    groups: p.groups,
+                    logs: [],
+                };
+            });
+
+            return NextResponse.json({
+                role: "client",
+                stats: {
+                    totalProjects,
+                    activeProjects,
+                    completedProjects,
+                    totalTickets,
+                    completedTickets,
+                    inProgressTickets,
+                    inReviewTickets,
+                    blockedTickets,
+                    reopenTickets,
+                },
+                projects: projectsWithActivity,
+                recentActivities: [], // Handled separately via useInfiniteQuery
+            });
+        }
+
         // For weekly performance — last 7 days
         const sevenDaysAgo = new Date(startOfToday);
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);

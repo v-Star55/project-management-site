@@ -6,7 +6,7 @@ export async function GET(
     req: NextRequest,
     { params }: { params: Promise<{ projectId?: string; groupId?: string }> }
 ) {
-    const user = await requireRole(["owner", "admin", "member", "client"], req);
+    const user = await requireRole(["owner", "admin", "member"], req);
     if (user instanceof NextResponse) return user;
 
     const { projectId, groupId } = await params;
@@ -44,14 +44,24 @@ export async function GET(
         }
 
         // Access control
-        if (dbUser.role !== "owner" && dbUser.role !== "admin") {
+        if (dbUser.role !== "owner") {
             const isMember = project.members.some((m) => m.id === dbUser.id);
             const isProjectAdmin = project.admins.some((a) => a.id === dbUser.id);
-            if (!isMember && !isProjectAdmin) {
-                return NextResponse.json(
-                    { error: "Forbidden: You are not a member or admin of this project" },
-                    { status: 403 }
-                );
+            if (dbUser.role === "admin") {
+                if (!isProjectAdmin) {
+                    return NextResponse.json(
+                        { error: "Forbidden: You are not an admin of this project" },
+                        { status: 403 }
+                    );
+                }
+            } else {
+                // member
+                if (!isMember && !isProjectAdmin) {
+                    return NextResponse.json(
+                        { error: "Forbidden: You are not a member or admin of this project" },
+                        { status: 403 }
+                    );
+                }
             }
         }
 
@@ -156,13 +166,16 @@ export async function PATCH(
             return NextResponse.json({ error: "Project not found" }, { status: 404 });
         }
 
-        const isMember = project.members.some((m) => m.id === dbUser.id);
-        const isProjectAdmin = project.admins.some((a) => a.id === dbUser.id);
-        const isAuthorized = dbUser.role === "owner" || dbUser.role === "admin" || isMember || isProjectAdmin;
+        let isAuthorized = false;
+        if (dbUser.role === "owner") {
+            isAuthorized = true;
+        } else if (dbUser.role === "admin") {
+            isAuthorized = project.admins.some((a) => a.id === dbUser.id);
+        }
 
         if (!isAuthorized) {
             return NextResponse.json(
-                { error: "Forbidden: You don't have access to this project" },
+                { error: "Forbidden: Only owners and project admins can edit sprints" },
                 { status: 403 }
             );
         }

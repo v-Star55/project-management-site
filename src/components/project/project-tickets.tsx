@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import Image from "next/image"
+import axios from "axios"
 import {
   PlusIcon,
   CalendarIcon,
@@ -12,11 +12,13 @@ import {
   EyeIcon,
   MoreVertical as MoreVerticalIcon,
   Trash as TrashIcon,
-  Edit as EditIcon
+  Edit as EditIcon,
+  Search,
+  X
 } from "lucide-react"
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import {
   DndContext,
@@ -34,6 +36,7 @@ import {
 import {
   ProjectDetail,
   ProjectTicket,
+  ProjectMember,
   getTicketStatusIcon,
   getTicketStatusColor,
   getTicketStatusLabel,
@@ -61,6 +64,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select"
+import { 
+  Avatar, 
+  AvatarImage, 
+  AvatarFallback 
+} from "@/components/ui/avatar"
 
 interface ProjectTicketsProps {
   projectData: ProjectDetail
@@ -172,9 +187,9 @@ export default function ProjectTickets({ projectData, userId }: ProjectTicketsPr
   const userRole = user?.role || ""
   const isProjectAdmin = projectData.admins?.some((a) => a.id === user?.id)
   const isOwner = userRole === "owner"
-  const isProjectAdminOrOwner = isOwner || !!isProjectAdmin
+  const isProjectAdminOrOwner = isOwner || (userRole === "admin" && !!isProjectAdmin)
   const isCreateAllowed = isProjectAdminOrOwner
-  const canDrag = isProjectAdminOrOwner
+  const canDrag = isProjectAdminOrOwner || userRole === "member" || userRole === "qa"
 
   const [activeId, setActiveId] = useState<string | null>(null)
   const [selectedTicket, setSelectedTicket] = useState<any | null>(null)
@@ -185,7 +200,70 @@ export default function ProjectTickets({ projectData, userId }: ProjectTicketsPr
     targetStatus: "blocked" | "reopen"
   } | null>(null)
 
+  // Filters State
+  const [searchQuery, setSearchQuery] = useState("")
+  const [priorityFilter, setPriorityFilter] = useState("all")
+  const [groupFilter, setGroupFilter] = useState("all")
+  const [assigneeFilter, setAssigneeFilter] = useState("all")
+
+  // Fetch Project Groups/Sprints
+  const { data: groupsData } = useQuery({
+    queryKey: ["project-groups", projectData.id],
+    queryFn: async () => {
+      const res = await axios.get(`/api/projects/${projectData.id}/groups`)
+      return res.data.groups as any[]
+    },
+    enabled: !!projectData.id,
+  })
+  const groups = groupsData || []
+
+  // Assignee list (typed strictly as ProjectMember[])
+  const admins = projectData.admins || []
+  const members = projectData.members || []
+  const assignees: ProjectMember[] = Array.from(new Set([
+    ...admins.map(a => a.id),
+    ...members.map(m => m.id)
+  ])).map(id => {
+    return admins.find(a => a.id === id) || members.find(m => m.id === id)
+  }).filter((u): u is ProjectMember => !!u && u.role !== "client")
+
   const tickets = projectData.tickets || []
+
+  // Filtered Tickets
+  const filteredTickets = tickets.filter((ticket) => {
+    // 1. Search Query
+    const query = searchQuery.toLowerCase().trim()
+    if (query) {
+      const titleMatch = ticket.title.toLowerCase().includes(query)
+      const descMatch = ticket.description?.toLowerCase().includes(query) || false
+      if (!titleMatch && !descMatch) return false
+    }
+
+    // 2. Priority Filter
+    if (priorityFilter !== "all" && ticket.priority?.toLowerCase() !== priorityFilter.toLowerCase()) {
+      return false
+    }
+
+    // 3. Group/Sprint Filter
+    if (groupFilter !== "all") {
+      if (groupFilter === "none") {
+        if (ticket.groupId) return false
+      } else if (ticket.groupId !== groupFilter) {
+        return false
+      }
+    }
+
+    // 4. Assignee Filter
+    if (assigneeFilter !== "all") {
+      if (assigneeFilter === "unassigned") {
+        if (ticket.assignedUserId) return false
+      } else if (ticket.assignedUserId !== assigneeFilter) {
+        return false
+      }
+    }
+
+    return true
+  })
 
   // Mutation to update ticket status/priority
   const updateTicketMutation = useMutation({
@@ -363,11 +441,10 @@ export default function ProjectTickets({ projectData, userId }: ProjectTicketsPr
   }
 
   const getTicketsForColumn = (statuses: string[]) => {
-    return tickets.filter((ticket) => statuses.includes(ticket.status))
+    return filteredTickets.filter((ticket) => statuses.includes(ticket.status))
   }
 
   const handleTicketClick = (ticket: any) => {
-    // Build a fully-compatible Ticket object for TicketDetail
     const ticketWithProject = {
       ...ticket,
       description: ticket.description ?? null,
@@ -391,7 +468,7 @@ export default function ProjectTickets({ projectData, userId }: ProjectTicketsPr
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-300">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -401,12 +478,103 @@ export default function ProjectTickets({ projectData, userId }: ProjectTicketsPr
         {isCreateAllowed && (
           <button
             onClick={() => setIsCreateOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary font-semibold rounded-lg text-xs transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary font-semibold rounded-lg text-xs transition-colors cursor-pointer h-9"
           >
             <PlusIcon className="size-3.5" />
             Create Ticket
           </button>
         )}
+      </div>
+
+      {/* Control Bar (Search & Filter) */}
+      <div className="bg-card/35 backdrop-blur-md border border-border/50 rounded-2xl p-4.5 flex flex-col md:flex-row items-center gap-4 w-full">
+        {/* Search */}
+        <div className="relative w-full md:flex-1">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60" />
+          <input 
+            type="text" 
+            placeholder="Search tickets by title, description..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-background border border-border/60 rounded-xl py-2 pl-10 pr-4 text-xs font-semibold text-foreground placeholder-muted-foreground/60 focus:outline-hidden focus:ring-1 focus:ring-primary/45 focus:border-primary/45 transition-all"
+          />
+          {searchQuery && (
+            <button 
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+            >
+              <X className="size-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* Filters using Shadcn Select */}
+        <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+          {/* Sprint Filter */}
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Sprint:</span>
+            <Select value={groupFilter} onValueChange={(val: any) => setGroupFilter(val)}>
+              <SelectTrigger className="w-[140px] bg-background border border-border/60 rounded-xl text-xs font-semibold h-9 focus:ring-1 focus:ring-primary/45">
+                <SelectValue placeholder="All Sprints" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border border-border rounded-xl">
+                <SelectItem value="all" className="text-xs font-medium cursor-pointer">All Sprints</SelectItem>
+                <SelectItem value="none" className="text-xs font-medium cursor-pointer">Unassigned Sprint</SelectItem>
+                {groups.map(g => (
+                  <SelectItem key={g.id} value={g.id} className="text-xs font-medium cursor-pointer">{g.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Assignee Filter */}
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Assignee:</span>
+            <Select value={assigneeFilter} onValueChange={(val: any) => setAssigneeFilter(val)}>
+              <SelectTrigger className="w-[150px] bg-background border border-border/60 rounded-xl text-xs font-semibold h-9 focus:ring-1 focus:ring-primary/45">
+                <SelectValue placeholder="All Assignees" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border border-border rounded-xl">
+                <SelectItem value="all" className="text-xs font-medium cursor-pointer">All Assignees</SelectItem>
+                <SelectItem value="unassigned" className="text-xs font-medium cursor-pointer">Unassigned</SelectItem>
+                {assignees.map(a => (
+                  <SelectItem key={a.id} value={a.id} className="text-xs font-medium cursor-pointer">{a.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Priority Filter */}
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Priority:</span>
+            <Select value={priorityFilter} onValueChange={(val: any) => setPriorityFilter(val)}>
+              <SelectTrigger className="w-[120px] bg-background border border-border/60 rounded-xl text-xs font-semibold h-9 focus:ring-1 focus:ring-primary/45">
+                <SelectValue placeholder="All Priorities" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border border-border rounded-xl">
+                <SelectItem value="all" className="text-xs font-medium cursor-pointer">All Priorities</SelectItem>
+                <SelectItem value="high" className="text-xs font-medium cursor-pointer">High</SelectItem>
+                <SelectItem value="medium" className="text-xs font-medium cursor-pointer">Medium</SelectItem>
+                <SelectItem value="low" className="text-xs font-medium cursor-pointer">Low</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Reset Filters */}
+          {(searchQuery || priorityFilter !== "all" || groupFilter !== "all" || assigneeFilter !== "all") && (
+            <button 
+              onClick={() => {
+                setSearchQuery("")
+                setPriorityFilter("all")
+                setGroupFilter("all")
+                setAssigneeFilter("all")
+              }}
+              className="px-3 py-2 border border-dashed border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted/10 font-bold rounded-xl text-xs transition-colors cursor-pointer h-9 flex items-center justify-center"
+            >
+              Reset
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Kanban Board */}
@@ -645,28 +813,32 @@ function DraggableTicketCard({
             </div>
           )}
 
-          {/* Assignee */}
+          {/* Assignee using Shadcn Avatar */}
           {ticket.assignedUser ? (
             <div className="relative group/avatar cursor-pointer flex items-center shrink-0">
-              <Image
-                src={ticket.assignedUser.imageUrl || "https://github.com/shadcn.png"}
-                alt={ticket.assignedUser.name}
-                width={18}
-                height={18}
-                className="size-4.5 rounded-full border border-card object-cover"
-                unoptimized
-              />
+              <Avatar className="size-4.5 rounded-full border border-card shrink-0">
+                <AvatarImage 
+                  src={ticket.assignedUser.imageUrl || undefined} 
+                  alt={ticket.assignedUser.name} 
+                  className="object-cover" 
+                />
+                <AvatarFallback className="text-[7px] font-bold">
+                  {getInitials(ticket.assignedUser.name)}
+                </AvatarFallback>
+              </Avatar>
 
               {/* Hover Card */}
               <div className="absolute right-0 bottom-full mb-2 w-48 bg-card/95 backdrop-blur-md border border-border/80 p-2.5 rounded-xl shadow-xl opacity-0 scale-95 pointer-events-none group-hover/avatar:opacity-100 group-hover/avatar:scale-100 transition-all duration-200 ease-out z-50 flex items-center gap-2">
-                <Image
-                  src={ticket.assignedUser.imageUrl || "https://github.com/shadcn.png"}
-                  alt={ticket.assignedUser.name}
-                  width={28}
-                  height={28}
-                  className="size-7 rounded-full border border-border/50 object-cover shrink-0"
-                  unoptimized
-                />
+                <Avatar className="size-7 rounded-full border border-border/50 shrink-0">
+                  <AvatarImage 
+                    src={ticket.assignedUser.imageUrl || undefined} 
+                    alt={ticket.assignedUser.name} 
+                    className="object-cover" 
+                  />
+                  <AvatarFallback className="text-[10px] font-bold">
+                    {getInitials(ticket.assignedUser.name)}
+                  </AvatarFallback>
+                </Avatar>
                 <div className="flex flex-col min-w-0">
                   <span className="text-[11px] font-bold text-foreground truncate">
                     {ticket.assignedUser.name}

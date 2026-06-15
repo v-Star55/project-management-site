@@ -37,8 +37,8 @@ import DueTodayCard from "./DueTodayCard"
 import UpcomingDeadlinesCard from "./UpcomingDeadlinesCard"
 import ProjectsSection from "./ProjectsSection"
 import HoursBarChart from "./HoursBarChart"
-import CalendarCard from "./CalendarCard"
 import NotesCard from "./NotesCard"
+import RecentActivityCard from "./RecentActivityCard"
 
 export default function MemberDashboard() {
   // ── Data fetching ──────────────────────────────────────────────────────────
@@ -119,9 +119,8 @@ export default function MemberDashboard() {
           <HoursBarChart data={weeklyPerformance} />
         </div>
 
-        {/* Right column: 1/3 width, sticky */}
         <div className="lg:col-span-1 flex flex-col gap-6 w-full lg:sticky lg:top-6">
-          <CalendarCard />
+          <RecentActivityCard />
           <NotesCard />
         </div>
       </div>

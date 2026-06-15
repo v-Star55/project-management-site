@@ -1,12 +1,33 @@
 "use client"
 
 import * as React from "react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query"
 import axios from "axios"
+import { useSelector } from "react-redux"
+import { RootState } from "@/lib/store"
 import { Spinner } from "@/components/ui/spinner"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { toast } from "sonner"
+import { PencilIcon } from "lucide-react"
+import { formatDistanceToNow } from "date-fns"
 import { 
   ClockIcon, 
   BriefcaseIcon, 
@@ -223,6 +244,14 @@ export default function UserProfileDetail({ userId, isSheet = false }: UserProfi
   const [timelogSearch, setTimelogSearch] = React.useState("")
   const [activeTab, setActiveTab] = React.useState("overview")
 
+  const { user: currentUser } = useSelector((state: RootState) => state.user)
+  const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false)
+  const [editName, setEditName] = React.useState("")
+  const [editEmail, setEditEmail] = React.useState("")
+  const [editRole, setEditRole] = React.useState("")
+  const [editDesignation, setEditDesignation] = React.useState("")
+  const [isSaving, setIsSaving] = React.useState(false)
+
   const { data, isLoading, isError, error } = useQuery<UserProfileResponse>({
     queryKey: ["userProfile", userId],
     queryFn: async () => {
@@ -231,6 +260,16 @@ export default function UserProfileDetail({ userId, isSheet = false }: UserProfi
     },
     enabled: !!userId,
   })
+
+  // Pre-fill fields when dialog opens
+  React.useEffect(() => {
+    if (data?.basicInfo) {
+      setEditName(data.basicInfo.name || "")
+      setEditEmail(data.basicInfo.email || "")
+      setEditRole(data.basicInfo.role || "")
+      setEditDesignation(data.basicInfo.designation || "")
+    }
+  }, [data?.basicInfo, isEditDialogOpen])
 
   if (isLoading) {
     return (
@@ -265,6 +304,48 @@ export default function UserProfileDetail({ userId, isSheet = false }: UserProfi
 
   const { basicInfo, currentProject, projects, previousProjects, timeLogs, totalLog, ticketStats } = data
   const defaultAvatar = "https://github.com/shadcn.png"
+
+  const currentUserRole = currentUser?.role || ""
+  const isOwner = currentUserRole === "owner"
+  const isSystemAdmin = currentUserRole === "admin"
+
+  // Can current user edit this profile?
+  const canEditProfile = () => {
+    if (!currentUser || !basicInfo) return false
+    // Self editing is always allowed
+    if (currentUser.id === basicInfo.id) return true
+    // Owner can edit any profile in the company
+    if (isOwner) return true
+    // Admin can edit members under their projects
+    if (isSystemAdmin) {
+      return projects.some(p => p.admins.some(a => a.id === currentUser.id))
+    }
+    return false
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!basicInfo) return
+
+    setIsSaving(true)
+    try {
+      await axios.patch(`/api/users/${basicInfo.id}`, {
+        name: editName,
+        email: editEmail,
+        role: (isOwner || isSystemAdmin) ? editRole : undefined,
+        designation: (isOwner || isSystemAdmin) ? editDesignation : undefined,
+      })
+      toast.success("Profile updated successfully")
+      setIsEditDialogOpen(false)
+      // Hard refresh or reload is safest to update all context/redux
+      window.location.reload()
+    } catch (error: any) {
+      console.error(error)
+      toast.error(error.response?.data?.error || "Failed to update profile")
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   // Helper for date range calculation of "This Week" (Monday to Sunday) and "Last Week"
   const getWeekRanges = () => {
@@ -634,7 +715,7 @@ export default function UserProfileDetail({ userId, isSheet = false }: UserProfi
                   <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">
                     {basicInfo.name}
                   </h1>
-                  <div className="flex gap-1.5 mt-1 md:mt-0">
+                  <div className="flex items-center gap-1.5 mt-1 md:mt-0">
                     <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
                       {basicInfo.role}
                     </span>
@@ -642,6 +723,15 @@ export default function UserProfileDetail({ userId, isSheet = false }: UserProfi
                       <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-muted text-muted-foreground border border-border">
                         {basicInfo.designation}
                       </span>
+                    )}
+                    {canEditProfile() && (
+                      <button
+                        onClick={() => setIsEditDialogOpen(true)}
+                        className="p-1 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+                        title="Edit Profile"
+                      >
+                        <PencilIcon className="size-3.5" />
+                      </button>
                     )}
                   </div>
                 </div>
@@ -768,58 +858,6 @@ export default function UserProfileDetail({ userId, isSheet = false }: UserProfi
             />
 
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full items-stretch">
-            {/* Recent activity log timeline */}
-            <Card className="lg:col-span-3 border-border/50 shadow-xs rounded-3xl overflow-hidden">
-              <CardHeader className="border-b border-border/40 bg-muted/15 flex flex-row items-center py-4 px-6 justify-between">
-                <div className="flex items-center gap-2">
-                  <ActivityIcon className="size-4 text-primary" />
-                  <CardTitle className="text-sm font-bold tracking-wide uppercase text-foreground">Recent Activity Logs</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                {timeLogs && timeLogs.length > 0 ? (
-                  <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
-                    {timeLogs.slice(0, 5).map((log) => (
-                      <div key={log.id} className="p-4 bg-muted/20 border border-border/30 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3 hover:border-border/50 transition-all">
-                        <div className="space-y-1">
-                          <span className="text-[10px] text-muted-foreground block font-medium">
-                            {formatDate(log.startTime)} at {new Date(log.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                          </span>
-                          {log.ticket && (
-                            <span className="text-sm font-bold text-foreground">
-                              {log.ticket.title}
-                            </span>
-                          )}
-                          {log.description && (
-                            <p className="text-xs text-muted-foreground font-medium italic mt-1 pl-2 border-l-2 border-border/50">
-                              {log.description}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          {log.ticket?.project && (
-                            <span className="text-[9px] uppercase tracking-wider font-extrabold text-primary/80 border border-primary/20 bg-primary/5 px-2 py-0.5 rounded-md">
-                              {log.ticket.project.title}
-                            </span>
-                          )}
-                          <span className="text-xs font-extrabold bg-blue-500/10 text-blue-500 border border-blue-500/25 px-2.5 py-0.5 rounded-full">
-                            {formatDuration(log.duration)}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 bg-muted/10 border border-dashed border-border/30 rounded-2xl">
-                    <ActivityIcon className="size-8 text-muted-foreground/30 mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground italic">No recent log activities found</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
         </TabsContent>
 
         {/* Projects Tab Content */}
@@ -909,6 +947,95 @@ export default function UserProfileDetail({ userId, isSheet = false }: UserProfi
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Edit Profile Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="bg-popover border border-border max-w-md rounded-3xl p-6">
+          <DialogHeader className="pb-3 border-b border-border/40">
+            <DialogTitle className="text-foreground font-bold text-lg">Edit Profile</DialogTitle>
+            <DialogDescription className="text-muted-foreground text-xs">
+              Modify details for <strong className="text-foreground">{basicInfo.name}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleEditSubmit} className="space-y-4 py-3">
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-muted-foreground">Full Name</label>
+              <input
+                type="text"
+                value={editName}
+                onChange={e => setEditName(e.target.value)}
+                className="w-full px-3 py-2 bg-muted/30 border border-border/60 rounded-xl text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none text-foreground"
+                required
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-muted-foreground">Email Address</label>
+              <input
+                type="email"
+                value={editEmail}
+                onChange={e => setEditEmail(e.target.value)}
+                className="w-full px-3 py-2 bg-muted/30 border border-border/60 rounded-xl text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none text-foreground"
+                required
+              />
+            </div>
+
+            {/* Role & Designation - restricted to Owner and Admin */}
+            {(isOwner || isSystemAdmin) && (
+              <>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-muted-foreground">Role</label>
+                  <Select
+                    value={editRole}
+                    onValueChange={setEditRole}
+                  >
+                    <SelectTrigger className="w-full bg-muted/30 border border-border/60 rounded-xl h-10 text-foreground cursor-pointer">
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border border-border text-popover-foreground rounded-xl">
+                      {/* Enforce role restriction rules */}
+                      {isOwner && <SelectItem value="owner">Owner</SelectItem>}
+                      {isOwner && <SelectItem value="admin">Admin</SelectItem>}
+                      <SelectItem value="member">Member</SelectItem>
+                      <SelectItem value="qa">QA</SelectItem>
+                      <SelectItem value="client">Client</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-muted-foreground">Designation</label>
+                  <input
+                    type="text"
+                    value={editDesignation}
+                    onChange={e => setEditDesignation(e.target.value)}
+                    className="w-full px-3 py-2 bg-muted/30 border border-border/60 rounded-xl text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none text-foreground"
+                    placeholder="e.g. Senior Software Engineer"
+                  />
+                </div>
+              </>
+            )}
+
+            <DialogFooter className="pt-3 border-t border-border/40 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setIsEditDialogOpen(false)}
+                className="px-4 py-2 border border-border rounded-xl text-xs font-medium text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/95 font-medium rounded-xl text-xs transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                {isSaving ? "Saving..." : "Save Changes"}
+              </button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
       
     </div>
   )

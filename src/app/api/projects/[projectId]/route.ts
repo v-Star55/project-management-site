@@ -235,9 +235,130 @@ export async function PATCH(
             },
         });
 
+        // Create an activity log for project update
+        await prisma.activityLog.create({
+            data: {
+                action: "PROJECT_UPDATED",
+                description: `Updated project details: ${updatedProject.title}`,
+                userId: dbUser.id,
+                projectId: updatedProject.id,
+            }
+        });
+
         return NextResponse.json({ project: updatedProject });
     } catch (error) {
         console.error("Error updating project:", error);
         return NextResponse.json({ error: "Failed to update project" }, { status: 500 });
     }
 }
+
+export async function DELETE(
+    req: NextRequest,
+    { params }: { params: Promise<{ projectId?: string }> }
+) {
+    const user = await requireRole(["owner", "admin"], req);
+    if (user instanceof NextResponse) return user;
+
+    const { projectId } = await params;
+    if (!projectId) {
+        return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
+    }
+
+    try {
+        const dbUser = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { id: true, role: true, companyId: true },
+        });
+
+        if (!dbUser || !dbUser.companyId) {
+            return NextResponse.json(
+                { error: "User is not associated with a company" },
+                { status: 403 }
+            );
+        }
+
+        const project = await prisma.project.findUnique({
+            where: { id: projectId },
+            include: {
+                admins: { select: { id: true } },
+            },
+        });
+
+        if (!project || project.companyId !== dbUser.companyId) {
+            return NextResponse.json({ error: "Project not found" }, { status: 404 });
+        }
+
+        if (dbUser.role !== "owner") {
+            const isProjectAdmin = project.admins.some((a) => a.id === dbUser.id);
+            if (!isProjectAdmin) {
+                return NextResponse.json(
+                    { error: "Forbidden: You are not an admin of this project" },
+                    { status: 403 }
+                );
+            }
+        }
+
+        const url = new URL(req.url);
+        const memberId = url.searchParams.get("memberId");
+
+        if (memberId) {
+            // Disconnect member from the project
+            const targetUser = await prisma.user.findUnique({
+                where: { id: memberId },
+                select: { id: true, role: true }
+            });
+
+            if (!targetUser) {
+                return NextResponse.json({ error: "Target member not found" }, { status: 404 });
+            }
+
+            // Access control check:
+            // Company Owner can remove anyone.
+            // Project admin (system admin) can remove members, qa, and clients. They cannot remove owners or other admins.
+            if (dbUser.role !== "owner") {
+                if (targetUser.role === "owner" || targetUser.role === "admin") {
+                    return NextResponse.json(
+                        { error: "Forbidden: Admins cannot remove other admins or owners from the project" },
+                        { status: 403 }
+                    );
+                }
+            }
+
+            await prisma.project.update({
+                where: { id: projectId },
+                data: {
+                    members: {
+                        disconnect: { id: targetUser.id }
+                    },
+                    admins: {
+                        disconnect: { id: targetUser.id }
+                    }
+                }
+            });
+
+            return NextResponse.json({ message: "Member removed from project successfully" });
+        }
+
+        // Soft-delete the project
+        const updatedProject = await prisma.project.update({
+            where: { id: projectId },
+            data: { isActive: false },
+        });
+
+        // Create an activity log for project deletion
+        await prisma.activityLog.create({
+            data: {
+                action: "PROJECT_ARCHIVED",
+                description: `Deleted project: ${updatedProject.title}`,
+                userId: dbUser.id,
+                projectId: updatedProject.id,
+            }
+        });
+
+        return NextResponse.json({ message: "Project deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting project:", error);
+        return NextResponse.json({ error: "Failed to delete project" }, { status: 500 });
+    }
+}
+

@@ -15,7 +15,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { TerminalSquareIcon, BotIcon, BookOpenIcon, Settings2Icon, LifeBuoyIcon, SendIcon, FrameIcon, PieChartIcon, MapIcon, TerminalIcon, ChevronRight, User2Icon } from "lucide-react"
+import { TerminalSquareIcon, BotIcon, BookOpenIcon, Settings2Icon, LifeBuoyIcon, SendIcon, FrameIcon, PieChartIcon, MapIcon, TerminalIcon, ChevronRight, User2Icon, ClockIcon } from "lucide-react"
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
 import { Button } from "./ui/button"
@@ -35,7 +35,7 @@ const data = {
         />
       ),
       isActive: true,
-      role: ["owner", "admin", "member", "client"]
+      role: ["owner", "admin", "member", "qa", "client"]
     },
     {
       title: "Tickets",
@@ -44,7 +44,7 @@ const data = {
         <BookOpenIcon
         />
       ),
-      role: ["owner", "admin", "member", "client"]
+      role: ["owner", "admin", "member", "qa"]
     },
     {
       title: "Teams",
@@ -52,19 +52,18 @@ const data = {
       icon: (
         <User2Icon/>
       ),
-      role: ["owner", "admin", "member"]
+      role: ["owner", "admin", "member", "qa"]
+    },
+    {
+      title: "Time Logs",
+      url: "#",
+      icon: (
+        <ClockIcon />
+      ),
+      role: ["owner", "admin", "member", "qa"]
     },
         {
       title: "Clients",
-      url: "#",
-      icon: (
-        <BookOpenIcon
-        />
-      ),
-      role: ["owner", "admin"]
-    },
-    {
-      title: "Reports",
       url: "#",
       icon: (
         <BookOpenIcon
@@ -197,7 +196,8 @@ export function AppSidebar({
       if (item.title === "Dashboard") {
         url = `/dashboard/${user.id}`
       } else {
-        url = `/dashboard/${user.id}/${item.title.toLowerCase()}`
+        const path = item.title.toLowerCase().replace(/\s+/g, "")
+        url = `/dashboard/${user.id}/${path}`
       }
     }
     return { ...item, url }

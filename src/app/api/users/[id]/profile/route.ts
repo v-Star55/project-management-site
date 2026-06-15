@@ -19,8 +19,12 @@ export async function GET(
         // Fetch caller details to verify they belong to the same company
         const dbAuthUser = await prisma.user.findUnique({
             where: { id: authUser.id },
-            select: { companyId: true, role: true },
+            select: { id: true, companyId: true, role: true },
         });
+
+        if (!dbAuthUser || !dbAuthUser.companyId) {
+            return NextResponse.json({ error: "Unauthorized: company access missing" }, { status: 401 });
+        }
 
         // Fetch target user details including their company and recent time logs
         const targetUser = await prisma.user.findUnique({
@@ -47,6 +51,25 @@ export async function GET(
         // Enforce company boundary security checks
         if (dbAuthUser?.companyId !== targetUser.companyId) {
             return NextResponse.json({ error: "Forbidden: unauthorized access" }, { status: 403 });
+        }
+
+        // Restrict admins to only view their own profile or profiles of members under their projects
+        if (dbAuthUser?.role === "admin" && authUser.id !== id) {
+            const commonProject = await prisma.project.findFirst({
+                where: {
+                    companyId: dbAuthUser.companyId,
+                    admins: {
+                        some: { id: dbAuthUser.id }
+                    },
+                    OR: [
+                        { members: { some: { id: targetUser.id } } },
+                        { admins: { some: { id: targetUser.id } } }
+                    ]
+                }
+            });
+            if (!commonProject) {
+                return NextResponse.json({ error: "Forbidden: you can only view profiles of members under your projects" }, { status: 403 });
+            }
         }
 
         // Restrict members and clients to only view their own profile
@@ -236,6 +259,134 @@ export async function GET(
 
     } catch (error) {
         console.error("Error fetching user profile details:", error);
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    }
+}
+
+export async function PATCH(
+    req: NextRequest,
+    { params }: { params: Promise<{ id?: string }> }
+) {
+    try {
+        const authUser = await requireRole(["owner", "admin", "member", "client"], req);
+        if (authUser instanceof NextResponse) return authUser;
+
+        const { id } = await params;
+        if (!id) {
+            return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+        }
+
+        const dbAuthUser = await prisma.user.findUnique({
+            where: { id: authUser.id },
+            select: { id: true, companyId: true, role: true },
+        });
+
+        if (!dbAuthUser || !dbAuthUser.companyId) {
+            return NextResponse.json({ error: "Unauthorized: company access missing" }, { status: 401 });
+        }
+
+        const targetUser = await prisma.user.findUnique({
+            where: { id },
+        });
+
+        if (!targetUser) {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
+        if (dbAuthUser?.companyId !== targetUser.companyId) {
+            return NextResponse.json({ error: "Forbidden: unauthorized access" }, { status: 403 });
+        }
+
+        // Restrict admins to only edit their own profile or profiles of members under their projects
+        if (dbAuthUser?.role === "admin" && authUser.id !== id) {
+            const commonProject = await prisma.project.findFirst({
+                where: {
+                    companyId: dbAuthUser.companyId,
+                    admins: {
+                        some: { id: dbAuthUser.id }
+                    },
+                    OR: [
+                        { members: { some: { id: targetUser.id } } },
+                        { admins: { some: { id: targetUser.id } } }
+                    ]
+                }
+            });
+            if (!commonProject) {
+                return NextResponse.json({ error: "Forbidden: you can only edit profiles of members under your projects" }, { status: 403 });
+            }
+        }
+
+        const body = await req.json();
+        const { name, email, role, designation, imageUrl } = body;
+
+        const isSelf = authUser.id === id;
+        const authRole = dbAuthUser?.role || "member";
+
+        // Members and clients cannot change role or designation
+        if (authRole === "member" || authRole === "client") {
+            if (!isSelf) {
+                return NextResponse.json({ error: "Forbidden: you can only update your own profile" }, { status: 403 });
+            }
+            if (role !== undefined && role !== targetUser.role) {
+                return NextResponse.json({ error: "Forbidden: you cannot change your role" }, { status: 403 });
+            }
+            if (designation !== undefined && designation !== targetUser.designation) {
+                return NextResponse.json({ error: "Forbidden: you cannot change your designation" }, { status: 403 });
+            }
+        }
+
+        // Admin checks
+        if (authRole === "admin") {
+            // Admins cannot edit admins or owners (except themselves if changing basic info, but admin cannot change their own role/designation)
+            if (targetUser.role === "admin" || targetUser.role === "owner") {
+                if (!isSelf) {
+                    return NextResponse.json({ error: "Forbidden: admins cannot edit other admins or owners" }, { status: 403 });
+                }
+                // self-admin: cannot change role/designation
+                if (role !== undefined && role !== targetUser.role) {
+                    return NextResponse.json({ error: "Forbidden: you cannot change your own role" }, { status: 403 });
+                }
+                if (designation !== undefined && designation !== targetUser.designation) {
+                    return NextResponse.json({ error: "Forbidden: you cannot change your own designation" }, { status: 403 });
+                }
+            } else {
+                // Editing a non-admin/non-owner target user: admin cannot assign owner or admin roles
+                if (role !== undefined && role !== targetUser.role) {
+                    if (role === "admin" || role === "owner") {
+                        return NextResponse.json({ error: "Forbidden: admins cannot assign admin or owner roles" }, { status: 403 });
+                    }
+                }
+            }
+        }
+
+        // Prepare update data
+        const updateData: any = {};
+        if (name !== undefined) updateData.name = name;
+        if (email !== undefined) updateData.email = email;
+        if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+
+        // Role & designation updates are restricted to owner & admin (under above checks)
+        if (authRole === "owner" || authRole === "admin") {
+            if (role !== undefined) updateData.role = role;
+            if (designation !== undefined) updateData.designation = designation;
+        }
+
+        const updatedUser = await prisma.user.update({
+            where: { id },
+            data: updateData,
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                designation: true,
+                imageUrl: true,
+            }
+        });
+
+        return NextResponse.json({ message: "Profile updated successfully", user: updatedUser });
+    } catch (error) {
+        console.error("Error updating user profile:", error);
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }

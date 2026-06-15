@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
@@ -22,7 +22,7 @@ import {
   getProjectStatusBadge, 
   getProjectStatusLabel 
 } from "@/components/project/utils"
-import ProjectStats from "@/components/project/project-stats"
+import ProjectOverview from "@/components/project/project-overview"
 import ProjectTickets from "@/components/project/project-tickets"
 import ProjectTeam from "@/components/project/project-team"
 import ProjectDiscussions from "@/components/project/project-discussions"
@@ -44,6 +44,12 @@ export default function ProjectDetailPage() {
   const tabParam = searchParams?.get("tab") as "overview" | "groups" | "board" | "team" | "messages" | "files" | null
   const activeTab = tabParam || "overview"
 
+  useEffect(() => {
+    if (userRole === "client" && activeTab !== "overview" && activeTab !== "messages") {
+      router.replace(`/dashboard/${userId}/projects/${projectId}?tab=overview`)
+    }
+  }, [userRole, activeTab, userId, projectId, router])
+
   // Fetch Project Details
   const { data: projectData, isLoading: isProjectLoading, isError: isProjectError } = useQuery({
     queryKey: ["project", projectId],
@@ -56,7 +62,7 @@ export default function ProjectDetailPage() {
 
   // Authorization Check: Only owners, admins, and project-level admins can edit.
   const isProjectAdmin = projectData?.admins?.some((a) => a.id === user?.id)
-  const canEdit = userRole === "owner" || userRole === "admin" || !!isProjectAdmin
+  const canEdit = userRole === "owner" || (userRole === "admin" && !!isProjectAdmin)
 
   if (isProjectLoading) {
     return (
@@ -153,12 +159,12 @@ export default function ProjectDetailPage() {
           {activeTab === "overview" ? (
             /* Overview tab */
             <div className="animate-in fade-in duration-200">
-              <ProjectStats projectData={projectData} />
+              <ProjectOverview projectData={projectData} />
             </div>
           ) : activeTab === "groups" ? (
             /* Groups tab */
             <div className="animate-in fade-in duration-200">
-              <ProjectGroups projectId={projectId as string} userRole={userRole} />
+              <ProjectGroups projectId={projectId as string} userRole={userRole} isProjectAdmin={!!isProjectAdmin} />
             </div>
           ) : activeTab === "board" ? (
             /* Board/Tickets tab */

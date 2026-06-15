@@ -66,6 +66,7 @@ interface SprintDetailProps {
   projectId: string
   groupId: string
   userRole: string
+  canManage: boolean
   onBack: () => void
 }
 
@@ -108,7 +109,7 @@ const getTicketTypeBadgeClass = (type: string) => {
   }
 }
 
-export default function SprintDetail({ projectId, groupId, userRole, onBack }: SprintDetailProps) {
+export default function SprintDetail({ projectId, groupId, userRole, canManage, onBack }: SprintDetailProps) {
   const params = useParams()
   const userId = params?.id
   const queryClient = useQueryClient()
@@ -344,14 +345,18 @@ export default function SprintDetail({ projectId, groupId, userRole, onBack }: S
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="rounded-xl shadow-sm h-10 hover:bg-muted/10" onClick={() => setIsEditOpen(true)}>
-            <EditIcon className="size-4 mr-2" />
-            Edit Sprint
-          </Button>
-          <Button className="rounded-xl shadow-sm h-10 bg-primary hover:bg-primary/90" onClick={() => setIsAddTicketOpen(true)}>
-            <PlusIcon className="size-4 mr-2" />
-            Add Ticket
-          </Button>
+          {canManage && (
+            <Button variant="outline" className="rounded-xl shadow-sm h-10 hover:bg-muted/10" onClick={() => setIsEditOpen(true)}>
+              <EditIcon className="size-4 mr-2" />
+              Edit Sprint
+            </Button>
+          )}
+          {canManage && (
+            <Button className="rounded-xl shadow-sm h-10 bg-primary hover:bg-primary/90" onClick={() => setIsAddTicketOpen(true)}>
+              <PlusIcon className="size-4 mr-2" />
+              Add Ticket
+            </Button>
+          )}
         </div>
       </div>
 
@@ -790,7 +795,11 @@ export default function SprintDetail({ projectId, groupId, userRole, onBack }: S
             ) : null}
             <p className="line-clamp-4">{group.description}</p>
           </div>
-          <Button variant="outline" size="sm" className="w-full mt-4 h-8 text-xs hover:bg-muted/10" onClick={() => setIsEditOpen(true)}>Edit Description</Button>
+          {canManage && (
+            <Button variant="outline" size="sm" className="w-full mt-4 h-8 text-xs hover:bg-muted/10" onClick={() => setIsEditOpen(true)}>
+              Edit Description
+            </Button>
+          )}
         </div>
 
         <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-sm flex flex-col">

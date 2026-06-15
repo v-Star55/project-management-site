@@ -4,6 +4,8 @@ import React, { useState } from "react"
 import axios from "axios"
 import { toast } from "sonner"
 import { EyeIcon, EyeOffIcon, Loader2Icon, UserPlusIcon } from "lucide-react"
+import { useSelector } from "react-redux"
+import { RootState } from "@/lib/store"
 
 import {
   Select,
@@ -19,6 +21,9 @@ interface InviteMemberFormProps {
 }
 
 export default function InviteMemberForm({ companyId, onSuccess }: InviteMemberFormProps) {
+  const { user } = useSelector((state: RootState) => state.user)
+  const isSystemAdmin = user?.role === "admin"
+
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -163,10 +168,10 @@ export default function InviteMemberForm({ companyId, onSuccess }: InviteMemberF
           </SelectTrigger>
           <SelectContent className="rounded-xl border border-border bg-popover text-popover-foreground">
             <SelectItem value="member">Member</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="owner">Owner</SelectItem>
-            <SelectItem value="manager">Manager</SelectItem>
+            {!isSystemAdmin && <SelectItem value="admin">Admin</SelectItem>}
+            {!isSystemAdmin && <SelectItem value="owner">Owner</SelectItem>}
             <SelectItem value="qa">QA</SelectItem>
+            <SelectItem value="client">Client</SelectItem>
           </SelectContent>
         </Select>
       </div>

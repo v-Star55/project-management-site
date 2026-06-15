@@ -165,7 +165,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           })
         }
       } else if (section) {
-        const capitalized = section.charAt(0).toUpperCase() + section.slice(1)
+        let capitalized = section.charAt(0).toUpperCase() + section.slice(1)
+        if (section === "timelogs") {
+          capitalized = "Time Logs"
+        }
         const detailId = segments[3]
         
         if (detailId) {

@@ -6,7 +6,7 @@ import { $Enums } from "@/generated/prisma";
 // ─── GET /api/tickets ──────────────────────────────────────────────────────────
 // Fetch tickets scoped to the authenticated user's role and company workspace.
 export async function GET(req: NextRequest) {
-    const user = await requireRole(["owner", "admin", "member", "client"], req);
+    const user = await requireRole(["owner", "admin", "member", "qa"], req);
 
     // Propagate any auth/permission error response directly.
     if (user instanceof NextResponse) return user;
@@ -56,8 +56,22 @@ export async function GET(req: NextRequest) {
                 include: ticketInclude,
                 orderBy: { createdAt: "desc" },
             });
+        } else if (dbUser.role === "admin") {
+            // admin can only see tickets of projects they are admins of.
+            tickets = await prisma.ticket.findMany({
+                where: {
+                    project: {
+                        companyId: dbUser.companyId,
+                        isActive: true,
+                        admins: { some: { id: dbUser.id } },
+                    },
+                    isDeleted: false,
+                },
+                include: ticketInclude,
+                orderBy: { createdAt: "desc" },
+            });
         } else {
-            // admin, member, client: only tickets they are assigned to, or tickets of projects they are admin/member of.
+            // member: only tickets they are assigned to, or tickets of projects they are member or admin of.
             tickets = await prisma.ticket.findMany({
                 where: {
                     project: {
@@ -92,7 +106,7 @@ export async function GET(req: NextRequest) {
 // ─── POST /api/tickets ─────────────────────────────────────────────────────────
 // Create a new ticket. Only owner, admin, and project-admin members can create tickets.
 export async function POST(req: NextRequest) {
-    const user = await requireRole(["owner", "admin", "member"], req);
+    const user = await requireRole(["owner", "admin", "member", "qa"], req);
 
     if (user instanceof NextResponse) return user;
 
@@ -161,6 +175,18 @@ export async function POST(req: NextRequest) {
             },
         });
 
+        // Create an activity log for ticket creation
+        await prisma.activityLog.create({
+            data: {
+                action: "TICKET_CREATED",
+                description: `Created ticket ${ticket.title}`,
+                userId: dbUser.id,
+                projectId: ticket.projectId,
+                ticketId: ticket.id,
+                groupId: ticket.groupId || null,
+            }
+        });
+
         return NextResponse.json({ ticket }, { status: 201 });
     } catch (error) {
         console.error(error);
@@ -171,7 +197,7 @@ export async function POST(req: NextRequest) {
 // ─── PATCH /api/tickets ────────────────────────────────────────────────────────
 // Update ticket status, priority, or other metadata fields.
 export async function PATCH(req: NextRequest) {
-    const user = await requireRole(["owner", "admin", "member"], req);
+    const user = await requireRole(["owner", "admin", "member", "qa"], req);
 
     if (user instanceof NextResponse) return user;
 
@@ -255,23 +281,33 @@ export async function PATCH(req: NextRequest) {
         // owner can update any ticket.
         if (dbUser.role !== "owner") {
             const isProjectAdmin = ticket.project.admins.some((a) => a.id === dbUser.id);
-            if (isEditingMetadata) {
-                // Only project admins or owners can edit ticket details (metadata)
+            if (dbUser.role === "admin") {
                 if (!isProjectAdmin) {
                     return NextResponse.json(
-                        { error: "Forbidden: Only project admins or owners can edit ticket details" },
+                        { error: "Forbidden: Only project admins or owners can update tickets" },
                         { status: 403 }
                     );
                 }
             } else {
-                // Changing only status or priority
-                const isProjectMember = ticket.project.members.some((m) => m.id === dbUser.id);
-                const isAssignee = ticket.assignedUserId === dbUser.id;
-                if (!isProjectAdmin && !isProjectMember && !isAssignee) {
-                    return NextResponse.json(
-                        { error: "Forbidden: You do not have permission to update this ticket" },
-                        { status: 403 }
-                    );
+                // member
+                if (isEditingMetadata) {
+                    // Only project admins or owners can edit ticket details (metadata)
+                    if (!isProjectAdmin) {
+                        return NextResponse.json(
+                            { error: "Forbidden: Only project admins or owners can edit ticket details" },
+                            { status: 403 }
+                        );
+                    }
+                } else {
+                    // Changing only status or priority
+                    const isProjectMember = ticket.project.members.some((m) => m.id === dbUser.id);
+                    const isAssignee = ticket.assignedUserId === dbUser.id;
+                    if (!isProjectAdmin && !isProjectMember && !isAssignee) {
+                        return NextResponse.json(
+                            { error: "Forbidden: You do not have permission to update this ticket" },
+                            { status: 403 }
+                        );
+                    }
                 }
             }
         }
@@ -312,6 +348,108 @@ export async function PATCH(req: NextRequest) {
             data: updateData,
         });
 
+        // Log activity if status, priority, or assignee changed
+        const formatStatus = (s: string) => {
+            if (s === "in_progress") return "In Progress";
+            if (s === "in_review") return "In Review";
+            if (s === "completed") return "Completed";
+            if (s === "reopen") return "Reopen";
+            if (s === "blocked") return "Blocked";
+            if (s === "pending") return "Pending";
+            if (s === "backlog") return "Backlog";
+            return s;
+        };
+
+        const formatPriority = (p: string) => {
+            if (p === "low") return "Low";
+            if (p === "medium") return "Medium";
+            if (p === "high") return "High";
+            if (p === "urgent") return "Urgent";
+            return p;
+        };
+
+        if (status !== undefined && status !== ticket.status) {
+            await prisma.activityLog.create({
+                data: {
+                    action: "TICKET_STATUS_CHANGED",
+                    description: `Moved ${ticket.title} to ${formatStatus(status)}`,
+                    userId: dbUser.id,
+                    projectId: ticket.projectId,
+                    ticketId: ticket.id,
+                    groupId: updatedTicket.groupId || null,
+                    metadata: { from: ticket.status, to: status }
+                }
+            });
+        }
+
+        if (priority !== undefined && priority !== ticket.priority) {
+            await prisma.activityLog.create({
+                data: {
+                    action: "TICKET_PRIORITY_CHANGED",
+                    description: `Updated ${ticket.title} priority to ${formatPriority(priority)}`,
+                    userId: dbUser.id,
+                    projectId: ticket.projectId,
+                    ticketId: ticket.id,
+                    groupId: updatedTicket.groupId || null,
+                    metadata: { from: ticket.priority, to: priority }
+                }
+            });
+        }
+
+        if (assignedUserId !== undefined && assignedUserId !== ticket.assignedUserId) {
+            if (updatedTicket.assignedUserId) {
+                const assignedUser = await prisma.user.findUnique({
+                    where: { id: updatedTicket.assignedUserId },
+                    select: { name: true }
+                });
+                await prisma.activityLog.create({
+                    data: {
+                        action: "TICKET_ASSIGNED",
+                        description: `Assigned ${ticket.title} to ${assignedUser?.name || "someone"}`,
+                        userId: dbUser.id,
+                        targetUserId: updatedTicket.assignedUserId,
+                        projectId: ticket.projectId,
+                        ticketId: ticket.id,
+                        groupId: updatedTicket.groupId || null,
+                    }
+                });
+            } else {
+                await prisma.activityLog.create({
+                    data: {
+                        action: "TICKET_UNASSIGNED",
+                        description: `Unassigned ${ticket.title}`,
+                        userId: dbUser.id,
+                        projectId: ticket.projectId,
+                        ticketId: ticket.id,
+                        groupId: updatedTicket.groupId || null,
+                    }
+                });
+            }
+        }
+
+        if (groupId !== undefined && groupId !== ticket.groupId) {
+            let desc = "";
+            if (updatedTicket.groupId) {
+                const group = await prisma.projectGroup.findUnique({
+                    where: { id: updatedTicket.groupId },
+                    select: { name: true }
+                });
+                desc = `Moved ${ticket.title} to ${group?.name || "sprint"}`;
+            } else {
+                desc = `Removed ${ticket.title} from sprint`;
+            }
+            await prisma.activityLog.create({
+                data: {
+                    action: "TICKET_MOVED",
+                    description: desc,
+                    userId: dbUser.id,
+                    projectId: ticket.projectId,
+                    ticketId: ticket.id,
+                    groupId: updatedTicket.groupId || ticket.groupId || null,
+                }
+            });
+        }
+
         return NextResponse.json({ ticket: updatedTicket });
     } catch (error) {
         console.error(error);
@@ -321,7 +459,7 @@ export async function PATCH(req: NextRequest) {
 
 // ─── DELETE /api/tickets ──────────────────────────────────────────────────────
 export async function DELETE(req: NextRequest) {
-    const user = await requireRole(["owner", "admin", "member"], req);
+    const user = await requireRole(["owner", "admin", "member", "qa"], req);
     if (user instanceof NextResponse) return user;
 
     try {
@@ -382,6 +520,18 @@ export async function DELETE(req: NextRequest) {
                 isDeleted: true,
                 deletedAt: new Date(),
             },
+        });
+
+        // Create an activity log for ticket deletion
+        await prisma.activityLog.create({
+            data: {
+                action: "TICKET_DELETED",
+                description: `Deleted ticket ${ticket.title}`,
+                userId: dbUser.id,
+                projectId: ticket.projectId,
+                ticketId: ticket.id,
+                groupId: ticket.groupId || null,
+            }
         });
 
         return NextResponse.json({ success: true, ticket: deletedTicket });

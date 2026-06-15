@@ -5,7 +5,7 @@ import { requireRole } from "@/helpers/permission";
 // POST /api/tickets/time-logs
 // Logs hours worked on a ticket
 export async function POST(req: NextRequest) {
-    const user = await requireRole(["owner", "admin", "member"], req);
+    const user = await requireRole(["owner", "admin", "member", "qa"], req);
     if (user instanceof NextResponse) return user;
 
     try {
@@ -30,20 +30,28 @@ export async function POST(req: NextRequest) {
 
         const ticket = await prisma.ticket.findUnique({
             where: { id: ticketId },
-            include: { project: true },
+            include: {
+                project: {
+                    include: {
+                        members: { select: { id: true } },
+                        admins: { select: { id: true } }
+                    }
+                }
+            },
         });
 
         if (!ticket || ticket.project.companyId !== dbUser.companyId) {
             return NextResponse.json({ error: "Ticket not found or unauthorized" }, { status: 403 });
         }
 
-        // PERMISSION CHECK: Only the assigned user, owner, or admin can log hours
+        // PERMISSION CHECK: Only the assigned user, project members, owner, or admin can log hours
         const isAssigned = ticket.assignedUserId === user.id;
         const isOwnerOrAdmin = dbUser.role === "owner" || dbUser.role === "admin";
+        const isProjectMember = ticket.project.members.some((m) => m.id === user.id) || ticket.project.admins.some((a) => a.id === user.id);
         
-        if (!isAssigned && !isOwnerOrAdmin) {
+        if (!isAssigned && !isOwnerOrAdmin && !isProjectMember) {
             return NextResponse.json(
-                { error: "Forbidden: only the assigned user, owner, or admin can log hours on this ticket." },
+                { error: "Forbidden: only project members, owners, or admins can log hours on this ticket." },
                 { status: 403 }
             );
         }
@@ -56,6 +64,7 @@ export async function POST(req: NextRequest) {
         const timeLog = await prisma.timeLog.create({
             data: {
                 ticketId,
+                projectId: ticket.projectId,
                 userId: user.id,
                 startTime: logStartTime,
                 endTime: logEndTime,
@@ -77,7 +86,7 @@ export async function POST(req: NextRequest) {
 // DELETE /api/tickets/time-logs?id=xxx
 // Deletes a specific time log entry
 export async function DELETE(req: NextRequest) {
-    const user = await requireRole(["owner", "admin", "member"], req);
+    const user = await requireRole(["owner", "admin", "member", "qa"], req);
     if (user instanceof NextResponse) return user;
 
     try {
@@ -90,7 +99,7 @@ export async function DELETE(req: NextRequest) {
 
         const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
-            select: { companyId: true, role: true },
+            select: { id: true, companyId: true, role: true },
         });
 
         if (!dbUser?.companyId) {
@@ -99,16 +108,31 @@ export async function DELETE(req: NextRequest) {
 
         const log = await prisma.timeLog.findUnique({
             where: { id },
-            include: { ticket: { include: { project: true } } },
+            include: {
+                ticket: {
+                    include: {
+                        project: {
+                            include: {
+                                admins: { select: { id: true } }
+                            }
+                        }
+                    }
+                }
+            },
         });
 
         if (!log || log.ticket?.project.companyId !== dbUser.companyId) {
             return NextResponse.json({ error: "Time log not found or unauthorized" }, { status: 403 });
         }
 
-        // Only the creator of the log, or admin/owner can delete it
-        if (log.userId !== user.id && dbUser.role !== "admin" && dbUser.role !== "owner") {
-            return NextResponse.json({ error: "Forbidden: you can only delete your own time logs" }, { status: 403 });
+        // Only the creator of the log, admin of the project, or owner can delete it
+        const isLogOwner = log.userId === user.id;
+        const isOwner = dbUser.role === "owner";
+        const projectAdmins = log.ticket?.project.admins || [];
+        const isAdminOfProject = dbUser.role === "admin" && projectAdmins.some((a) => a.id === dbUser.id);
+
+        if (!isLogOwner && !isOwner && !isAdminOfProject) {
+            return NextResponse.json({ error: "Forbidden: you do not have permission to delete this time log" }, { status: 403 });
         }
 
         await prisma.timeLog.delete({

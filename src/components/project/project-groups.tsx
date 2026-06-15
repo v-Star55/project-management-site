@@ -55,6 +55,7 @@ interface ProjectGroup {
 interface ProjectGroupsProps {
   projectId: string
   userRole: string
+  isProjectAdmin: boolean
 }
 
 interface DatePickerProps {
@@ -151,7 +152,7 @@ const getGroupTypeBadge = (type: string) => {
   }
 }
 
-export default function ProjectGroups({ projectId, userRole }: ProjectGroupsProps) {
+export default function ProjectGroups({ projectId, userRole, isProjectAdmin }: ProjectGroupsProps) {
   const queryClient = useQueryClient()
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null)
@@ -165,7 +166,7 @@ export default function ProjectGroups({ projectId, userRole }: ProjectGroupsProp
   const [startDate, setStartDate] = useState<Date | undefined>(undefined)
   const [endDate, setEndDate] = useState<Date | undefined>(undefined)
 
-  const isCreateAllowed = userRole === "owner" || userRole === "admin"
+  const isCreateAllowed = userRole === "owner" || (userRole === "admin" && isProjectAdmin)
 
   // Fetch groups query
   const { data: groupsData, isLoading, isError } = useQuery({
@@ -272,6 +273,7 @@ export default function ProjectGroups({ projectId, userRole }: ProjectGroupsProp
         projectId={projectId} 
         groupId={selectedGroupId} 
         userRole={userRole} 
+        canManage={isCreateAllowed}
         onBack={() => setSelectedGroupId(null)} 
       />
     )

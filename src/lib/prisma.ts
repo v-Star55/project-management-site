@@ -24,7 +24,6 @@ if (process.env.NODE_ENV !== "production") {
   if (
     prismaInstance &&
     (!("note" in prismaInstance) ||
-      !("calendarEvent" in prismaInstance) ||
       !("projectGroup" in prismaInstance) ||
       !("activityLog" in prismaInstance))
   ) {

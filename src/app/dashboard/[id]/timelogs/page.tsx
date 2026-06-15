@@ -4,9 +4,9 @@ import { useEffect } from "react"
 import { useSelector } from "react-redux"
 import { useRouter } from "next/navigation"
 import { RootState } from "@/lib/store"
-import TicketsView from "@/components/dashboard/ticketsView"
+import TimeLogsView from "@/components/dashboard/timeLogsView"
 
-export default function TicketsPage() {
+export default function TimeLogsPage() {
   const user = useSelector((state: RootState) => state.user.user)
   const router = useRouter()
 
@@ -20,5 +20,5 @@ export default function TicketsPage() {
     return null
   }
 
-  return <TicketsView />
+  return <TimeLogsView />
 }

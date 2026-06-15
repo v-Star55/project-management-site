@@ -248,22 +248,6 @@ exports.Prisma.NoteScalarFieldEnum = {
   companyId: 'companyId'
 };
 
-exports.Prisma.CalendarEventScalarFieldEnum = {
-  id: 'id',
-  title: 'title',
-  description: 'description',
-  date: 'date',
-  startTime: 'startTime',
-  endTime: 'endTime',
-  type: 'type',
-  priority: 'priority',
-  status: 'status',
-  link: 'link',
-  projectId: 'projectId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.ActivityLogScalarFieldEnum = {
   id: 'id',
   action: 'action',
@@ -311,7 +295,6 @@ exports.Role = exports.$Enums.Role = {
   owner: 'owner',
   admin: 'admin',
   member: 'member',
-  manager: 'manager',
   qa: 'qa',
   client: 'client'
 };
@@ -387,15 +370,6 @@ exports.TicketType = exports.$Enums.TicketType = {
   other: 'other'
 };
 
-exports.CalendarEventType = exports.$Enums.CalendarEventType = {
-  meeting: 'meeting',
-  reminder: 'reminder',
-  sprint: 'sprint',
-  call: 'call',
-  task: 'task',
-  other: 'other'
-};
-
 exports.ActivityAction = exports.$Enums.ActivityAction = {
   PROJECT_CREATED: 'PROJECT_CREATED',
   PROJECT_UPDATED: 'PROJECT_UPDATED',
@@ -429,7 +403,6 @@ exports.Prisma.ModelName = {
   Message: 'Message',
   timeLog: 'timeLog',
   Note: 'Note',
-  CalendarEvent: 'CalendarEvent',
   ActivityLog: 'ActivityLog'
 };
 

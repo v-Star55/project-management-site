@@ -190,12 +190,13 @@ export default function TicketTimeLogs({ ticket }: TicketTimeLogsProps) {
   const [loggingTime, setLoggingTime] = useState(false)
   const [deletingTimeLogId, setDeletingTimeLogId] = useState<string | null>(null)
 
-  // Permission check: only assigned user, owner, admin can log hours
+  // Permission check: only project members, admins, or owners can log hours (all roles except client)
   const canLogHours = 
     user && 
     (user.role === "owner" || 
      user.role === "admin" || 
-     ticket.assignedUserId === user.id)
+     user.role === "member" || 
+     user.role === "qa")
 
   const totalLogMinutes = ticket.timeLogs?.reduce((acc, log) => acc + log.duration, 0) || 0
 
@@ -344,7 +345,7 @@ export default function TicketTimeLogs({ ticket }: TicketTimeLogsProps) {
         )
       ) : (
         <div className="p-3 bg-red-500/5 border border-red-500/10 rounded-xl text-center">
-          <p className="text-[10.5px] font-medium text-red-500/80">Only the assigned member, admin, or owner can log hours on this ticket.</p>
+          <p className="text-[10.5px] font-medium text-red-500/80">Only project members, admins, or owners can log hours on this ticket.</p>
         </div>
       )}
 

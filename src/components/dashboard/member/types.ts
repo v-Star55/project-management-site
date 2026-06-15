@@ -65,23 +65,6 @@ export interface ScheduleTicket {
   assignedUser?: { id: string; name: string; imageUrl: string | null }
 }
 
-/** A calendar event representation */
-export interface CalendarEvent {
-  id: string
-  title: string
-  description?: string | null
-  date: string
-  startTime: string
-  endTime?: string | null
-  type: string
-  priority: string
-  status: string
-  link?: string | null
-  project?: { id: string; title: string } | null
-  assignedTo: Array<{ id: string; name: string; imageUrl: string | null }>
-}
-
-
 /** A personal note / to-do item */
 export interface Note {
   id: string

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useMemo } from "react"
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
 import { Ticket } from "../dashboard/ticketsView"
@@ -208,17 +208,32 @@ export default function TicketDetail({
     enabled: open && !!ticket?.projectId,
   })
 
-  const projectMembers: any[] = []
-  if (projectDetails) {
-    if (projectDetails.admins) projectMembers.push(...projectDetails.admins)
-    if (projectDetails.members) projectMembers.push(...projectDetails.members)
-  }
+  const projectMembers = useMemo(() => {
+    const members: any[] = []
+    if (projectDetails) {
+      const seen = new Set<string>()
+      const add = (list: any[]) => {
+        for (const m of list) {
+          if (m && m.id && !seen.has(m.id)) {
+            seen.add(m.id)
+            members.push(m)
+          }
+        }
+      }
+      if (projectDetails.admins) add(projectDetails.admins)
+      if (projectDetails.members) add(projectDetails.members)
+    }
+    return members
+  }, [projectDetails])
   const projectGroups = groupsData || []
 
   // Check roles
   const isOwner = currentUser?.role === "owner"
   const isProjectAdmin = projectDetails?.admins?.some((a: any) => a.id === currentUser?.id)
-  const isProjectAdminOrOwner = isOwner || !!isProjectAdmin
+  const isProjectAdminOrOwner = isOwner || (currentUser?.role === "admin" && !!isProjectAdmin)
+
+  const canEdit = isProjectAdminOrOwner || currentUser?.role === "member" || currentUser?.role === "qa"
+  const canDelete = isProjectAdminOrOwner
 
   // Reset active tab to details when ticket changes
   useEffect(() => {
@@ -413,7 +428,7 @@ export default function TicketDetail({
 
               {/* Header Actions */}
               <div className="flex items-center gap-1.5 flex-shrink-0 mt-0.5">
-                {isProjectAdminOrOwner && !isEditing && (
+                {(canEdit || canDelete) && !isEditing && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
@@ -423,18 +438,22 @@ export default function TicketDetail({
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-36 z-[100] bg-popover border border-border/50 rounded-2xl shadow-xl">
-                      <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer" onClick={() => setIsEditing(true)}>
-                        <EditIcon className="size-4" />
-                        Edit Ticket
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        variant="destructive"
-                        className="rounded-xl flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
-                        onClick={() => setIsDeleteDialogOpen(true)}
-                      >
-                        <TrashIcon className="size-4" />
-                        Delete Ticket
-                      </DropdownMenuItem>
+                      {canEdit && (
+                        <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer" onClick={() => setIsEditing(true)}>
+                          <EditIcon className="size-4" />
+                          Edit Ticket
+                        </DropdownMenuItem>
+                      )}
+                      {canDelete && (
+                        <DropdownMenuItem
+                          variant="destructive"
+                          className="rounded-xl flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                          onClick={() => setIsDeleteDialogOpen(true)}
+                        >
+                          <TrashIcon className="size-4" />
+                          Delete Ticket
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}

@@ -6,7 +6,7 @@ export async function GET(
     req: NextRequest,
     { params }: { params: Promise<{ ticketId?: string }> }
 ) {
-    const user = await requireRole(["owner", "admin", "member", "client"], req);
+    const user = await requireRole(["owner", "admin", "member"], req);
     if (user instanceof NextResponse) return user;
 
     const { ticketId } = await params;
@@ -33,6 +33,7 @@ export async function GET(
                 project: {
                     include: {
                         members: { select: { id: true } },
+                        admins: { select: { id: true } },
                     }
                 }
             },
@@ -43,15 +44,27 @@ export async function GET(
         }
 
         // Access control:
-        // owner & admin can access any project in the company.
-        // member & client can only access if they are a member of the project.
-        if (dbUser.role !== "owner" && dbUser.role !== "admin") {
+        // owner can access any project in the company.
+        // admin can only access if they are a project admin of this project.
+        // member can only access if they are a member or admin of the project.
+        if (dbUser.role !== "owner") {
             const isMember = ticket.project.members.some((m) => m.id === dbUser.id);
-            if (!isMember) {
-                return NextResponse.json(
-                    { error: "Forbidden: You are not a member of this project" },
-                    { status: 403 }
-                );
+            const isProjectAdmin = ticket.project.admins.some((a) => a.id === dbUser.id);
+            if (dbUser.role === "admin") {
+                if (!isProjectAdmin) {
+                    return NextResponse.json(
+                        { error: "Forbidden: You are not an admin of this project" },
+                        { status: 403 }
+                    );
+                }
+            } else {
+                // member
+                if (!isMember && !isProjectAdmin) {
+                    return NextResponse.json(
+                        { error: "Forbidden: You are not a member of this project" },
+                        { status: 403 }
+                    );
+                }
             }
         }
 
@@ -83,7 +96,7 @@ export async function POST(
     req: NextRequest,
     { params }: { params: Promise<{ ticketId?: string }> }
 ) {
-    const user = await requireRole(["owner", "admin", "member", "client"], req);
+    const user = await requireRole(["owner", "admin", "member"], req);
     if (user instanceof NextResponse) return user;
 
     const { ticketId } = await params;
@@ -110,6 +123,7 @@ export async function POST(
                 project: {
                     include: {
                         members: { select: { id: true } },
+                        admins: { select: { id: true } },
                     }
                 }
             },
@@ -120,15 +134,27 @@ export async function POST(
         }
 
         // Access control:
-        // owner & admin can send message to any project in the company.
-        // member & client can only send message if they are a member of the project.
-        if (dbUser.role !== "owner" && dbUser.role !== "admin") {
+        // owner can access any project in the company.
+        // admin can only access if they are a project admin of this project.
+        // member can only access if they are a member or admin of the project.
+        if (dbUser.role !== "owner") {
             const isMember = ticket.project.members.some((m) => m.id === dbUser.id);
-            if (!isMember) {
-                return NextResponse.json(
-                    { error: "Forbidden: You are not a member of this project" },
-                    { status: 403 }
-                );
+            const isProjectAdmin = ticket.project.admins.some((a) => a.id === dbUser.id);
+            if (dbUser.role === "admin") {
+                if (!isProjectAdmin) {
+                    return NextResponse.json(
+                        { error: "Forbidden: You are not an admin of this project" },
+                        { status: 403 }
+                    );
+                }
+            } else {
+                // member
+                if (!isMember && !isProjectAdmin) {
+                    return NextResponse.json(
+                        { error: "Forbidden: You are not a member of this project" },
+                        { status: 403 }
+                    );
+                }
             }
         }
 
@@ -157,6 +183,18 @@ export async function POST(
                     },
                 },
             },
+        });
+
+        // Create an activity log for comment/message creation
+        await prisma.activityLog.create({
+            data: {
+                action: "COMMENT_CREATED",
+                description: `Commented on ${ticket.title}`,
+                userId: user.id,
+                projectId: ticket.projectId,
+                ticketId: ticket.id,
+                groupId: ticket.groupId || null,
+            }
         });
 
         return NextResponse.json({ message }, { status: 201 });

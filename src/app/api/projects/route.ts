@@ -4,7 +4,7 @@ import { requireRole } from "@/helpers/permission";
 import { $Enums } from "@/generated/prisma";
 
 export async function GET(req: NextRequest) {
-    const user = await requireRole(["owner", "admin", "member", "client"], req);
+    const user = await requireRole(["owner", "admin", "member", "qa", "client"], req);
 
     if (user instanceof NextResponse) return user;
 
@@ -34,6 +34,10 @@ export async function GET(req: NextRequest) {
                     companyId: dbUser.companyId,
                     isActive: true,
                 },
+                include: {
+                    admins: { select: { id: true, name: true } },
+                    members: { select: { id: true, name: true } }
+                },
                 orderBy: { createdAt: "desc" },
             });
         } else {
@@ -59,6 +63,10 @@ export async function GET(req: NextRequest) {
                         },
                     ],
                 },
+                include: {
+                    admins: { select: { id: true, name: true } },
+                    members: { select: { id: true, name: true } }
+                },
                 orderBy: { createdAt: "desc" },
             });
         }
@@ -72,7 +80,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
     // Only owner role can create projects
-    const user = await requireRole(["owner"], req);
+    const user = await requireRole(["owner", "admin"], req);
     if (user instanceof NextResponse) return user;
 
     try {
@@ -129,11 +137,16 @@ export async function POST(req: NextRequest) {
             };
         }
 
-        if (adminIds !== undefined && Array.isArray(adminIds)) {
-            // Validate all adminIds exist in the company
+        let finalAdminIds = adminIds !== undefined && Array.isArray(adminIds) ? [...adminIds] : [];
+        if (dbUser.role === "admin" && !finalAdminIds.includes(dbUser.id)) {
+            finalAdminIds.push(dbUser.id);
+        }
+
+        if (finalAdminIds.length > 0) {
+            // Validate all finalAdminIds exist in the company
             const companyUsers = await prisma.user.findMany({
                 where: {
-                    id: { in: adminIds },
+                    id: { in: finalAdminIds },
                     companyId: dbUser.companyId,
                 },
                 select: { id: true },
@@ -168,6 +181,16 @@ export async function POST(req: NextRequest) {
                     },
                 },
             },
+        });
+
+        // Create an activity log for project creation
+        await prisma.activityLog.create({
+            data: {
+                action: "PROJECT_CREATED",
+                description: `Created ${project.title} project`,
+                userId: dbUser.id,
+                projectId: project.id,
+            }
         });
 
         return NextResponse.json({ project });

@@ -6,7 +6,7 @@ export async function GET(
     req: NextRequest,
     { params }: { params: Promise<{ projectId?: string }> }
 ) {
-    const user = await requireRole(["owner", "admin", "member", "client"], req);
+    const user = await requireRole(["owner", "admin", "member"], req);
     if (user instanceof NextResponse) return user;
 
     const { projectId } = await params;
@@ -40,16 +40,27 @@ export async function GET(
         }
 
         // Access control:
-        // owner & admin can access any project in the company.
-        // member & client can only access if they are a member or admin of the project.
-        if (dbUser.role !== "owner" && dbUser.role !== "admin") {
+        // owner can access any project in the company.
+        // admin can only access if they are a project admin of this project.
+        // member can only access if they are a member or admin of the project.
+        if (dbUser.role !== "owner") {
             const isMember = project.members.some((m) => m.id === dbUser.id);
             const isProjectAdmin = project.admins.some((a) => a.id === dbUser.id);
-            if (!isMember && !isProjectAdmin) {
-                return NextResponse.json(
-                    { error: "Forbidden: You are not a member or admin of this project" },
-                    { status: 403 }
-                );
+            if (dbUser.role === "admin") {
+                if (!isProjectAdmin) {
+                    return NextResponse.json(
+                        { error: "Forbidden: You are not an admin of this project" },
+                        { status: 403 }
+                    );
+                }
+            } else {
+                // member
+                if (!isMember && !isProjectAdmin) {
+                    return NextResponse.json(
+                        { error: "Forbidden: You are not a member or admin of this project" },
+                        { status: 403 }
+                    );
+                }
             }
         }
 
@@ -114,9 +125,9 @@ export async function POST(
         }
 
         // Access Control:
-        // owner & admin can create groups for any project in their company.
-        // members can create groups only if they are a project admin of this project.
-        if (dbUser.role !== "owner" && dbUser.role !== "admin") {
+        // owner can create groups for any project in their company.
+        // admin and members can create groups only if they are a project admin of this project.
+        if (dbUser.role !== "owner") {
             const isProjectAdmin = project.admins.some((a) => a.id === dbUser.id);
             if (!isProjectAdmin) {
                 return NextResponse.json(
@@ -158,6 +169,17 @@ export async function POST(
                     },
                 },
             },
+        });
+
+        // Create an activity log for group creation
+        await prisma.activityLog.create({
+            data: {
+                action: "GROUP_CREATED",
+                description: `Created ${group.name}`,
+                userId: dbUser.id,
+                projectId: group.projectId,
+                groupId: group.id,
+            }
         });
 
         return NextResponse.json({ group }, { status: 201 });

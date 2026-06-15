@@ -102,7 +102,7 @@ export function NavProjects({
           projects.map((item) => {
             const isProjectActive = pathname.startsWith(item.url)
             
-            const subItems = [
+            const rawSubItems = [
               {
                 title: "Overview",
                 url: `${item.url}?tab=overview`,
@@ -140,6 +140,10 @@ export function NavProjects({
                 isActive: isProjectActive && activeTab === "files",
               },
             ]
+
+            const subItems = user?.role === "client"
+              ? rawSubItems.filter(sub => sub.title === "Overview" || sub.title === "Discussions")
+              : rawSubItems
 
             return (
               <Collapsible key={item.name} asChild defaultOpen={isProjectActive}>

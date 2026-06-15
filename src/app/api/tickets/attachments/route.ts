@@ -89,6 +89,18 @@ export async function POST(req: NextRequest) {
             },
         });
 
+        // Create an activity log for uploading an attachment
+        await prisma.activityLog.create({
+            data: {
+                action: "FILE_UPLOADED",
+                description: `Uploaded ${fileName} to ${ticket.title}`,
+                userId: user.id,
+                projectId: ticket.projectId,
+                ticketId: ticket.id,
+                groupId: ticket.groupId || null,
+            }
+        });
+
         return NextResponse.json({ attachment }, { status: 201 });
     } catch (error) {
         console.error(error);

@@ -235,6 +235,21 @@ const getStatusIcon = (status: string) => {
   }
 }
 
+const getTargetStatus = (columnId: string, currentStatus: string): string => {
+  switch (columnId) {
+    case "todo":
+      return currentStatus === "completed" ? "reopen" : "pending"
+    case "inProgress":
+      return "in_progress"
+    case "inReview":
+      return "in_review"
+    case "completed":
+      return currentStatus === "blocked" ? "blocked" : "completed"
+    default:
+      return ""
+  }
+}
+
 export default function TicketsView() {
   const { user } = useSelector((state: RootState) => state.user)
   const isCreateAllowed = user?.role === "owner" || user?.role === "admin"
@@ -247,6 +262,8 @@ export default function TicketsView() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [selectedProjectId, setSelectedProjectId] = useState<string>("all")
+  const [selectedMemberId, setSelectedMemberId] = useState<string>("all")
+  const [assignmentFilter, setAssignmentFilter] = useState<"all" | "assigned" | "unassigned">("all")
   const [pendingStatusChange, setPendingStatusChange] = useState<{
     ticketId: string
     targetStatus: "blocked" | "reopen"
@@ -262,6 +279,21 @@ export default function TicketsView() {
     }
   })
   const projects = projectsData?.projects || []
+
+  // Fetch workspace members for filter dropdown (only for admin/owner)
+  const companyId = user?.company?.id
+  const { data: teamData } = useQuery({
+    queryKey: ["teams", companyId],
+    queryFn: async () => {
+      if (!companyId) return { teams: [] }
+      const res = await fetch(`/api/teams/${companyId}`)
+      if (!res.ok) throw new Error("Failed to fetch team members")
+      return res.json()
+    },
+    enabled: !!companyId && (user?.role === "owner" || user?.role === "admin"),
+  })
+  const teamMembers = teamData?.teams || []
+  const activeMembers = teamMembers.filter((m: any) => m.role !== "Client")
 
   const fetchTickets = async () => {
     const res = await fetch("/api/tickets")
@@ -350,7 +382,22 @@ export default function TicketsView() {
     const matchesStatus = filter === "All" || getDisplayStatus(ticket.status) === filter
     const matchesProject = selectedProjectId === "all" || ticket.projectId === selectedProjectId
 
-    return matchesSearch && matchesStatus && matchesProject
+    const isOwnerOrAdmin = user?.role === "owner" || user?.role === "admin"
+    const matchesMember =
+      !isOwnerOrAdmin ||
+      selectedMemberId === "all" ||
+      ticket.assignedUserId === selectedMemberId
+
+    let matchesAssignment = true
+    if (isOwnerOrAdmin) {
+      if (assignmentFilter === "assigned") {
+        matchesAssignment = !!ticket.assignedUserId
+      } else if (assignmentFilter === "unassigned") {
+        matchesAssignment = !ticket.assignedUserId
+      }
+    }
+
+    return matchesSearch && matchesStatus && matchesProject && matchesMember && matchesAssignment
   })
 
   // Sort tickets
@@ -398,16 +445,7 @@ export default function TicketsView() {
     const ticket = tickets.find((t) => t.id === ticketId)
     if (!ticket) return
 
-    let targetStatus = ""
-    if (targetColumnId === "todo") {
-      targetStatus = ticket.status === "completed" ? "reopen" : "pending"
-    } else if (targetColumnId === "inProgress") {
-      targetStatus = "in_progress"
-    } else if (targetColumnId === "inReview") {
-      targetStatus = "in_review"
-    } else if (targetColumnId === "completed") {
-      targetStatus = ticket.status === "blocked" ? "blocked" : "completed"
-    }
+    const targetStatus = getTargetStatus(targetColumnId, ticket.status)
 
     if (targetStatus && ticket.status !== targetStatus) {
       if (targetStatus === "reopen" || targetStatus === "blocked") {
@@ -445,7 +483,7 @@ export default function TicketsView() {
 
       {/* Filters, Search & Sorting */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-card backdrop-blur-md p-4 rounded-2xl border border-border shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+        <div className="flex flex-wrap items-center gap-3 w-full md:flex-1">
           {/* Search Input */}
           <div className="relative w-full sm:w-64">
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
@@ -494,6 +532,47 @@ export default function TicketsView() {
               </SelectContent>
             </Select>
           </div>
+
+          {/* Member Filter Selector */}
+          {(user?.role === "owner" || user?.role === "admin") && (
+            <div className="w-full sm:w-56">
+              <Select
+                value={selectedMemberId}
+                onValueChange={setSelectedMemberId}
+              >
+                <SelectTrigger className="w-full bg-muted/50 border-border/40 rounded-xl py-2 h-9 text-muted-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
+                  <SelectValue placeholder="All Members" />
+                </SelectTrigger>
+                <SelectContent position="popper" className="rounded-xl border border-border/50 max-h-60 overflow-y-auto">
+                  <SelectItem value="all" className="text-foreground">All Members</SelectItem>
+                  {activeMembers.map((member: any) => (
+                    <SelectItem key={member.id} value={member.id} className="text-foreground">
+                      {member.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Assignment Filter Selector */}
+          {(user?.role === "owner" || user?.role === "admin") && (
+            <div className="w-full sm:w-56">
+              <Select
+                value={assignmentFilter}
+                onValueChange={(value) => setAssignmentFilter(value as any)}
+              >
+                <SelectTrigger className="w-full bg-muted/50 border-border/40 rounded-xl py-2 h-9 text-muted-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
+                  <SelectValue placeholder="All Assignments" />
+                </SelectTrigger>
+                <SelectContent position="popper" className="rounded-xl border border-border/50">
+                  <SelectItem value="all" className="text-foreground">All Assignments</SelectItem>
+                  <SelectItem value="assigned" className="text-foreground">Assigned Tickets</SelectItem>
+                  <SelectItem value="unassigned" className="text-foreground">Unassigned Tickets</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
 
         {/* Status Filters */}
