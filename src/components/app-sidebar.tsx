@@ -38,6 +38,15 @@ const data = {
       role: ["owner", "admin", "member", "qa", "client"]
     },
     {
+      title: "Feedback",
+      url: "#",
+      icon: (
+        <SendIcon
+        />
+      ),
+      role: ["owner", "admin", "client"]
+    },
+    {
       title: "Tickets",
       url: "#",
       icon: (
@@ -105,15 +114,6 @@ const data = {
       url: "#",
       icon: (
         <LifeBuoyIcon
-        />
-      ),
-      role: ["owner", "admin", "member", "client"]
-    },
-    {
-      title: "Feedback",
-      url: "#",
-      icon: (
-        <SendIcon
         />
       ),
       role: ["owner", "admin", "member", "client"]

@@ -75,6 +75,8 @@ interface TeamMember {
   designation?: string | null
   createdAt?: string
   imageUrl?: string | null
+  assignedTicketsCount?: number
+  completedTicketsCount?: number
 }
 
 export default function TeamsView() {
@@ -122,11 +124,10 @@ export default function TeamsView() {
   const isOwner = currentUserRole === "owner"
   const isSystemAdmin = currentUserRole === "admin"
 
-  // Only show projects in which this user is admin if they are system admin
-  const allowedProjects = projectsList.filter((p: any) => {
-    if (isOwner) return true
-    return p.admins?.some((a: any) => a.id === user?.id)
-  })
+  // Allowed projects: projectsList returned from `/api/projects` is already role-filtered by the API:
+  // - Owner: all company projects.
+  // - Admin/Member: projects they are member of or admin of.
+  const allowedProjects = projectsList;
 
   const adminManagedProjectIds = allowedProjects.map((p: any) => p.id)
 
@@ -393,8 +394,8 @@ export default function TeamsView() {
                 <TableHeader className="bg-muted/20">
                   <TableRow className="border-border/40 hover:bg-transparent">
                     <TableHead className="font-semibold text-muted-foreground py-3.5 pl-6 text-xs uppercase tracking-wider">Basic Detail</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground py-3.5 text-xs uppercase tracking-wider">Role</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground py-3.5 text-xs uppercase tracking-wider">Designation</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground py-3.5 text-xs uppercase tracking-wider">Role & Designation</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground py-3.5 text-xs uppercase tracking-wider">Tickets</TableHead>
                     <TableHead className="font-semibold text-muted-foreground py-3.5 text-xs uppercase tracking-wider">Projects</TableHead>
                     <TableHead className="font-semibold text-muted-foreground py-3.5 text-xs uppercase tracking-wider">Joined Date</TableHead>
                     <TableHead className="w-[50px] py-3.5 pr-6"></TableHead>
@@ -427,12 +428,39 @@ export default function TeamsView() {
                         </div>
                       </TableCell>
                       <TableCell className="py-4">
-                        <span className={`px-2 py-0.5 text-[10px] font-bold rounded-md border ${getRoleBadge(member.role)}`}>
-                          {member.role}
-                        </span>
+                        <div className="flex flex-col gap-1.5 items-start">
+                          <span className={`px-2 py-0.5 text-[10px] font-bold rounded-md border ${getRoleBadge(member.role)}`}>
+                            {member.role}
+                          </span>
+                          {member.designation ? (
+                            <span className="text-xs text-muted-foreground font-medium">
+                              {member.designation}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground/60 font-medium">—</span>
+                          )}
+                        </div>
                       </TableCell>
-                      <TableCell className="py-4 text-xs font-medium text-foreground/80">
-                        {member.designation || <span className="text-muted-foreground/60">—</span>}
+                      <TableCell className="py-4">
+                        <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex flex-col">
+                            <span className="text-xs font-bold text-foreground">
+                              {member.assignedTicketsCount ?? 0}
+                            </span>
+                            <span className="text-[9px] text-muted-foreground uppercase tracking-wider font-semibold">
+                              Assigned
+                            </span>
+                          </div>
+                          <div className="h-6 w-px bg-border/60" />
+                          <div className="flex flex-col">
+                            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-500">
+                              {member.completedTicketsCount ?? 0}
+                            </span>
+                            <span className="text-[9px] text-muted-foreground uppercase tracking-wider font-semibold">
+                              Completed
+                            </span>
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell className="py-4">
                         {member.projects && member.projects.length > 0 ? (
@@ -511,7 +539,7 @@ export default function TeamsView() {
         {/* Tab 2: Unassigned Members */}
         <TabsContent value="unassigned" className="outline-none space-y-4">
           {unassignedMembers.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {unassignedMembers.map((member) => (
                 <div
                   key={member.id}
@@ -529,7 +557,12 @@ export default function TeamsView() {
                       </Avatar>
                       <div className="min-w-0">
                         <span className="font-bold text-sm text-foreground block truncate">{member.name}</span>
-                        <span className="text-xs text-muted-foreground block truncate">{member.email}</span>
+                        {member.designation && (
+                          <span className="text-[11px] font-semibold text-primary block truncate mt-0.5">
+                            {member.designation}
+                          </span>
+                        )}
+                        <span className="text-xs text-muted-foreground block truncate mt-0.5">{member.email}</span>
                       </div>
                     </div>
                     <span className={`px-2 py-0.5 text-[10px] font-bold rounded-md border ${getRoleBadge(member.role)}`}>

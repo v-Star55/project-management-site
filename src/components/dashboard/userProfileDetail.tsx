@@ -21,13 +21,101 @@ import {
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
 import { toast } from "sonner"
 import { PencilIcon } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+
+const DESIGNATIONS = [
+  {
+    category: "Software",
+    options: [
+      "Software Engineer",
+      "Frontend Developer",
+      "Backend Developer",
+      "Full Stack Developer",
+      "Mobile Developer",
+      "Tech Lead",
+      "Software Architect",
+      "QA Engineer",
+      "QA Automation Engineer",
+      "DevOps Engineer",
+      "Cloud Engineer",
+      "Database Administrator",
+      "UI/UX Designer",
+      "Product Designer",
+      "Business Analyst",
+      "Product Owner",
+      "Scrum Master",
+      "Project Manager",
+      "Engineering Manager",
+      "Intern"
+    ]
+  },
+  {
+    category: "Marketing",
+    options: [
+      "Marketing Manager",
+      "Digital Marketing Specialist",
+      "SEO Specialist",
+      "SEM Specialist",
+      "Content Writer",
+      "Content Strategist",
+      "Social Media Manager",
+      "Social Media Executive",
+      "Graphic Designer",
+      "Brand Manager",
+      "Marketing Coordinator",
+      "Email Marketing Specialist",
+      "Growth Marketer",
+      "Performance Marketing Specialist",
+      "Marketing Analyst",
+      "PR Manager",
+      "Copywriter",
+      "Creative Director"
+    ]
+  },
+  {
+    category: "Interior Design",
+    options: [
+      "Interior Designer",
+      "Senior Interior Designer",
+      "Junior Interior Designer",
+      "Architect",
+      "3D Visualizer",
+      "CAD Designer",
+      "Project Coordinator",
+      "Project Manager",
+      "Site Supervisor",
+      "Procurement Manager",
+      "Furniture Designer",
+      "Lighting Designer",
+      "Space Planner",
+      "Material Consultant",
+      "Client Relationship Manager",
+      "Design Consultant"
+    ]
+  },
+  {
+    category: "High post",
+    options: [
+      "Co-Founder",
+      "CEO",
+      "COO",
+      "CTO",
+      "Director"
+    ]
+  }
+]
+
+
+
 import { 
   ClockIcon, 
   BriefcaseIcon, 
@@ -249,7 +337,15 @@ export default function UserProfileDetail({ userId, isSheet = false }: UserProfi
   const [editName, setEditName] = React.useState("")
   const [editEmail, setEditEmail] = React.useState("")
   const [editRole, setEditRole] = React.useState("")
+  const [selectedCategory, setSelectedCategory] = React.useState("")
   const [editDesignation, setEditDesignation] = React.useState("")
+  const [designationSearch, setDesignationSearch] = React.useState("")
+
+  const categoryGroup = DESIGNATIONS.find(g => g.category === selectedCategory)
+  const filteredOptions = categoryGroup
+    ? categoryGroup.options.filter(opt => opt.toLowerCase().includes(designationSearch.toLowerCase()))
+    : []
+
   const [isSaving, setIsSaving] = React.useState(false)
 
   const { data, isLoading, isError, error } = useQuery<UserProfileResponse>({
@@ -267,7 +363,15 @@ export default function UserProfileDetail({ userId, isSheet = false }: UserProfi
       setEditName(data.basicInfo.name || "")
       setEditEmail(data.basicInfo.email || "")
       setEditRole(data.basicInfo.role || "")
-      setEditDesignation(data.basicInfo.designation || "")
+      const design = data.basicInfo.designation || ""
+      const group = DESIGNATIONS.find(g => g.options.includes(design))
+      if (group) {
+        setSelectedCategory(group.category)
+        setEditDesignation(design)
+      } else {
+        setSelectedCategory("none")
+        setEditDesignation("none")
+      }
     }
   }, [data?.basicInfo, isEditDialogOpen])
 
@@ -333,7 +437,7 @@ export default function UserProfileDetail({ userId, isSheet = false }: UserProfi
         name: editName,
         email: editEmail,
         role: (isOwner || isSystemAdmin) ? editRole : undefined,
-        designation: (isOwner || isSystemAdmin) ? editDesignation : undefined,
+        designation: (isOwner || isSystemAdmin) ? (editDesignation && editDesignation !== "none" ? editDesignation.trim() : null) : undefined,
       })
       toast.success("Profile updated successfully")
       setIsEditDialogOpen(false)
@@ -1005,14 +1109,76 @@ export default function UserProfileDetail({ userId, isSheet = false }: UserProfi
                 </div>
 
                 <div className="space-y-1">
+                  <label className="text-xs font-semibold text-muted-foreground">Department / Category</label>
+                  <Select
+                    value={selectedCategory}
+                    onValueChange={(val) => {
+                      setSelectedCategory(val)
+                      setEditDesignation("")
+                      setDesignationSearch("")
+                    }}
+                  >
+                    <SelectTrigger className="w-full bg-muted/30 border border-border/60 rounded-xl h-10 text-foreground cursor-pointer">
+                      <SelectValue placeholder="Select department" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border border-border bg-popover text-popover-foreground">
+                      <SelectItem value="none">None / No Department</SelectItem>
+                      {DESIGNATIONS.map((group) => {
+                        if (group.category === "High post" && currentUser?.role !== "owner") {
+                          return null
+                        }
+                        return (
+                          <SelectItem key={group.category} value={group.category}>
+                            {group.category}
+                          </SelectItem>
+                        )
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1">
                   <label className="text-xs font-semibold text-muted-foreground">Designation</label>
-                  <input
-                    type="text"
+                  <Select
                     value={editDesignation}
-                    onChange={e => setEditDesignation(e.target.value)}
-                    className="w-full px-3 py-2 bg-muted/30 border border-border/60 rounded-xl text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none text-foreground"
-                    placeholder="e.g. Senior Software Engineer"
-                  />
+                    onValueChange={setEditDesignation}
+                    disabled={!selectedCategory || selectedCategory === "none"}
+                  >
+                    <SelectTrigger className="w-full bg-muted/30 border border-border/60 rounded-xl h-10 text-foreground cursor-pointer disabled:opacity-50">
+                      <SelectValue placeholder={(!selectedCategory || selectedCategory === "none") ? "Select a department first" : "Select designation"} />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[250px] overflow-y-auto rounded-xl border border-border bg-popover text-popover-foreground">
+                      {/* Search Input */}
+                      <div className="p-2 border-b border-border/40 sticky top-0 bg-popover z-10">
+                        <input
+                          type="text"
+                          placeholder="Search designation..."
+                          value={designationSearch}
+                          onChange={(e) => setDesignationSearch(e.target.value)}
+                          onKeyDown={(e) => e.stopPropagation()}
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-full px-2.5 py-1.5 bg-muted/40 rounded-lg border border-border/30 text-xs outline-none focus:border-primary/50 transition-all text-foreground font-medium"
+                        />
+                      </div>
+                      <SelectItem value="none">None / No Designation</SelectItem>
+                      {selectedCategory && selectedCategory !== "none" && (
+                        <>
+                          <SelectSeparator />
+                          {filteredOptions.length > 0 ? (
+                            filteredOptions.map((option) => (
+                              <SelectItem key={option} value={option}>
+                                {option}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <div className="p-4 text-center text-xs text-muted-foreground italic">
+                              No matching designations
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </SelectContent>
+                  </Select>
                 </div>
               </>
             )}

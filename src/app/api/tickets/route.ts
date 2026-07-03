@@ -218,6 +218,34 @@ export async function POST(req: NextRequest) {
             }
         }
 
+        // Validate group date bounds
+        if (groupId && groupId !== "none" && dueDate) {
+            const projectGroup = await prisma.projectGroup.findUnique({
+                where: { id: groupId },
+            });
+            if (projectGroup) {
+                const ticketDueDate = new Date(dueDate);
+                const groupStart = new Date(projectGroup.startDate);
+                if (ticketDueDate < groupStart) {
+                    const formattedStart = groupStart.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+                    return NextResponse.json(
+                        { error: `Ticket due date cannot be before the sprint/group start date (${formattedStart})` },
+                        { status: 400 }
+                    );
+                }
+                if (projectGroup.endDate) {
+                    const groupEnd = new Date(projectGroup.endDate);
+                    if (ticketDueDate > groupEnd) {
+                        const formattedEnd = groupEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+                        return NextResponse.json(
+                            { error: `Ticket due date cannot be after the sprint/group end date (${formattedEnd})` },
+                            { status: 400 }
+                        );
+                    }
+                }
+            }
+        }
+
         const ticket = await prisma.ticket.create({
             data: {
                 title,
@@ -338,36 +366,24 @@ export async function PATCH(req: NextRequest) {
         }
 
         // Access Control for update:
-        // owner can update any ticket.
+        // Owner can update any ticket.
         if (dbUser.role !== "owner") {
             const isProjectAdmin = ticket.project.admins.some((a) => a.id === dbUser.id);
             if (dbUser.role === "admin") {
                 if (!isProjectAdmin) {
                     return NextResponse.json(
-                        { error: "Forbidden: Only project admins or owners can update tickets" },
+                        { error: "Forbidden: Admins can only manage tickets of their projects" },
                         { status: 403 }
                     );
                 }
             } else {
-                // member
-                if (isEditingMetadata) {
-                    // Only project admins or owners can edit ticket details (metadata)
-                    if (!isProjectAdmin) {
-                        return NextResponse.json(
-                            { error: "Forbidden: Only project admins or owners can edit ticket details" },
-                            { status: 403 }
-                        );
-                    }
-                } else {
-                    // Changing only status or priority
-                    const isProjectMember = ticket.project.members.some((m) => m.id === dbUser.id);
-                    const isAssignee = ticket.assignedUserId === dbUser.id;
-                    if (!isProjectAdmin && !isProjectMember && !isAssignee) {
-                        return NextResponse.json(
-                            { error: "Forbidden: You do not have permission to update this ticket" },
-                            { status: 403 }
-                        );
-                    }
+                // Member or QA: can only edit or move (update status/priority) if it's assigned to them
+                const isAssignee = ticket.assignedUserId === dbUser.id;
+                if (!isAssignee) {
+                    return NextResponse.json(
+                        { error: "Forbidden: You do not have permission to update tickets that are not assigned to you" },
+                        { status: 403 }
+                    );
                 }
             }
         }
@@ -405,6 +421,36 @@ export async function PATCH(req: NextRequest) {
         }
         if (priority !== undefined) {
             updateData.priority = priority as $Enums.Priority;
+        }
+
+        const targetGroupId = groupId !== undefined ? (groupId === "none" ? null : groupId) : ticket.groupId;
+        const targetDueDate = dueDate !== undefined ? (dueDate ? new Date(dueDate) : null) : ticket.dueDate;
+
+        if (targetGroupId && targetDueDate) {
+            const projectGroup = await prisma.projectGroup.findUnique({
+                where: { id: targetGroupId },
+            });
+            if (projectGroup) {
+                const ticketDueDate = new Date(targetDueDate);
+                const groupStart = new Date(projectGroup.startDate);
+                if (ticketDueDate < groupStart) {
+                    const formattedStart = groupStart.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+                    return NextResponse.json(
+                        { error: `Ticket due date cannot be before the sprint/group start date (${formattedStart})` },
+                        { status: 400 }
+                    );
+                }
+                if (projectGroup.endDate) {
+                    const groupEnd = new Date(projectGroup.endDate);
+                    if (ticketDueDate > groupEnd) {
+                        const formattedEnd = groupEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+                        return NextResponse.json(
+                            { error: `Ticket due date cannot be after the sprint/group end date (${formattedEnd})` },
+                            { status: 400 }
+                        );
+                    }
+                }
+            }
         }
 
         const updatedTicket = await prisma.ticket.update({

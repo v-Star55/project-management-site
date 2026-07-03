@@ -103,6 +103,9 @@ export async function POST(
             return NextResponse.json({ error: "Title is required" }, { status: 400 });
         }
 
+        // Ensure the creator is always added as a member of the group
+        const connectedMemberIds = Array.from(new Set([...(memberIds || []), dbUser.id]));
+
         // Create the project discussion group
         const group = await prisma.projectDiscussionGroup.create({
             data: {
@@ -111,9 +114,9 @@ export async function POST(
                 content: content ? content.trim() : null,
                 projectId,
                 userId: dbUser.id,
-                members: memberIds && memberIds.length > 0 ? {
-                    connect: memberIds.map((id: string) => ({ id }))
-                } : undefined,
+                members: {
+                    connect: connectedMemberIds.map((id: string) => ({ id }))
+                },
                 tickets: ticketIds && ticketIds.length > 0 ? {
                     connect: ticketIds.map((id: string) => ({ id }))
                 } : undefined,

@@ -80,6 +80,12 @@ export async function GET(
                         id: true,
                         title: true,
                     }
+                },
+                assignedTickets: {
+                    where: { isDeleted: false },
+                    select: {
+                        status: true
+                    }
                 }
             }
         });
@@ -121,6 +127,9 @@ export async function GET(
                 ...(u.adminProjects || [])
             ].filter((p, index, self) => self.findIndex(t => t.id === p.id) === index);
 
+            const assignedTicketsCount = u.assignedTickets?.length || 0;
+            const completedTicketsCount = u.assignedTickets?.filter(t => t.status === "completed").length || 0;
+
             return {
                 id: u.id,
                 name: u.name,
@@ -134,6 +143,8 @@ export async function GET(
                 createdAt: u.createdAt,
                 isActive: u.isActive,
                 isPending: u.isPending,
+                assignedTicketsCount,
+                completedTicketsCount,
             };
         });
 

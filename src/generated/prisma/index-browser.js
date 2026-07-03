@@ -287,6 +287,28 @@ exports.Prisma.TicketReasonScalarFieldEnum = {
   userId: 'userId'
 };
 
+exports.Prisma.FeedbackScalarFieldEnum = {
+  id: 'id',
+  subject: 'subject',
+  description: 'description',
+  type: 'type',
+  priority: 'priority',
+  status: 'status',
+  projectId: 'projectId',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FeedbackCommentScalarFieldEnum = {
+  id: 'id',
+  text: 'text',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  feedbackId: 'feedbackId',
+  userId: 'userId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -449,7 +471,9 @@ exports.Prisma.ModelName = {
   timeLog: 'timeLog',
   Note: 'Note',
   ActivityLog: 'ActivityLog',
-  TicketReason: 'TicketReason'
+  TicketReason: 'TicketReason',
+  Feedback: 'Feedback',
+  FeedbackComment: 'FeedbackComment'
 };
 
 /**

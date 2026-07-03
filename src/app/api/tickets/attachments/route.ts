@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
         // Verify ticket and permissions
         const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
-            select: { companyId: true },
+            select: { id: true, role: true, companyId: true },
         });
 
         if (!dbUser?.companyId) {
@@ -73,11 +73,28 @@ export async function POST(req: NextRequest) {
 
         const ticket = await prisma.ticket.findUnique({
             where: { id: ticketId },
-            include: { project: true },
+            include: {
+                project: {
+                    include: {
+                        admins: { select: { id: true } }
+                    }
+                }
+            },
         });
 
         if (!ticket || ticket.project.companyId !== dbUser.companyId) {
             return NextResponse.json({ error: "Ticket not found or unauthorized" }, { status: 403 });
+        }
+
+        // Access checks for uploading attachments
+        const isOwner = dbUser.role === "owner";
+        const isProjectAdmin = ticket.project.admins.some((a) => a.id === dbUser.id);
+        const isAllowedAdmin = dbUser.role === "admin" && isProjectAdmin;
+        
+        if (!isOwner && !isAllowedAdmin) {
+            if (ticket.assignedUserId !== dbUser.id) {
+                return NextResponse.json({ error: "Forbidden: You do not have permission to add attachments to other tickets" }, { status: 403 });
+            }
         }
 
         const attachment = await prisma.ticketAttachment.create({
@@ -123,7 +140,7 @@ export async function DELETE(req: NextRequest) {
 
         const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
-            select: { companyId: true },
+            select: { id: true, role: true, companyId: true },
         });
 
         if (!dbUser?.companyId) {
@@ -132,11 +149,32 @@ export async function DELETE(req: NextRequest) {
 
         const attachment = await prisma.ticketAttachment.findUnique({
             where: { id },
-            include: { ticket: { include: { project: true } } },
+            include: {
+                ticket: {
+                    include: {
+                        project: {
+                            include: {
+                                admins: { select: { id: true } }
+                            }
+                        }
+                    }
+                }
+            },
         });
 
         if (!attachment || attachment.ticket.project.companyId !== dbUser.companyId) {
             return NextResponse.json({ error: "Attachment not found or unauthorized" }, { status: 403 });
+        }
+
+        // Access checks for deleting attachments
+        const isOwner = dbUser.role === "owner";
+        const isProjectAdmin = attachment.ticket.project.admins.some((a) => a.id === dbUser.id);
+        const isAllowedAdmin = dbUser.role === "admin" && isProjectAdmin;
+        
+        if (!isOwner && !isAllowedAdmin) {
+            if (attachment.ticket.assignedUserId !== dbUser.id) {
+                return NextResponse.json({ error: "Forbidden: You do not have permission to delete attachments on other tickets" }, { status: 403 });
+            }
         }
 
         // Delete physical file if locally uploaded

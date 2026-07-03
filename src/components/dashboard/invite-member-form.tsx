@@ -10,10 +10,95 @@ import { RootState } from "@/lib/store"
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+
+const DESIGNATIONS = [
+  {
+    category: "Software",
+    options: [
+      "Software Engineer",
+      "Frontend Developer",
+      "Backend Developer",
+      "Full Stack Developer",
+      "Mobile Developer",
+      "Tech Lead",
+      "Software Architect",
+      "QA Engineer",
+      "QA Automation Engineer",
+      "DevOps Engineer",
+      "Cloud Engineer",
+      "Database Administrator",
+      "UI/UX Designer",
+      "Product Designer",
+      "Business Analyst",
+      "Product Owner",
+      "Scrum Master",
+      "Project Manager",
+      "Engineering Manager",
+      "Intern"
+    ]
+  },
+  {
+    category: "Marketing",
+    options: [
+      "Marketing Manager",
+      "Digital Marketing Specialist",
+      "SEO Specialist",
+      "SEM Specialist",
+      "Content Writer",
+      "Content Strategist",
+      "Social Media Manager",
+      "Social Media Executive",
+      "Graphic Designer",
+      "Brand Manager",
+      "Marketing Coordinator",
+      "Email Marketing Specialist",
+      "Growth Marketer",
+      "Performance Marketing Specialist",
+      "Marketing Analyst",
+      "PR Manager",
+      "Copywriter",
+      "Creative Director"
+    ]
+  },
+  {
+    category: "Interior Design",
+    options: [
+      "Interior Designer",
+      "Senior Interior Designer",
+      "Junior Interior Designer",
+      "Architect",
+      "3D Visualizer",
+      "CAD Designer",
+      "Project Coordinator",
+      "Project Manager",
+      "Site Supervisor",
+      "Procurement Manager",
+      "Furniture Designer",
+      "Lighting Designer",
+      "Space Planner",
+      "Material Consultant",
+      "Client Relationship Manager",
+      "Design Consultant"
+    ]
+  },
+  {
+    category: "High post",
+    options: [
+      "Co-Founder",
+      "CEO",
+      "COO",
+      "CTO",
+      "Director"
+    ]
+  }
+]
 
 interface InviteMemberFormProps {
   companyId: string
@@ -27,7 +112,15 @@ export default function InviteMemberForm({ companyId, onSuccess }: InviteMemberF
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState("")
   const [designation, setDesignation] = useState("")
+  const [designationSearch, setDesignationSearch] = useState("")
+
+  const categoryGroup = DESIGNATIONS.find(g => g.category === selectedCategory)
+  const filteredOptions = categoryGroup
+    ? categoryGroup.options.filter(opt => opt.toLowerCase().includes(designationSearch.toLowerCase()))
+    : []
+
   const [role, setRole] = useState("member")
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -55,7 +148,7 @@ export default function InviteMemberForm({ companyId, onSuccess }: InviteMemberF
         email,
         password,
         role,
-        designation: designation.trim() || null,
+        designation: designation && designation !== "none" ? designation.trim() : null,
       })
 
       toast.success(response.data.message || "Team member invited successfully!")
@@ -64,6 +157,7 @@ export default function InviteMemberForm({ companyId, onSuccess }: InviteMemberF
       setName("")
       setEmail("")
       setPassword("")
+      setSelectedCategory("")
       setDesignation("")
       setRole("member")
       
@@ -138,19 +232,84 @@ export default function InviteMemberForm({ companyId, onSuccess }: InviteMemberF
         </div>
       </div>
 
+      {/* Designation Category / Department */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Department / Category
+        </label>
+        <Select
+          value={selectedCategory}
+          onValueChange={(val) => {
+            setSelectedCategory(val)
+            setDesignation("")
+            setDesignationSearch("")
+          }}
+          disabled={isSubmitting}
+        >
+          <SelectTrigger className="w-full px-3 py-2.5 bg-muted/50 rounded-xl border border-border/40 text-sm cursor-pointer text-foreground font-medium flex items-center justify-between">
+            <SelectValue placeholder="Select department" />
+          </SelectTrigger>
+          <SelectContent className="rounded-xl border border-border bg-popover text-popover-foreground">
+            <SelectItem value="none">None / No Department</SelectItem>
+            {DESIGNATIONS.map((group) => {
+              if (group.category === "High post" && user?.role !== "owner") {
+                return null
+              }
+              return (
+                <SelectItem key={group.category} value={group.category}>
+                  {group.category}
+                </SelectItem>
+              )
+            })}
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Designation */}
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
           Designation
         </label>
-        <input
-          type="text"
-          placeholder="e.g. Frontend Developer (Optional)"
+        <Select
           value={designation}
-          onChange={(e) => setDesignation(e.target.value)}
-          disabled={isSubmitting}
-          className="w-full px-4 py-2.5 bg-muted/50 rounded-xl border border-border/40 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 text-sm outline-none transition-all text-foreground font-medium"
-        />
+          onValueChange={setDesignation}
+          disabled={isSubmitting || !selectedCategory || selectedCategory === "none"}
+        >
+          <SelectTrigger className="w-full px-3 py-2.5 bg-muted/50 rounded-xl border border-border/40 text-sm cursor-pointer text-foreground font-medium flex items-center justify-between disabled:opacity-50">
+            <SelectValue placeholder={(!selectedCategory || selectedCategory === "none") ? "Select a department first" : "Select designation"} />
+          </SelectTrigger>
+          <SelectContent className="max-h-[250px] overflow-y-auto rounded-xl border border-border bg-popover text-popover-foreground">
+            {/* Search Input */}
+            <div className="p-2 border-b border-border/40 sticky top-0 bg-popover z-10">
+              <input
+                type="text"
+                placeholder="Search designation..."
+                value={designationSearch}
+                onChange={(e) => setDesignationSearch(e.target.value)}
+                onKeyDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full px-2.5 py-1.5 bg-muted/40 rounded-lg border border-border/30 text-xs outline-none focus:border-primary/50 transition-all text-foreground font-medium"
+              />
+            </div>
+            <SelectItem value="none">None / No Designation</SelectItem>
+            {selectedCategory && selectedCategory !== "none" && (
+              <>
+                <SelectSeparator />
+                {filteredOptions.length > 0 ? (
+                  filteredOptions.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="p-4 text-center text-xs text-muted-foreground italic">
+                    No matching designations
+                  </div>
+                )}
+              </>
+            )}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Role Selector */}

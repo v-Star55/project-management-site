@@ -103,12 +103,19 @@ export default function TicketDetail({
   const projectMembers = useMemo(() => {
     const members: any[] = []
     if (projectDetails) {
+      const getDesignation = (u: any) => {
+        return (u.designation && u.designation.trim()) || (u.role ? (u.role.charAt(0).toUpperCase() + u.role.slice(1)) : "");
+      }
       const seen = new Set<string>()
       const add = (list: any[]) => {
         for (const m of list) {
-          if (m && m.id && !seen.has(m.id)) {
+          if (m && m.id && !seen.has(m.id) && m.role !== "client") {
             seen.add(m.id)
-            members.push(m)
+            members.push({
+              ...m,
+              displayName: m.name,
+              designationLabel: getDesignation(m),
+            })
           }
         }
       }
@@ -124,7 +131,8 @@ export default function TicketDetail({
   const isProjectAdmin = projectDetails?.admins?.some((a: any) => a.id === currentUser?.id)
   const isProjectAdminOrOwner = isOwner || (currentUser?.role === "admin" && !!isProjectAdmin)
 
-  const canEdit = isProjectAdminOrOwner || currentUser?.role === "member" || currentUser?.role === "qa"
+  const isAssignee = ticket?.assignedUserId === currentUser?.id
+  const canEdit = isProjectAdminOrOwner || ((currentUser?.role === "member" || currentUser?.role === "qa") && isAssignee)
   const canDelete = isProjectAdminOrOwner
 
   // Close on Escape
@@ -149,6 +157,28 @@ export default function TicketDetail({
       toast.error("Title is required")
       return
     }
+
+    if (editGroupId && editGroupId !== "none" && editDueDate) {
+      const selectedGroup = projectGroups.find((g: any) => g.id === editGroupId)
+      if (selectedGroup) {
+        const ticketDueDate = new Date(editDueDate)
+        const groupStart = new Date(selectedGroup.startDate)
+        if (ticketDueDate < groupStart) {
+          const formattedStart = groupStart.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+          toast.error(`Ticket due date cannot be before the sprint/group start date (${formattedStart})`)
+          return
+        }
+        if (selectedGroup.endDate) {
+          const groupEnd = new Date(selectedGroup.endDate)
+          if (ticketDueDate > groupEnd) {
+            const formattedEnd = groupEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+            toast.error(`Ticket due date cannot be after the sprint/group end date (${formattedEnd})`)
+            return
+          }
+        }
+      }
+    }
+
     setIsSaving(true)
     try {
       const payload: any = {
@@ -370,7 +400,11 @@ export default function TicketDetail({
 
                 {/* Column 3 (Right): Time Logs */}
                 <div className="lg:col-span-4 xl:col-span-3">
-                  <TicketTimeLogs ticket={ticket} />
+                  <TicketTimeLogs
+                    ticket={ticket}
+                    canLogHours={canEdit}
+                    isProjectAdminOrOwner={isProjectAdminOrOwner}
+                  />
                 </div>
 
               </div>

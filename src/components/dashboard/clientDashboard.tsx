@@ -397,7 +397,7 @@ export default function ClientDashboard() {
                         <div>
                           <p className="text-muted-foreground font-medium">Project Phase</p>
                           <p className="font-semibold text-foreground capitalize mt-0.5">
-                            {project.phase.replace("_", " ")}
+                            {project.phase?.replace("_", " ") || "Planning"}
                           </p>
                         </div>
                         <div>

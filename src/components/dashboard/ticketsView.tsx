@@ -10,6 +10,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import {
   SearchIcon,
   PlusIcon,
@@ -19,11 +22,13 @@ import {
   AlertCircleIcon,
   RotateCcwIcon,
   Loader2Icon,
-  EyeIcon
+  EyeIcon,
+  ChevronDown
 } from "lucide-react"
 import Image from "next/image"
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
+import { toast } from "sonner"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   DndContext,
@@ -276,6 +281,7 @@ const getTargetStatus = (columnId: string, currentStatus: string): string => {
 export default function TicketsView() {
   const { user } = useSelector((state: RootState) => state.user)
   const isCreateAllowed = user?.role === "owner" || user?.role === "admin"
+  const isOwnerOrAdmin = user?.role === "owner" || user?.role === "admin"
   const queryClient = useQueryClient()
   const [activeId, setActiveId] = useState<string | null>(null)
   const [filter, setFilter] = useState<string>("All")
@@ -286,7 +292,9 @@ export default function TicketsView() {
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [selectedProjectId, setSelectedProjectId] = useState<string>("all")
   const [selectedMemberId, setSelectedMemberId] = useState<string>("all")
+  const [memberSearchQuery, setMemberSearchQuery] = useState<string>("")
   const [assignmentFilter, setAssignmentFilter] = useState<"all" | "assigned" | "unassigned">("all")
+  const [overrunFilter, setOverrunFilter] = useState<string>("all")
   const [pendingStatusChange, setPendingStatusChange] = useState<{
     ticketId: string
     targetStatus: "blocked" | "reopen"
@@ -303,7 +311,7 @@ export default function TicketsView() {
   })
   const projects = projectsData?.projects || []
 
-  // Fetch workspace members for filter dropdown (only for admin/owner)
+  // Fetch workspace members for filter dropdown
   const companyId = user?.company?.id
   const { data: teamData } = useQuery({
     queryKey: ["teams", companyId],
@@ -313,10 +321,22 @@ export default function TicketsView() {
       if (!res.ok) throw new Error("Failed to fetch team members")
       return res.json()
     },
-    enabled: !!companyId && (user?.role === "owner" || user?.role === "admin"),
+    enabled: !!companyId && user?.role !== "client",
   })
   const teamMembers = teamData?.teams || []
   const activeMembers = teamMembers.filter((m: any) => m.role !== "Client")
+
+  // Filter members by the selected project
+  const filteredActiveMembers = activeMembers.filter((member: any) => {
+    if (selectedProjectId === "all") return true
+    return member.projects?.some((p: any) => p.id === selectedProjectId)
+  })
+
+  // Filter members by name/email search query
+  const searchedActiveMembers = filteredActiveMembers.filter((member: any) =>
+    member.name.toLowerCase().includes(memberSearchQuery.toLowerCase()) ||
+    member.email.toLowerCase().includes(memberSearchQuery.toLowerCase())
+  )
 
   const fetchTickets = async () => {
     const res = await fetch("/api/tickets")
@@ -405,11 +425,9 @@ export default function TicketsView() {
     const matchesStatus = filter === "All" || getDisplayStatus(ticket.status) === filter
     const matchesProject = selectedProjectId === "all" || ticket.projectId === selectedProjectId
 
-    const isOwnerOrAdmin = user?.role === "owner" || user?.role === "admin"
     const matchesMember =
-      !isOwnerOrAdmin ||
       selectedMemberId === "all" ||
-      ticket.assignedUserId === selectedMemberId
+      (selectedMemberId === "me" ? ticket.assignedUserId === user?.id : ticket.assignedUserId === selectedMemberId)
 
     let matchesAssignment = true
     if (isOwnerOrAdmin) {
@@ -420,7 +438,19 @@ export default function TicketsView() {
       }
     }
 
-    return matchesSearch && matchesStatus && matchesProject && matchesMember && matchesAssignment
+    const matchesOverrun = (() => {
+      if (overrunFilter === "all") return true
+      if (overrunFilter === "overrun") {
+        const est = ticket.estimatedHours
+        if (est === null || est === undefined || est <= 0) return false
+        const totalMinutes = ticket.timeLogs?.reduce((sum, tl) => sum + (tl.duration || 0), 0) || 0
+        const loggedHours = totalMinutes / 60
+        return loggedHours > est
+      }
+      return true
+    })()
+
+    return matchesSearch && matchesStatus && matchesProject && matchesMember && matchesAssignment && matchesOverrun
   })
 
   // Sort tickets
@@ -467,6 +497,18 @@ export default function TicketsView() {
 
     const ticket = tickets.find((t) => t.id === ticketId)
     if (!ticket) return
+
+    const isOwner = user?.role === "owner"
+    const currentProject = projects.find((p: any) => p.id === ticket.projectId)
+    const isProjectAdmin = currentProject?.admins?.some((adm: any) => adm.id === user?.id)
+    const isAllowedAdmin = user?.role === "admin" && isProjectAdmin
+    const isAssignee = ticket.assignedUserId === user?.id
+    const canMove = isOwner || isAllowedAdmin || ((user?.role === "member" || user?.role === "qa") && isAssignee)
+
+    if (!canMove) {
+      toast.error("You do not have permission to move this ticket")
+      return
+    }
 
     const targetStatus = getTargetStatus(targetColumnId, ticket.status)
 
@@ -519,6 +561,25 @@ export default function TicketsView() {
             />
           </div>
 
+          {/* Status Filter Selector */}
+          <div className="w-full sm:w-56">
+            <Select
+              value={filter}
+              onValueChange={setFilter}
+            >
+              <SelectTrigger className="w-full bg-muted/50 border-border/40 rounded-xl py-2 h-9 text-muted-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
+                <SelectValue placeholder="All Statuses" />
+              </SelectTrigger>
+              <SelectContent position="popper" className="rounded-xl border border-border/50">
+                {ALL_STATUSES.map((status) => (
+                  <SelectItem key={status} value={status} className="text-foreground">
+                    Status: {status}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Sort Selector */}
           <div className="w-full sm:w-56">
             <Select
@@ -556,25 +617,84 @@ export default function TicketsView() {
             </Select>
           </div>
 
-          {/* Member Filter Selector */}
-          {(user?.role === "owner" || user?.role === "admin") && (
+          {/* Member Filter Selector with Search */}
+          {user?.role !== "client" && (
             <div className="w-full sm:w-56">
-              <Select
-                value={selectedMemberId}
-                onValueChange={setSelectedMemberId}
-              >
-                <SelectTrigger className="w-full bg-muted/50 border-border/40 rounded-xl py-2 h-9 text-muted-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
-                  <SelectValue placeholder="All Members" />
-                </SelectTrigger>
-                <SelectContent position="popper" className="rounded-xl border border-border/50 max-h-60 overflow-y-auto">
-                  <SelectItem value="all" className="text-foreground">All Members</SelectItem>
-                  {activeMembers.map((member: any) => (
-                    <SelectItem key={member.id} value={member.id} className="text-foreground">
-                      {member.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    className="w-full flex items-center justify-between bg-muted/50 border border-border/40 hover:bg-muted/70 rounded-xl px-3 py-2 h-9 text-muted-foreground font-medium focus:ring-2 focus:ring-primary/20 transition-all text-sm outline-none cursor-pointer"
+                  >
+                    <span className="truncate">
+                      {selectedMemberId === "all"
+                        ? "All Members"
+                        : selectedMemberId === "me"
+                        ? "Assigned to Me"
+                        : activeMembers.find((m: any) => m.id === selectedMemberId)?.name || "All Members"}
+                    </span>
+                    <ChevronDown className="size-4 shrink-0 opacity-50" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[224px] p-2 rounded-xl border border-border/50 bg-popover shadow-xl z-[150]" align="start">
+                  <div className="relative mb-2 w-full">
+                    <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Search member..."
+                      value={memberSearchQuery}
+                      onChange={(e) => setMemberSearchQuery(e.target.value)}
+                      className="w-full pl-8 pr-3 py-1.5 bg-muted/30 hover:bg-muted/50 rounded-lg border border-border/30 focus:border-primary/50 text-xs outline-none transition-all h-8"
+                    />
+                  </div>
+                  <div className="max-h-60 overflow-y-auto flex flex-col gap-0.5">
+                    <button
+                      onClick={() => setSelectedMemberId("all")}
+                      className={cn(
+                        "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer",
+                        selectedMemberId === "all"
+                          ? "bg-primary/10 text-primary"
+                          : "hover:bg-muted text-foreground"
+                      )}
+                    >
+                      All Members
+                    </button>
+                    <button
+                      onClick={() => setSelectedMemberId("me")}
+                      className={cn(
+                        "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer",
+                        selectedMemberId === "me"
+                          ? "bg-primary/10 text-primary"
+                          : "hover:bg-muted text-foreground"
+                      )}
+                    >
+                      Assigned to Me
+                    </button>
+                    
+                    {searchedActiveMembers.length > 0 && (
+                      <div className="h-px bg-border/40 my-1" />
+                    )}
+
+                    {searchedActiveMembers.map((member: any) => (
+                      <button
+                        key={member.id}
+                        onClick={() => setSelectedMemberId(member.id)}
+                        className={cn(
+                          "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer truncate",
+                          selectedMemberId === member.id
+                            ? "bg-primary/10 text-primary"
+                            : "hover:bg-muted text-foreground"
+                        )}
+                      >
+                        {member.name}
+                      </button>
+                    ))}
+
+                    {searchedActiveMembers.length === 0 && memberSearchQuery && (
+                      <span className="text-[10px] text-muted-foreground text-center py-4 italic">No teammates found</span>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           )}
 
@@ -596,22 +716,22 @@ export default function TicketsView() {
               </Select>
             </div>
           )}
-        </div>
 
-        {/* Status Filters */}
-        <div className="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
-          {ALL_STATUSES.map((status) => (
-            <button
-              key={status}
-              onClick={() => setFilter(status)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all cursor-pointer ${filter === status
-                ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                : "bg-muted/30 hover:bg-muted text-muted-foreground border-border/30"
-                }`}
+          {/* Overrun Filter Selector */}
+          <div className="w-full sm:w-56">
+            <Select
+              value={overrunFilter}
+              onValueChange={setOverrunFilter}
             >
-              {status}
-            </button>
-          ))}
+              <SelectTrigger className="w-full bg-muted/50 border-border/40 rounded-xl py-2 h-9 text-muted-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
+                <SelectValue placeholder="Overrun Status" />
+              </SelectTrigger>
+              <SelectContent position="popper" className="rounded-xl border border-border/50">
+                <SelectItem value="all" className="text-foreground">All Tickets</SelectItem>
+                <SelectItem value="overrun" className="text-foreground">Overrun Tickets Only</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
@@ -651,6 +771,7 @@ export default function TicketsView() {
                   tickets={columnTickets}
                   dotColor={column.dotColor}
                   onTicketClick={handleTicketClick}
+                  projects={projects}
                 />
               )
             })}
@@ -661,6 +782,7 @@ export default function TicketsView() {
               <DraggableTicketCard
                 ticket={tickets.find((t) => t.id === activeId)!}
                 isOverlay
+                projects={projects}
               />
             ) : null}
           </DragOverlay>
@@ -723,9 +845,10 @@ interface TicketColumnProps {
   tickets: Ticket[]
   dotColor: string
   onTicketClick: (ticket: Ticket) => void
+  projects: any[]
 }
 
-function TicketColumn({ id, title, tickets, dotColor, onTicketClick }: TicketColumnProps) {
+function TicketColumn({ id, title, tickets, dotColor, onTicketClick, projects }: TicketColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id,
   })
@@ -752,7 +875,7 @@ function TicketColumn({ id, title, tickets, dotColor, onTicketClick }: TicketCol
       {/* Cards */}
       <div className="flex-1 flex flex-col gap-2.5 min-h-[400px]">
         {tickets.map((ticket) => (
-          <DraggableTicketCard key={ticket.id} ticket={ticket} onClick={() => onTicketClick(ticket)} />
+          <DraggableTicketCard key={ticket.id} ticket={ticket} onClick={() => onTicketClick(ticket)} projects={projects} />
         ))}
         {tickets.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-border/50 rounded-xl py-12 text-center">
@@ -768,12 +891,23 @@ interface DraggableTicketCardProps {
   ticket: Ticket
   isOverlay?: boolean
   onClick?: () => void
+  projects?: any[]
 }
 
-function DraggableTicketCard({ ticket, isOverlay = false, onClick }: DraggableTicketCardProps) {
+function DraggableTicketCard({ ticket, isOverlay = false, onClick, projects = [] }: DraggableTicketCardProps) {
+  const user = useSelector((state: RootState) => state.user.user)
+  
+  const isOwner = user?.role === "owner"
+  const currentProject = projects.find((p: any) => p.id === ticket.projectId)
+  const isProjectAdmin = currentProject?.admins?.some((adm: any) => adm.id === user?.id)
+  const isAllowedAdmin = user?.role === "admin" && isProjectAdmin
+  const isAssignee = ticket.assignedUserId === user?.id
+  const canMove = isOwner || isAllowedAdmin || ((user?.role === "member" || user?.role === "qa") && isAssignee)
+
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: ticket.id,
     data: { ticket },
+    disabled: !canMove,
   })
 
   const style = transform
@@ -892,9 +1026,9 @@ function DraggableTicketCard({ ticket, isOverlay = false, onClick }: DraggableTi
     <div
       ref={setNodeRef}
       style={style}
-      {...listeners}
-      {...attributes}
-      className={`group border p-4 rounded-xl transition-all duration-200 flex flex-col justify-between gap-3 cursor-grab active:cursor-grabbing select-none hover:shadow-[0_4px_14px_rgba(0,0,0,0.07)] hover:brightness-[0.97] ${getTicketCardBg(ticket.status)} ${isDragging ? "opacity-30 shadow-none scale-[0.98]" : "shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+      {...(canMove ? listeners : {})}
+      {...(canMove ? attributes : {})}
+      className={`group border p-4 rounded-xl transition-all duration-200 flex flex-col justify-between gap-3 select-none hover:shadow-[0_4px_14px_rgba(0,0,0,0.07)] hover:brightness-[0.97] ${getTicketCardBg(ticket.status)} ${isDragging ? "opacity-30 shadow-none scale-[0.98]" : "shadow-[0_1px_2px_rgba(0,0,0,0.04)]"} ${canMove ? "cursor-grab active:cursor-grabbing" : "cursor-default"
         }`}
     >
       {cardContent}

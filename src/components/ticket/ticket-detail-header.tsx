@@ -262,6 +262,7 @@ export default function TicketDetailHeader({
         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 mt-0.5">
           {/* Status Selector */}
           <Select
+            disabled={!canEdit}
             value={ticket.status}
             onValueChange={(val) => {
               if (val === "blocked" || val === "reopen") {
@@ -288,6 +289,7 @@ export default function TicketDetailHeader({
 
           {/* Priority Selector */}
           <Select
+            disabled={!canEdit}
             value={ticket.priority?.toLowerCase() || "low"}
             onValueChange={(val) => {
               onPriorityUpdate?.(val)
@@ -330,22 +332,39 @@ export default function TicketDetailHeader({
               onValueChange={handleAssigneeUpdate}
             >
               <SelectTrigger className="h-9 px-3 bg-card border border-border/50 rounded-xl text-xs font-semibold flex items-center gap-2 hover:bg-muted/30 focus:ring-0 focus:ring-offset-0 w-[145px] shrink-0 cursor-pointer">
-                <SelectValue placeholder="Assignee" />
+                {ticket.assignedUser ? (
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <Image
+                      src={ticket.assignedUser.imageUrl || "https://github.com/shadcn.png"}
+                      alt={ticket.assignedUser.name}
+                      width={18}
+                      height={18}
+                      className="size-4.5 rounded-full border border-border object-cover shrink-0"
+                      unoptimized
+                    />
+                    <span className="truncate max-w-[105px]">{ticket.assignedUser.name}</span>
+                  </div>
+                ) : (
+                  <SelectValue placeholder="Assignee" />
+                )}
               </SelectTrigger>
               <SelectContent className="bg-popover border border-border/50 rounded-2xl shadow-xl z-[200] max-h-60 overflow-y-auto w-[180px]">
                 <SelectItem value="unassigned" className="rounded-xl cursor-pointer">Unassigned</SelectItem>
                 {projectMembers.map((member: any) => (
-                  <SelectItem key={member.id} value={member.id} className="rounded-xl cursor-pointer">
-                    <div className="flex items-center gap-2">
+                  <SelectItem key={member.id} value={member.id} className="rounded-xl cursor-pointer py-2">
+                    <div className="flex items-center gap-2.5">
                       <Image
                         src={member.imageUrl || "https://github.com/shadcn.png"}
-                        alt={member.name}
+                        alt={member.displayName}
                         width={18}
                         height={18}
                         className="size-4.5 rounded-full border border-border object-cover shrink-0"
                         unoptimized
                       />
-                      <span>{member.name}</span>
+                      <div className="flex flex-col text-left">
+                        <span className="text-xs font-semibold text-foreground leading-none">{member.displayName}</span>
+                        <span className="text-[9px] text-muted-foreground mt-1 font-normal leading-none">{member.designationLabel}</span>
+                      </div>
                     </div>
                   </SelectItem>
                 ))}

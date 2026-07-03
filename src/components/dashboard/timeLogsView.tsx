@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo } from "react"
+import React, { useState, useMemo, useEffect } from "react"
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
@@ -57,6 +57,8 @@ interface TimeLog {
   ticket?: {
     id: string
     title: string
+    estimatedHours: number | null
+    timeLogs?: { duration: number | null }[]
   } | null
   createdAt: string
 }
@@ -182,6 +184,17 @@ export default function TimeLogsView() {
   const [startDate, setStartDate] = useState<string>("")
   const [endDate, setEndDate] = useState<string>("")
   const [searchQuery, setSearchQuery] = useState<string>("")
+  const [overrunFilter, setOverrunFilter] = useState<string>("all")
+
+  // Set default dates to today and tomorrow on client mount to show today's logs by default and avoid hydration mismatches
+  useEffect(() => {
+    const today = new Date()
+    const tomorrow = new Date()
+    tomorrow.setDate(today.getDate() + 1)
+    
+    setStartDate(format(today, "yyyy-MM-dd"))
+    setEndDate(format(tomorrow, "yyyy-MM-dd"))
+  }, [])
 
   // Modals state
   const [isLogModalOpen, setIsLogModalOpen] = useState(false)
@@ -267,15 +280,76 @@ export default function TimeLogsView() {
 
   // Filter logs by search query (client side)
   const filteredLogs = useMemo(() => {
-    if (!searchQuery) return allLogs
+    let logs = allLogs
+
+    // 1. Overrun filter
+    if (overrunFilter === "overrun") {
+      logs = logs.filter(log => {
+        if (!log.ticket) return false
+        const est = log.ticket.estimatedHours
+        if (est === null || est === undefined || est <= 0) return false
+        const totalMinutes = log.ticket.timeLogs?.reduce((sum: number, tl: any) => sum + (tl.duration || 0), 0) || 0
+        const loggedHours = totalMinutes / 60
+        return loggedHours > est
+      })
+    }
+
+    if (!searchQuery) return logs
     const q = searchQuery.toLowerCase()
-    return allLogs.filter(log => 
+    return logs.filter(log => 
       (log.description || "").toLowerCase().includes(q) ||
       (log.user.name || "").toLowerCase().includes(q) ||
       (log.project?.title || "").toLowerCase().includes(q) ||
       (log.ticket?.title || "").toLowerCase().includes(q)
     )
-  }, [allLogs, searchQuery])
+  }, [allLogs, searchQuery, overrunFilter])
+
+  // Group filteredLogs by ticketId (if not null) and userId
+  const groupedLogs = useMemo(() => {
+    const groups: { [key: string]: TimeLog & { isGrouped: boolean; groupCount: number } } = {}
+    const result: any[] = []
+
+    filteredLogs.forEach(log => {
+      if (!log.ticketId) {
+        // If it's not a ticket log, keep it separate
+        result.push({
+          ...log,
+          isGrouped: false,
+          groupCount: 1
+        })
+      } else {
+        const key = `${log.ticketId}-${log.userId}`
+        if (!groups[key]) {
+          groups[key] = {
+            ...log,
+            isGrouped: false, // will update to true if count > 1
+            groupCount: 1
+          }
+        } else {
+          const group = groups[key]
+          group.isGrouped = true
+          group.groupCount += 1
+          group.duration += log.duration
+          
+          // Keep the most recent details
+          const currentLogDate = new Date(log.startTime).getTime()
+          const existingLogDate = new Date(group.startTime).getTime()
+          if (currentLogDate > existingLogDate) {
+            group.startTime = log.startTime
+            group.endTime = log.endTime
+            group.description = log.description
+          }
+        }
+      }
+    })
+
+    Object.values(groups).forEach(group => {
+      result.push(group)
+    })
+
+    // Sort by startTime descending
+    return result.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime())
+  }, [filteredLogs])
 
   // ─── Stats Calculations ───────────────────────────────────────
   const stats = useMemo(() => {
@@ -295,6 +369,9 @@ export default function TimeLogsView() {
     // Start of current month
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime()
 
+    // Keep track of unique ticket overruns to avoid double counting
+    const ticketOverruns: { [ticketId: string]: number } = {}
+
     filteredLogs.forEach(log => {
       const durHours = log.duration / 60
       total += durHours
@@ -309,13 +386,26 @@ export default function TimeLogsView() {
       if (logTime >= startOfMonth) {
         month += durHours
       }
+
+      if (log.ticket && log.ticket.id) {
+        const t = log.ticket
+        if (t.estimatedHours !== null && t.estimatedHours !== undefined && t.estimatedHours > 0) {
+          const totalMinutes = t.timeLogs?.reduce((sum: number, tl: any) => sum + (tl.duration || 0), 0) || 0
+          const loggedHours = totalMinutes / 60
+          const overrun = Math.max(0, loggedHours - t.estimatedHours)
+          ticketOverruns[t.id] = overrun
+        }
+      }
     })
+
+    const totalOverrun = Object.values(ticketOverruns).reduce((sum: number, val: number) => sum + val, 0)
 
     return {
       total: total.toFixed(1),
       month: month.toFixed(1),
       week: week.toFixed(1),
-      today: today.toFixed(1)
+      today: today.toFixed(1),
+      overrun: totalOverrun.toFixed(1)
     }
   }, [filteredLogs])
 
@@ -347,9 +437,10 @@ export default function TimeLogsView() {
     setFormTicketId("none")
     setFormDescription("")
     
-    const nowStr = new Date().toISOString().slice(0, 16)
-    setFormStartTime(nowStr)
-    setFormEndTime(nowStr)
+    const now = new Date()
+    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000)
+    setFormStartTime(toDateTimeLocalString(now))
+    setFormEndTime(toDateTimeLocalString(oneHourLater))
     setFormDuration("60")
 
     setEditingLog(null)
@@ -361,8 +452,8 @@ export default function TimeLogsView() {
     setFormProjectId(log.projectId || "")
     setFormTicketId(log.ticketId || "none")
     setFormDescription(log.description || "")
-    setFormStartTime(new Date(log.startTime).toISOString().slice(0, 16))
-    setFormEndTime(new Date(log.endTime).toISOString().slice(0, 16))
+    setFormStartTime(toDateTimeLocalString(new Date(log.startTime)))
+    setFormEndTime(toDateTimeLocalString(new Date(log.endTime)))
     setFormDuration(log.duration.toString())
     setIsLogModalOpen(true)
   }
@@ -492,7 +583,7 @@ export default function TimeLogsView() {
       </div>
 
       {/* ─── Stats Cards Grid ───────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <div className="relative overflow-hidden bg-card/60 backdrop-blur-md p-5 rounded-2xl border border-border/60 shadow-xs flex flex-col gap-1.5">
           <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-[80px] pointer-events-none" />
           <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Today</span>
@@ -513,6 +604,11 @@ export default function TimeLogsView() {
           <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Total Hours Logged</span>
           <span className="text-2xl font-black text-foreground">{stats.total} <span className="text-sm font-normal text-muted-foreground">hrs</span></span>
         </div>
+        <div className="relative overflow-hidden bg-card/60 backdrop-blur-md p-5 rounded-2xl border border-border/60 shadow-xs flex flex-col gap-1.5 col-span-2 md:col-span-1">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/5 rounded-bl-[80px] pointer-events-none" />
+          <span className="text-[10px] font-bold tracking-widest text-rose-500 uppercase">Total Overrun</span>
+          <span className="text-2xl font-black text-rose-600 dark:text-rose-400">{stats.overrun} <span className="text-sm font-normal text-muted-foreground">hrs</span></span>
+        </div>
       </div>
 
       {/* ─── Filters Row ────────────────────────────────────────── */}
@@ -522,7 +618,7 @@ export default function TimeLogsView() {
           <span>Filter Logs</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5">
           
           {/* Search */}
           <div className="relative w-full">
@@ -586,14 +682,35 @@ export default function TimeLogsView() {
             </div>
           ) : null}
 
-          {/* Date range inputs */}
-          <div className="flex gap-2 items-center sm:col-span-2 lg:col-span-1">
+          {/* Overrun Filter */}
+          <div>
+            <Select value={overrunFilter} onValueChange={setOverrunFilter}>
+              <SelectTrigger className="w-full bg-muted/30 border-border/40 rounded-xl h-9 text-xs">
+                <SelectValue placeholder="Overrun Status" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border border-border/50 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+                <SelectItem value="all">All Logs</SelectItem>
+                <SelectItem value="overrun">Overrun Tickets Only</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+        </div>
+
+        {/* Date range inputs below by default */}
+        <div className="flex flex-wrap items-center gap-3 border-t border-border/20 pt-4 mt-1">
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider shrink-0 flex items-center gap-1.5">
+            <CalendarIcon className="size-3.5 text-muted-foreground/80" />
+            Date Range Filter
+          </span>
+          
+          <div className="flex items-center gap-2 w-full sm:w-auto max-w-sm">
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full justify-start text-left font-normal bg-muted/30 border border-border/40 hover:bg-muted/50 text-xs rounded-xl h-9 px-2.5 shadow-none transition-all",
+                    "w-full sm:w-[130px] justify-start text-left font-normal bg-muted/30 border border-border/40 hover:bg-muted/50 text-xs rounded-xl h-9 px-2.5 shadow-none transition-all",
                     !startDate && "text-muted-foreground"
                   )}
                 >
@@ -621,7 +738,7 @@ export default function TimeLogsView() {
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full justify-start text-left font-normal bg-muted/30 border border-border/40 hover:bg-muted/50 text-xs rounded-xl h-9 px-2.5 shadow-none transition-all",
+                    "w-full sm:w-[130px] justify-start text-left font-normal bg-muted/30 border border-border/40 hover:bg-muted/50 text-xs rounded-xl h-9 px-2.5 shadow-none transition-all",
                     !endDate && "text-muted-foreground"
                   )}
                 >
@@ -643,6 +760,20 @@ export default function TimeLogsView() {
             </Popover>
           </div>
 
+          {(startDate || endDate) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setStartDate("")
+                setEndDate("")
+              }}
+              className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground h-8 px-2 rounded-lg cursor-pointer sm:ml-auto"
+            >
+              <XIcon className="mr-1 size-3" />
+              Clear Date Filter
+            </Button>
+          )}
         </div>
       </div>
 
@@ -658,7 +789,7 @@ export default function TimeLogsView() {
           <p className="font-semibold text-foreground">Failed to load time logs</p>
           <p className="text-sm text-muted-foreground mt-1">{(error as Error)?.message || "Internal error."}</p>
         </div>
-      ) : filteredLogs.length === 0 ? (
+      ) : groupedLogs.length === 0 ? (
         <div className="py-20 flex flex-col items-center justify-center bg-card/30 rounded-2xl border border-dashed border-border/60 text-center">
           <ClockIcon className="size-10 text-muted-foreground/50 mb-3 animate-pulse" />
           <p className="font-semibold text-foreground">No time logs found</p>
@@ -673,14 +804,16 @@ export default function TimeLogsView() {
                   <th className="px-6 py-4">Logged By</th>
                   <th className="px-6 py-4">Details</th>
                   <th className="px-6 py-4">Timeline / Date</th>
+                  <th className="px-6 py-4 text-right">Estimated</th>
+                  <th className="px-6 py-4 text-right">Overrun</th>
                   <th className="px-6 py-4 text-right">Duration</th>
                   <th className="px-6 py-4 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/30">
-                {filteredLogs.map((log) => {
+                {groupedLogs.map((log: any) => {
                   const isLogCreator = log.userId === user?.id
-                  const canManage = isOwnerOrAdmin || isLogCreator
+                  const canManage = (isOwnerOrAdmin || isLogCreator) && !log.isGrouped
 
                   return (
                     <tr key={log.id} className="hover:bg-muted/10 transition-colors">
@@ -712,13 +845,21 @@ export default function TimeLogsView() {
                             </span>
                           )}
                           {log.ticket && (
-                            <span className="inline-flex items-center gap-1.5 text-[9px] font-bold tracking-wider uppercase bg-stone-100 text-stone-600 dark:bg-stone-500/10 dark:text-stone-400 px-2 py-0.5 rounded-md border border-stone-200 dark:border-stone-500/20 w-fit">
-                              <FileTextIcon className="size-2.5" />
-                              {log.ticket.title}
-                            </span>
+                            <div className="flex flex-col gap-1 w-full max-w-[280px]">
+                              <span className="inline-flex items-center gap-1.5 text-[9px] font-bold tracking-wider uppercase bg-stone-100 text-stone-600 dark:bg-stone-500/10 dark:text-stone-400 px-2 py-0.5 rounded-md border border-stone-200 dark:border-stone-500/20 w-fit">
+                                <FileTextIcon className="size-2.5" />
+                                {log.ticket.title}
+                              </span>
+                            </div>
                           )}
                           <p className="text-xs text-foreground/80 leading-relaxed font-medium mt-0.5 line-clamp-2">
-                            {log.description || <span className="text-muted-foreground italic">No description provided</span>}
+                            {log.isGrouped ? (
+                              <span className="text-muted-foreground italic font-normal">
+                                {log.groupCount} entries logged • Go to ticket for details
+                              </span>
+                            ) : (
+                              log.description || <span className="text-muted-foreground italic">No description provided</span>
+                            )}
                           </p>
                         </div>
                       </td>
@@ -726,11 +867,41 @@ export default function TimeLogsView() {
                       {/* Date & Time */}
                       <td className="px-6 py-4 whitespace-nowrap text-xs">
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-bold text-foreground">{formatLogDate(log.startTime)}</span>
+                          <span className="font-bold text-foreground">
+                            {log.isGrouped ? "Multiple Dates" : formatLogDate(log.startTime)}
+                          </span>
                           <span className="text-muted-foreground text-[10px]">
-                            {formatLogTime(log.startTime)} - {formatLogTime(log.endTime)}
+                            {log.isGrouped ? `Last logged: ${formatLogDate(log.startTime)}` : `${formatLogTime(log.startTime)} - ${formatLogTime(log.endTime)}`}
                           </span>
                         </div>
+                      </td>
+
+                      {/* Estimated */}
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-semibold text-foreground">
+                        {log.ticket && log.ticket.estimatedHours !== null && log.ticket.estimatedHours !== undefined && log.ticket.estimatedHours > 0 ? (
+                          <span>{log.ticket.estimatedHours.toFixed(1)} <span className="text-[10px] font-normal text-muted-foreground">hrs</span></span>
+                        ) : (
+                          <span className="text-muted-foreground/50">-</span>
+                        )}
+                      </td>
+
+                      {/* Overrun */}
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-xs">
+                        {(() => {
+                          if (log.ticket && log.ticket.estimatedHours !== null && log.ticket.estimatedHours !== undefined && log.ticket.estimatedHours > 0) {
+                            const est = log.ticket.estimatedHours
+                            const totalMinutes = log.ticket.timeLogs?.reduce((sum: number, tl: any) => sum + (tl.duration || 0), 0) || 0
+                            const logged = totalMinutes / 60
+                            if (logged > est) {
+                              return (
+                                <span className="text-rose-500 font-extrabold animate-pulse">
+                                  +{(logged - est).toFixed(1)} hrs
+                                </span>
+                              )
+                            }
+                          }
+                          return <span className="text-muted-foreground/50">-</span>
+                        })()}
                       </td>
 
                       {/* Duration */}
@@ -740,7 +911,9 @@ export default function TimeLogsView() {
 
                       {/* Actions */}
                       <td className="px-6 py-4 whitespace-nowrap text-center">
-                        {canManage ? (
+                        {log.isGrouped ? (
+                          <span className="text-[10px] text-muted-foreground italic">Grouped (Manage in ticket)</span>
+                        ) : canManage ? (
                           <div className="flex items-center justify-center gap-1.5">
                             <button
                               onClick={() => openEditModal(log)}

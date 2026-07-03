@@ -20,6 +20,8 @@ import { Calendar } from "@/components/ui/calendar"
 
 interface TicketTimeLogsProps {
   ticket: Ticket
+  canLogHours?: boolean
+  isProjectAdminOrOwner?: boolean
 }
 
 interface DateTimePickerProps {
@@ -184,7 +186,11 @@ const getInitials = (name: string): string => {
     .slice(0, 2)
 }
 
-export default function TicketTimeLogs({ ticket }: TicketTimeLogsProps) {
+export default function TicketTimeLogs({
+  ticket,
+  canLogHours = false,
+  isProjectAdminOrOwner = false,
+}: TicketTimeLogsProps) {
   const queryClient = useQueryClient()
   const user = useSelector((state: RootState) => state.user.user)
 
@@ -196,14 +202,6 @@ export default function TicketTimeLogs({ ticket }: TicketTimeLogsProps) {
   const [logDesc, setLogDesc] = useState("")
   const [loggingTime, setLoggingTime] = useState(false)
   const [deletingTimeLogId, setDeletingTimeLogId] = useState<string | null>(null)
-
-  // Permission check: only project members, admins, or owners can log hours (all roles except client)
-  const canLogHours = 
-    user && 
-    (user.role === "owner" || 
-     user.role === "admin" || 
-     user.role === "member" || 
-     user.role === "qa")
 
   const totalLogMinutes = ticket.timeLogs?.reduce((acc, log) => acc + log.duration, 0) || 0
 
@@ -333,8 +331,8 @@ export default function TicketTimeLogs({ ticket }: TicketTimeLogsProps) {
           </div>
         </form>
       ) : (
-        <div className="p-3 bg-red-500/5 border border-red-500/10 rounded-xl text-center">
-          <p className="text-[10.5px] font-medium text-red-500/80">Only project members, admins, or owners can log hours on this ticket.</p>
+        <div className="p-3 bg-muted/40 border border-border/40 rounded-xl text-center">
+          <p className="text-[10.5px] font-medium text-muted-foreground">Only the assignee, project admins, or owners can log hours on this ticket.</p>
         </div>
       )}
 
@@ -424,7 +422,7 @@ export default function TicketTimeLogs({ ticket }: TicketTimeLogsProps) {
                     </span>
                     
                     {/* Only show delete if user matches log owner, or is owner/admin */}
-                    {user && (log.userId === user.id || user.role === "owner" || user.role === "admin") && (
+                    {user && (log.userId === user.id || isProjectAdminOrOwner) && (
                       <button
                         onClick={() => handleDeleteTimeLog(log.id)}
                         disabled={deletingTimeLogId === log.id}

@@ -107,6 +107,8 @@ export default function ProjectDiscussions({ projectId, currentUserId, projectDa
   const [messageText, setMessageText] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [showStarredOnly, setShowStarredOnly] = useState(false)
+  const [channelSearchQuery, setChannelSearchQuery] = useState("")
+  const [channelTypeFilter, setChannelTypeFilter] = useState<string>("all")
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null)
   const [ablyStatus, setAblyStatus] = useState<"connected" | "connecting" | "failed">("connecting")
   const [showDetails, setShowDetails] = useState(true)
@@ -142,7 +144,17 @@ export default function ProjectDiscussions({ projectId, currentUserId, projectDa
   })
 
   const groupsList = groupsData || []
-  const allChannels = groupsList.filter(g => g.members?.some(m => m.id === currentUserId))
+  const allChannels = groupsList.filter(g => 
+    g.members?.some(m => m.id === currentUserId) || 
+    g.userId === currentUserId || 
+    userRole === "owner" || 
+    userRole === "admin"
+  )
+  const filteredChannels = allChannels.filter(channel => {
+    const matchesSearch = channel.title.toLowerCase().includes(channelSearchQuery.toLowerCase())
+    const matchesType = channelTypeFilter === "all" || channel.type === channelTypeFilter
+    return matchesSearch && matchesType
+  })
   const currentChannel = allChannels.find(g => g.id === selectedGroupId) || allChannels[0]
 
   // Fetch Messages for the selected channel
@@ -563,13 +575,63 @@ export default function ProjectDiscussions({ projectId, currentUserId, projectDa
             </button>
           </div>
 
+          {/* Channel Search & Filter */}
+          <div className="flex flex-col gap-2 shrink-0">
+            {/* Search Input */}
+            <div className="relative">
+              <SearchIcon className="absolute left-2.5 top-2.5 size-3.5 text-muted-foreground/60" />
+              <input
+                type="text"
+                placeholder="Search channels..."
+                value={channelSearchQuery}
+                onChange={(e) => setChannelSearchQuery(e.target.value)}
+                className="w-full pl-8 pr-3 py-1.5 bg-muted/40 border border-border/40 rounded-lg text-xs placeholder:text-muted-foreground/60 focus:outline-hidden focus:ring-1 focus:ring-primary focus:border-primary transition-all text-foreground"
+              />
+            </div>
+            
+            {/* Type Filter Select */}
+            <div className="flex gap-1.5">
+              <Select value={channelTypeFilter} onValueChange={setChannelTypeFilter}>
+                <SelectTrigger className="h-7 text-[10px] border border-border/40 bg-muted/40 rounded-lg font-medium cursor-pointer w-full text-muted-foreground hover:text-foreground">
+                  <SelectValue placeholder="All types" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem className="text-xs rounded-lg cursor-pointer" value="all">All Types</SelectItem>
+                  <SelectItem className="text-xs rounded-lg cursor-pointer" value="general">General</SelectItem>
+                  <SelectItem className="text-xs rounded-lg cursor-pointer" value="discussion">Discussion</SelectItem>
+                  <SelectItem className="text-xs rounded-lg cursor-pointer" value="suggestion">Suggestion</SelectItem>
+                  <SelectItem className="text-xs rounded-lg cursor-pointer" value="complaint">Complaint</SelectItem>
+                  <SelectItem className="text-xs rounded-lg cursor-pointer" value="decision">Decision</SelectItem>
+                  <SelectItem className="text-xs rounded-lg cursor-pointer" value="question">Question</SelectItem>
+                  <SelectItem className="text-xs rounded-lg cursor-pointer" value="announcement">Announcement</SelectItem>
+                  <SelectItem className="text-xs rounded-lg cursor-pointer" value="feedback">Feedback</SelectItem>
+                  <SelectItem className="text-xs rounded-lg cursor-pointer" value="improvement">Improvement</SelectItem>
+                  <SelectItem className="text-xs rounded-lg cursor-pointer" value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {(channelSearchQuery || channelTypeFilter !== "all") && (
+                <button
+                  onClick={() => {
+                    setChannelSearchQuery("")
+                    setChannelTypeFilter("all")
+                  }}
+                  className="px-2 h-7 rounded-lg border border-border/40 hover:bg-muted text-[10px] font-bold text-muted-foreground hover:text-foreground shrink-0 transition-colors cursor-pointer"
+                  title="Clear filters"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+
           <div className="flex flex-col gap-1 pr-1">
             {isGroupsLoading ? (
               <div className="py-2 flex items-center justify-center">
                 <Spinner className="size-3.5 animate-spin text-muted-foreground" />
               </div>
-            ) : (
-              allChannels.map((channel) => {
+            ) : filteredChannels.length > 0 ? (
+              filteredChannels.map((channel) => {
                 const isSelected = channel.id === selectedGroupId
                 return (
                   <button
@@ -578,7 +640,7 @@ export default function ProjectDiscussions({ projectId, currentUserId, projectDa
                       setSelectedGroupId(channel.id)
                       setShowStarredOnly(false)
                     }}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.8 rounded-xl text-xs font-semibold transition-all select-none cursor-pointer ${
+                    className={`w-full flex items-center justify-between px-2.5 py-2.5 rounded-xl text-xs font-semibold transition-all select-none cursor-pointer ${
                       isSelected && !showStarredOnly
                         ? "bg-primary/10 text-primary"
                         : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
@@ -592,6 +654,10 @@ export default function ProjectDiscussions({ projectId, currentUserId, projectDa
                   </button>
                 )
               })
+            ) : (
+              <div className="py-6 text-center text-xs text-muted-foreground italic bg-muted/10 rounded-xl border border-dashed border-border/30">
+                No channels found
+              </div>
             )}
           </div>
         </div>

@@ -88,7 +88,9 @@ export async function GET(req: NextRequest) {
                 dateFilter.gte = new Date(startDate);
             }
             if (endDate) {
-                dateFilter.lte = new Date(endDate);
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                dateFilter.lte = end;
             }
             andFilters.push({ startTime: dateFilter });
         }
@@ -100,7 +102,18 @@ export async function GET(req: NextRequest) {
             include: {
                 user: { select: { id: true, name: true, email: true, imageUrl: true, role: true } },
                 project: { select: { id: true, title: true } },
-                ticket: { select: { id: true, title: true } }
+                ticket: {
+                    select: {
+                        id: true,
+                        title: true,
+                        estimatedHours: true,
+                        timeLogs: {
+                            select: {
+                                duration: true
+                            }
+                        }
+                    }
+                }
             },
             orderBy: { startTime: "desc" }
         });
@@ -185,7 +198,7 @@ export async function POST(req: NextRequest) {
         }
 
         if (targetTicket) {
-            const isProjectAdmin = dbUser.role === "admin" || project.admins.some((a) => a.id === dbUser.id);
+            const isProjectAdmin = dbUser.role === "admin" && project.admins.some((a) => a.id === dbUser.id);
             if (!isOwner && !isProjectAdmin) {
                 if (targetTicket.assignedUserId !== dbUser.id) {
                     return NextResponse.json({ error: "Forbidden: You can only log time on tickets assigned to you" }, { status: 403 });
@@ -312,7 +325,7 @@ export async function PATCH(req: NextRequest) {
                 return NextResponse.json({ error: "Unauthorized ticket access" }, { status: 403 });
             }
 
-            const isProjectAdmin = dbUser.role === "admin" || ticket.project.admins.some((a) => a.id === dbUser.id);
+            const isProjectAdmin = dbUser.role === "admin" && ticket.project.admins.some((a) => a.id === dbUser.id);
             if (!isOwner && !isProjectAdmin) {
                 if (ticket.assignedUserId !== dbUser.id) {
                     return NextResponse.json({ error: "Forbidden: You can only log time on tickets assigned to you" }, { status: 403 });

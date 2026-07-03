@@ -62,6 +62,8 @@ interface ProjectGroup {
   id: string
   name: string
   type: string
+  startDate: string | Date
+  endDate: string | Date | null
 }
 
 interface DatePickerProps {
@@ -159,20 +161,34 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
 
   const assignableMembers = React.useMemo(() => {
     if (!selectedProjectData) return []
-    const adminsList = (selectedProjectData.admins || []).map((a: any) => ({
-      id: a.id,
-      name: `${a.name} (Admin)`,
-      email: a.email,
-      role: a.role,
-      initials: a.name.trim().split(/\s+/).filter(Boolean).map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) || "U",
-    }))
-    const membersList = (selectedProjectData.members || []).map((m: any) => ({
-      id: m.id,
-      name: m.name,
-      email: m.email,
-      role: m.role,
-      initials: m.name.trim().split(/\s+/).filter(Boolean).map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) || "U",
-    }))
+
+    const getDesignation = (u: any) => {
+      return (u.designation && u.designation.trim()) || (u.role ? (u.role.charAt(0).toUpperCase() + u.role.slice(1)) : "");
+    }
+
+    const adminsList = (selectedProjectData.admins || [])
+      .filter((a: any) => a.role !== "client")
+      .map((a: any) => ({
+        id: a.id,
+        name: a.name,
+        displayName: a.name,
+        designationLabel: getDesignation(a),
+        email: a.email,
+        role: a.role,
+        initials: a.name.trim().split(/\s+/).filter(Boolean).map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) || "U",
+      }))
+
+    const membersList = (selectedProjectData.members || [])
+      .filter((m: any) => m.role !== "client")
+      .map((m: any) => ({
+        id: m.id,
+        name: m.name,
+        displayName: m.name,
+        designationLabel: getDesignation(m),
+        email: m.email,
+        role: m.role,
+        initials: m.name.trim().split(/\s+/).filter(Boolean).map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) || "U",
+      }))
 
     const combined = [...adminsList, ...membersList]
     const seen = new Set()
@@ -246,6 +262,27 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
       return
     }
 
+    if (groupId && groupId !== "none" && dueDate) {
+      const selectedGroup = groups.find((g: any) => g.id === groupId)
+      if (selectedGroup) {
+        const ticketDueDate = new Date(dueDate)
+        const groupStart = new Date(selectedGroup.startDate)
+        if (ticketDueDate < groupStart) {
+          const formattedStart = groupStart.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+          toast.error(`Ticket due date cannot be before the sprint/group start date (${formattedStart})`)
+          return
+        }
+        if (selectedGroup.endDate) {
+          const groupEnd = new Date(selectedGroup.endDate)
+          if (ticketDueDate > groupEnd) {
+            const formattedEnd = groupEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+            toast.error(`Ticket due date cannot be after the sprint/group end date (${formattedEnd})`)
+            return
+          }
+        }
+      }
+    }
+
     const payload: any = {
       title: title.trim(),
       description: description.trim(),
@@ -285,19 +322,27 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
         {/* Header */}
         <SheetHeader className="p-0 mb-4 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center size-10 rounded-xl border border-primary/20 bg-primary/10 text-primary animate-pulse">
+            <div className="flex items-center justify-center size-10 rounded-xl border border-primary/20 bg-primary/10 text-primary shrink-0 select-none">
               <PlusIcon className="size-5" />
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <SheetTitle className="text-lg font-bold text-foreground leading-tight text-left">
                 Create New Ticket
               </SheetTitle>
-              <SheetDescription className="text-xs text-muted-foreground mt-0.5 text-left">
+              <SheetDescription className="text-xs text-muted-foreground mt-1 text-left">
                 {defaultProjectId && selectedProjectData ? (
-                  <span className="inline-flex items-center gap-1.5 flex-wrap">
-                    In <span className="font-semibold text-foreground bg-primary/5 px-2 py-0.5 rounded border border-primary/10">{selectedProjectData.title}</span>
+                  <span className="inline-flex items-center gap-1.5 flex-wrap text-muted-foreground/80">
+                    <span>In</span>
+                    <span className="font-bold text-foreground bg-foreground/5 px-2 py-0.5 rounded border border-border/50 text-[11px] max-w-[200px] truncate" title={selectedProjectData.title}>
+                      {selectedProjectData.title}
+                    </span>
                     {defaultGroupId && selectedGroup && (
-                      <> › <span className="font-semibold text-foreground bg-blue-500/5 px-2 py-0.5 rounded border border-blue-500/10">{selectedGroup.name}</span></>
+                      <>
+                        <span className="text-muted-foreground/40 font-normal">›</span>
+                        <span className="font-bold text-primary bg-primary/5 px-2 py-0.5 rounded border border-primary/15 text-[11px] max-w-[200px] truncate" title={selectedGroup.name}>
+                          {selectedGroup.name}
+                        </span>
+                      </>
                     )}
                   </span>
                 ) : (
@@ -455,7 +500,16 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
               </Label>
               <Select value={assignedUserId} onValueChange={setAssignedUserId}>
                 <SelectTrigger className="w-full bg-muted/15 border-border/40 rounded-xl py-2 h-10 text-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
-                  <SelectValue placeholder="Unassigned" />
+                  {assignedUserId !== "unassigned" ? (
+                    <span className="flex items-center gap-2">
+                      <span className="size-4.5 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-[8px] font-bold text-primary">
+                        {assignableMembers.find(m => m.id === assignedUserId)?.initials || "U"}
+                      </span>
+                      <span>{assignableMembers.find(m => m.id === assignedUserId)?.displayName || "Assigned"}</span>
+                    </span>
+                  ) : (
+                    <SelectValue placeholder="Unassigned" />
+                  )}
                 </SelectTrigger>
                 <SelectContent position="popper" className="rounded-xl border border-border/50 z-[200]">
                   <SelectItem value="unassigned" className="text-foreground cursor-pointer">
@@ -474,12 +528,15 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
                     <div className="p-2 text-xs text-muted-foreground italic">No members in this project</div>
                   ) : (
                     assignableMembers.map((member) => (
-                      <SelectItem key={member.id} value={member.id} className="text-foreground cursor-pointer">
-                        <span className="flex items-center gap-2">
-                          <span className="size-4.5 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-[8px] font-bold text-primary">
+                      <SelectItem key={member.id} value={member.id} className="text-foreground cursor-pointer py-2">
+                        <span className="flex items-center gap-2.5">
+                          <span className="size-5 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-[9px] font-bold text-primary shrink-0">
                             {member.initials}
                           </span>
-                          {member.name}
+                          <span className="flex flex-col text-left">
+                            <span className="text-xs font-semibold text-foreground leading-none">{member.displayName}</span>
+                            <span className="text-[10px] text-muted-foreground mt-1 font-normal leading-none">{member.designationLabel}</span>
+                          </span>
                         </span>
                       </SelectItem>
                     ))

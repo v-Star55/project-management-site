@@ -178,7 +178,12 @@ export default function ProjectDetailPage() {
           ) : activeTab === "team" ? (
             /* Project Team tab */
             <div className="animate-in fade-in duration-200">
-              <ProjectTeam projectData={projectData} userId={userId as string} />
+              <ProjectTeam 
+                projectData={projectData} 
+                userId={userId as string} 
+                companyId={companyId}
+                userRole={userRole}
+              />
             </div>
           ) : activeTab === "files" ? (
             /* Files tab */

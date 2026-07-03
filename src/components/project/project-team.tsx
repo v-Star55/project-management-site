@@ -7,12 +7,17 @@ import {
   Mail, 
   Briefcase, 
   X, 
-  ChevronRight 
+  ChevronRight,
+  UserPlusIcon,
+  CheckIcon,
+  ShieldAlertIcon,
+  Loader2Icon,
+  FilterIcon
 } from "lucide-react"
 import { ProjectDetail, getInitials } from "./utils"
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import axios from "axios"
 import {
@@ -37,10 +42,27 @@ import {
   AvatarImage, 
   AvatarFallback 
 } from "@/components/ui/avatar"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
 
 interface ProjectTeamProps {
   projectData: ProjectDetail
   userId: string
+  companyId?: string
+  userRole?: string
 }
 
 interface MemberCardProps {
@@ -341,21 +363,29 @@ function MemberCard({
   )
 }
 
-export default function ProjectTeam({ projectData, userId }: ProjectTeamProps) {
+export default function ProjectTeam({ projectData, userId, companyId, userRole }: ProjectTeamProps) {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { user } = useSelector((state: RootState) => state.user)
-  const userRole = user?.role || ""
-  const isOwner = userRole === "owner"
+  const activeUserRole = userRole || user?.role || ""
+  const activeCompanyId = companyId || user?.company?.id
+  const isOwner = activeUserRole === "owner"
   const isProjectAdmin = projectData.admins?.some((a) => a.id === user?.id)
+  const canManageTeam = activeUserRole === "owner" || activeUserRole === "admin" || isProjectAdmin
 
   const [memberToRemove, setMemberToRemove] = useState<any | null>(null)
   const [isAlertOpen, setIsAlertOpen] = useState(false)
+  const [isManageOpen, setIsManageOpen] = useState(false)
 
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("")
   const [roleFilter, setRoleFilter] = useState<"all" | "admin" | "member">("all")
   const [workloadFilter, setWorkloadFilter] = useState<"all" | "none" | "under-2" | "under-5" | "over-5">("all")
+
+  // Dialog Specific State
+  const [dialogSearch, setDialogSearch] = useState("")
+  const [selectedAdminIds, setSelectedAdminIds] = useState<string[]>([])
+  const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([])
 
   // Don't keep client in project team
   const admins = (projectData.admins || []).filter(a => a.role !== "client")
@@ -376,6 +406,23 @@ export default function ProjectTeam({ projectData, userId }: ProjectTeamProps) {
   ) || []
   const activeTicketsCount = activeTickets.length
 
+  // Query Company Users for Team Management Modal
+  const { data: companyUsersData, isLoading: isCompanyUsersLoading } = useQuery({
+    queryKey: ["teams", activeCompanyId],
+    queryFn: async () => {
+      if (!activeCompanyId) return { teams: [] }
+      const response = await axios.get(`/api/teams/${activeCompanyId}`)
+      return response.data
+    },
+    enabled: !!activeCompanyId && isManageOpen,
+  })
+
+  const companyUsers = companyUsersData?.teams || []
+
+  // Filter company users by role
+  const adminUsers = companyUsers.filter((u: any) => u.role === "Admin" || u.role === "Owner")
+  const memberUsers = companyUsers.filter((u: any) => u.role === "Member" || u.role === "Qa")
+
   // Ticket counters for users
   const getUserTotalTicketsCount = (memberId: string) => {
     return projectData.tickets?.filter(t => t.assignedUserId === memberId).length || 0
@@ -390,7 +437,7 @@ export default function ProjectTeam({ projectData, userId }: ProjectTeamProps) {
   const canRemoveMember = (member: any) => {
     if (member.id === user?.id) return false
     if (isOwner) return true
-    if (userRole === "admin" && isProjectAdmin) {
+    if (activeUserRole === "admin" && isProjectAdmin) {
       const roleLower = (member.role || "member").toLowerCase()
       return roleLower !== "owner" && roleLower !== "admin"
     }
@@ -413,7 +460,50 @@ export default function ProjectTeam({ projectData, userId }: ProjectTeamProps) {
     }
   })
 
-  // Filter helper
+  // Mutation to update project membership via Dialog
+  const updateMembershipMutation = useMutation({
+    mutationFn: async (payload: { memberIds: string[]; adminIds: string[] }) => {
+      const response = await axios.patch(`/api/projects/${projectData.id}`, payload)
+      return response.data.project
+    },
+    onSuccess: (updatedProject) => {
+      queryClient.setQueryData(["project", projectData.id], updatedProject)
+      queryClient.invalidateQueries({ queryKey: ["project", projectData.id] })
+      toast.success("Project team updated successfully!")
+      setIsManageOpen(false)
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.error || "Failed to update project team")
+    }
+  })
+
+  const handleOpenManage = () => {
+    setSelectedAdminIds(admins.map(a => a.id))
+    setSelectedMemberIds(members.map(m => m.id))
+    setDialogSearch("")
+    setIsManageOpen(true)
+  }
+
+  const handleSaveMembership = () => {
+    updateMembershipMutation.mutate({
+      memberIds: selectedMemberIds,
+      adminIds: selectedAdminIds,
+    })
+  }
+
+  const toggleAdminSelection = (adminId: string) => {
+    setSelectedAdminIds(prev => 
+      prev.includes(adminId) ? prev.filter(id => id !== adminId) : [...prev, adminId]
+    )
+  }
+
+  const toggleMemberSelection = (memberId: string) => {
+    setSelectedMemberIds(prev => 
+      prev.includes(memberId) ? prev.filter(id => id !== memberId) : [...prev, memberId]
+    )
+  }
+
+  // Filter helper for main view
   const filterMembersList = (list: typeof admins) => {
     return list.filter(m => {
       // 1. Search Query
@@ -439,6 +529,22 @@ export default function ProjectTeam({ projectData, userId }: ProjectTeamProps) {
   const filteredAdmins = roleFilter === "member" ? [] : filterMembersList(admins)
   const filteredMembers = roleFilter === "admin" ? [] : filterMembersList(members)
 
+  // Dialog Search filtering
+  const searchLower = dialogSearch.toLowerCase().trim()
+  const filteredAdminUsers = adminUsers.filter((u: any) => 
+    !searchLower ||
+    u.name.toLowerCase().includes(searchLower) ||
+    u.email.toLowerCase().includes(searchLower) ||
+    (u.designation && u.designation.toLowerCase().includes(searchLower))
+  )
+
+  const filteredMemberUsers = memberUsers.filter((u: any) => 
+    !searchLower ||
+    u.name.toLowerCase().includes(searchLower) ||
+    u.email.toLowerCase().includes(searchLower) ||
+    (u.designation && u.designation.toLowerCase().includes(searchLower))
+  )
+
   return (
     <div className="flex flex-col gap-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-300">
       {/* Top Heading / Project Name Row */}
@@ -457,8 +563,18 @@ export default function ProjectTeam({ projectData, userId }: ProjectTeamProps) {
           )}
         </div>
 
-        {/* 2 KPIs inside the heading row */}
-        <div className="flex items-center gap-4 shrink-0">
+        {/* Action button & KPIs */}
+        <div className="flex flex-wrap items-center gap-4 shrink-0">
+          {canManageTeam && (
+            <button
+              onClick={handleOpenManage}
+              className="inline-flex items-center gap-2 px-4.5 py-2.5 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/95 hover:to-primary/75 text-primary-foreground font-extrabold rounded-xl shadow-xs hover:shadow transition-all duration-300 cursor-pointer text-xs"
+            >
+              <UserPlusIcon className="size-4" />
+              Manage Team Members
+            </button>
+          )}
+
           {/* KPI 1: Collaborators */}
           <div className="bg-card/45 backdrop-blur-md border border-border/50 rounded-xl px-4 py-2 hover:border-primary/25 transition-all flex items-center gap-3">
             <div className="p-1.5 rounded-lg bg-primary/10 text-primary border border-primary/15 shrink-0">
@@ -487,7 +603,7 @@ export default function ProjectTeam({ projectData, userId }: ProjectTeamProps) {
       {filteredAdmins.length > 0 && (
         <div className="flex flex-col gap-3.5 w-full">
           <h3 className="text-xs font-extrabold text-rose-500 uppercase tracking-widest flex items-center gap-2 pl-1">
-            <span className="size-1.5 rounded-full bg-rose-500 animate-ping" />
+            <span className="size-1.5 rounded-full bg-rose-500 animate-pulse" />
             Project Admins ({filteredAdmins.length})
           </h3>
           <div className="flex flex-col gap-3 w-full">
@@ -636,7 +752,172 @@ export default function ProjectTeam({ projectData, userId }: ProjectTeamProps) {
         )}
       </div>
 
-      {/* Confirmation Modal */}
+      {/* Manage Team Members Dialog */}
+      <Dialog open={isManageOpen} onOpenChange={setIsManageOpen}>
+        <DialogContent className="bg-popover border border-border max-w-lg rounded-3xl p-6 md:p-8 flex flex-col gap-6">
+          <DialogHeader>
+            <DialogTitle className="text-foreground text-xl font-bold flex items-center gap-2">
+              <UserPlusIcon className="size-5 text-primary" />
+              Manage Project Team
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground text-xs leading-relaxed">
+              Select members and administrators from the company to join this project.
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Search and Content Container */}
+          <div className="flex flex-col gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60" />
+              <input
+                type="text"
+                placeholder="Search company users..."
+                value={dialogSearch}
+                onChange={(e) => setDialogSearch(e.target.value)}
+                className="w-full bg-background border border-border/60 rounded-xl py-2 pl-9 pr-4 text-xs font-semibold text-foreground placeholder-muted-foreground/60 focus:outline-hidden focus:ring-1 focus:ring-primary/45 focus:border-primary/45 transition-all"
+              />
+              {dialogSearch && (
+                <button
+                  onClick={() => setDialogSearch("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  <X className="size-3" />
+                </button>
+              )}
+            </div>
+
+            {isCompanyUsersLoading ? (
+              <div className="h-[250px] flex items-center justify-center">
+                <Loader2Icon className="size-6 text-primary animate-spin" />
+              </div>
+            ) : (
+              <Tabs defaultValue="members" className="w-full">
+                <TabsList className="w-full bg-muted/60 p-1 rounded-xl grid grid-cols-2">
+                  <TabsTrigger value="members" className="rounded-lg text-xs font-bold py-1.5">
+                    Project Members ({selectedMemberIds.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="admins" className="rounded-lg text-xs font-bold py-1.5">
+                    Project Admins ({selectedAdminIds.length})
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* Project Members Tab */}
+                <TabsContent value="members" className="mt-4">
+                  <div className="border border-border/60 rounded-xl overflow-hidden bg-muted/5 flex flex-col max-h-[250px]">
+                    <div className="overflow-y-auto p-2 flex flex-col gap-2">
+                      {filteredMemberUsers.map((item: any) => {
+                        const isSelected = selectedMemberIds.includes(item.id)
+                        return (
+                          <div
+                            key={item.id}
+                            onClick={() => toggleMemberSelection(item.id)}
+                            className={`flex items-center justify-between p-2 rounded-xl border cursor-pointer transition-all ${
+                              isSelected
+                                ? "bg-primary/5 border-primary/45 shadow-2xs"
+                                : "bg-card border-border/40 hover:bg-muted/30 hover:border-border/80"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="size-8 rounded-full bg-stone-200 dark:bg-stone-850 flex items-center justify-center text-xs font-bold text-stone-700 dark:text-stone-300 shrink-0">
+                                {item.initials}
+                              </div>
+                              <div className="flex flex-col min-w-0">
+                                <span className="text-xs font-bold text-foreground truncate">{item.name}</span>
+                                <span className="text-[10px] text-muted-foreground truncate">
+                                  {item.designation || item.role}
+                                </span>
+                              </div>
+                            </div>
+                            <div className={`size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
+                              isSelected ? "bg-primary border-primary text-primary-foreground" : "border-border/80 bg-transparent"
+                            }`}>
+                              {isSelected && <CheckIcon className="size-2.5 stroke-[3]" />}
+                            </div>
+                          </div>
+                        )
+                      })}
+                      {filteredMemberUsers.length === 0 && (
+                        <div className="text-center py-8 text-xs text-muted-foreground">
+                          No company members found matching your search.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Project Admins Tab */}
+                <TabsContent value="admins" className="mt-4">
+                  <div className="border border-border/60 rounded-xl overflow-hidden bg-muted/5 flex flex-col max-h-[250px]">
+                    <div className="overflow-y-auto p-2 flex flex-col gap-2">
+                      {filteredAdminUsers.map((item: any) => {
+                        const isSelected = selectedAdminIds.includes(item.id)
+                        return (
+                          <div
+                            key={item.id}
+                            onClick={() => toggleAdminSelection(item.id)}
+                            className={`flex items-center justify-between p-2 rounded-xl border cursor-pointer transition-all ${
+                              isSelected
+                                ? "bg-primary/5 border-primary/45 shadow-2xs"
+                                : "bg-card border-border/40 hover:bg-muted/30 hover:border-border/80"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="size-8 rounded-full bg-primary/5 dark:bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+                                {item.initials}
+                              </div>
+                              <div className="flex flex-col min-w-0">
+                                <span className="text-xs font-bold text-foreground truncate">{item.name}</span>
+                                <span className="text-[10px] text-muted-foreground truncate">
+                                  {item.designation || item.role}
+                                </span>
+                              </div>
+                            </div>
+                            <div className={`size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
+                              isSelected ? "bg-primary border-primary text-primary-foreground" : "border-border/80 bg-transparent"
+                            }`}>
+                              {isSelected && <CheckIcon className="size-2.5 stroke-[3]" />}
+                            </div>
+                          </div>
+                        )
+                      })}
+                      {filteredAdminUsers.length === 0 && (
+                        <div className="text-center py-8 text-xs text-muted-foreground">
+                          No company admins/owners found matching your search.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            )}
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0 mt-2 border-t border-border/30 pt-4 flex flex-row justify-end">
+            <button
+              onClick={() => setIsManageOpen(false)}
+              className="px-4 py-2 border border-border bg-transparent hover:bg-muted text-foreground font-medium rounded-xl text-xs transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSaveMembership}
+              disabled={updateMembershipMutation.isPending}
+              className="px-5 py-2 bg-primary text-primary-foreground hover:bg-primary/95 font-medium rounded-xl text-xs shadow-xs flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+            >
+              {updateMembershipMutation.isPending ? (
+                <>
+                  <Loader2Icon className="size-3 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation Modal for removing member */}
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent className="bg-popover border border-border max-w-sm rounded-2xl">
           <AlertDialogHeader>
