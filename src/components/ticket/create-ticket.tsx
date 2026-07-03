@@ -80,7 +80,7 @@ function DatePicker({ date, setDate, label }: DatePickerProps) {
             type="button"
             variant="outline"
             className={cn(
-              "w-full justify-start text-left font-normal bg-muted/15 border border-border/40 hover:bg-muted/20 text-foreground rounded-xl h-9 px-3",
+              "w-full justify-start text-left font-normal bg-muted/15 border border-border/40 hover:bg-muted/20 text-foreground rounded-xl h-10 px-3",
               !date && "text-muted-foreground"
             )}
           >
@@ -115,6 +115,7 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
   const [groupId, setGroupId] = useState<string>("none")
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined)
   const [type, setType] = useState<string>("task")
+  const [estimatedHours, setEstimatedHours] = useState("")
 
   // Reset form state when sheet opens
   useEffect(() => {
@@ -128,6 +129,7 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
       setGroupId(defaultGroupId || "none")
       setDueDate(undefined)
       setType("task")
+      setEstimatedHours("")
     }
   }, [open, defaultProjectId, defaultGroupId])
 
@@ -206,6 +208,7 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
       groupId?: string
       dueDate?: string
       type: string
+      estimatedHours?: number
     }) => {
       const res = await axios.post("/api/tickets", payload)
       return res.data
@@ -264,6 +267,10 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
       payload.dueDate = dueDate.toISOString()
     }
 
+    if (estimatedHours !== "") {
+      payload.estimatedHours = parseFloat(estimatedHours)
+    }
+
     createTicketMutation.mutate(payload)
   }
 
@@ -273,7 +280,7 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
 
   return (
     <Sheet open={open} onOpenChange={(val) => { if (!val) onClose() }}>
-      <SheetContent side="right" className="w-full sm:max-w-lg p-5 flex flex-col h-full bg-card border-l border-border/80">
+      <SheetContent side="right" className="w-full sm:max-w-lg p-6 flex flex-col h-full bg-card border-l border-border/80">
         
         {/* Header */}
         <SheetHeader className="p-0 mb-4 flex-shrink-0">
@@ -302,10 +309,9 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
         </SheetHeader>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex-1 flex flex-col gap-3 overflow-y-auto pr-1">
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col gap-5 overflow-y-auto pr-1">
 
-          {/* Title */}
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <Label htmlFor="ticket-title" className="text-xs font-bold text-foreground/85 uppercase tracking-wider">
               Title <span className="text-red-500">*</span>
             </Label>
@@ -314,14 +320,13 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
               placeholder="Enter ticket title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="bg-muted/15 border-border/40 focus-visible:border-primary/50 focus-visible:ring-primary/20 rounded-xl h-9 text-sm"
+              className="bg-muted/15 border-border/40 focus-visible:border-primary/50 focus-visible:ring-primary/20 rounded-xl h-10 text-sm"
               required
               autoFocus
             />
           </div>
 
-          {/* Description */}
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <Label htmlFor="ticket-desc" className="text-xs font-bold text-foreground/85 uppercase tracking-wider">
               Description <span className="text-red-500">*</span>
             </Label>
@@ -330,21 +335,21 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
               placeholder="Describe the ticket objective, steps, and expected outcome..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="h-16 bg-muted/15 border-border/40 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 rounded-xl resize-none text-sm p-2.5"
+              className="h-28 bg-muted/15 border-border/40 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 rounded-xl resize-none text-sm p-3"
               required
             />
           </div>
 
           {/* Project & Group Select (Combined and conditional) */}
           {!defaultProjectId ? (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               {/* Project Select */}
-              <div className="space-y-1 flex flex-col">
+              <div className="space-y-1.5 flex flex-col">
                 <Label className="text-xs font-bold text-foreground/85 uppercase tracking-wider">
                   Project <span className="text-red-500">*</span>
                 </Label>
                 <Select value={projectId} onValueChange={setProjectId}>
-                  <SelectTrigger className="w-full bg-muted/15 border-border/40 rounded-xl py-2 h-9 text-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
+                  <SelectTrigger className="w-full bg-muted/15 border-border/40 rounded-xl py-2 h-10 text-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
                     <SelectValue placeholder="Select project" />
                   </SelectTrigger>
                   <SelectContent position="popper" className="rounded-xl border border-border/50 z-[200]">
@@ -357,7 +362,7 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
                     ) : (
                       projects.map((proj) => (
                         <SelectItem key={proj.id} value={proj.id} className="text-foreground cursor-pointer">
-                          <span className="flex items-center gap-2">
+                           <span className="flex items-center gap-2">
                             <FolderIcon className="size-3.5 text-primary/70" />
                             {proj.title}
                           </span>
@@ -369,12 +374,12 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
               </div>
 
               {/* Project Group Select */}
-              <div className="space-y-1 flex flex-col">
+              <div className="space-y-1.5 flex flex-col">
                 <Label className="text-xs font-bold text-foreground/85 uppercase tracking-wider">
                   Project Group
                 </Label>
                 <Select value={groupId} onValueChange={setGroupId} disabled={!projectId}>
-                  <SelectTrigger className="w-full bg-muted/15 border-border/40 rounded-xl py-2 h-9 text-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50 disabled:opacity-50">
+                  <SelectTrigger className="w-full bg-muted/15 border-border/40 rounded-xl py-2 h-10 text-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50 disabled:opacity-50">
                     <SelectValue placeholder="None (Individual)" />
                   </SelectTrigger>
                   <SelectContent position="popper" className="rounded-xl border border-border/50 z-[200]">
@@ -406,12 +411,12 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
             </div>
           ) : !defaultGroupId ? (
             /* Project is pre-set but group/sprint isn't */
-            <div className="space-y-1 flex flex-col">
+            <div className="space-y-1.5 flex flex-col">
               <Label className="text-xs font-bold text-foreground/85 uppercase tracking-wider">
                 Project Group
               </Label>
               <Select value={groupId} onValueChange={setGroupId}>
-                <SelectTrigger className="w-full bg-muted/15 border-border/40 rounded-xl py-2 h-9 text-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
+                <SelectTrigger className="w-full bg-muted/15 border-border/40 rounded-xl py-2 h-10 text-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
                   <SelectValue placeholder="None (Individual)" />
                 </SelectTrigger>
                 <SelectContent position="popper" className="rounded-xl border border-border/50 z-[200]">
@@ -442,14 +447,14 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
             </div>
           ) : null}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Assignee Select */}
-            <div className="space-y-1 flex flex-col">
+            <div className="space-y-1.5 flex flex-col">
               <Label className="text-xs font-bold text-foreground/85 uppercase tracking-wider">
                 Assignee
               </Label>
               <Select value={assignedUserId} onValueChange={setAssignedUserId}>
-                <SelectTrigger className="w-full bg-muted/15 border-border/40 rounded-xl py-2 h-9 text-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
+                <SelectTrigger className="w-full bg-muted/15 border-border/40 rounded-xl py-2 h-10 text-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
                   <SelectValue placeholder="Unassigned" />
                 </SelectTrigger>
                 <SelectContent position="popper" className="rounded-xl border border-border/50 z-[200]">
@@ -484,12 +489,12 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
             </div>
 
             {/* Priority Select */}
-            <div className="space-y-1 flex flex-col">
+            <div className="space-y-1.5 flex flex-col">
               <Label className="text-xs font-bold text-foreground/85 uppercase tracking-wider">
                 Priority
               </Label>
               <Select value={priority} onValueChange={(val) => setPriority(val as any)}>
-                <SelectTrigger className="w-full bg-muted/15 border-border/40 rounded-xl py-2 h-9 text-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
+                <SelectTrigger className="w-full bg-muted/15 border-border/40 rounded-xl py-2 h-10 text-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
                   <SelectValue placeholder="Low" />
                 </SelectTrigger>
                 <SelectContent position="popper" className="rounded-xl border border-border/50 z-[200]">
@@ -501,14 +506,14 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Ticket Type */}
-            <div className="space-y-1 flex flex-col">
+            <div className="space-y-1.5 flex flex-col">
               <Label className="text-xs font-bold text-foreground/85 uppercase tracking-wider">
                 Type
               </Label>
               <Select value={type} onValueChange={setType}>
-                <SelectTrigger className="w-full bg-muted/15 border-border/40 rounded-xl py-2 h-9 text-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
+                <SelectTrigger className="w-full bg-muted/15 border-border/40 rounded-xl py-2 h-10 text-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
                   <SelectValue placeholder="Task" />
                 </SelectTrigger>
                 <SelectContent position="popper" className="rounded-xl border border-border/50 z-[200]">
@@ -523,12 +528,12 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
             </div>
 
             {/* Status Select */}
-            <div className="space-y-1 flex flex-col">
+            <div className="space-y-1.5 flex flex-col">
               <Label className="text-xs font-bold text-foreground/85 uppercase tracking-wider">
                 Status
               </Label>
               <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger className="w-full bg-muted/15 border-border/40 rounded-xl py-2 h-9 text-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
+                <SelectTrigger className="w-full bg-muted/15 border-border/40 rounded-xl py-2 h-10 text-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
                   <SelectValue placeholder="Todo" />
                 </SelectTrigger>
                 <SelectContent position="popper" className="rounded-xl border border-border/50 z-[200]">
@@ -543,18 +548,36 @@ export default function CreateTicket({ open, onClose, defaultProjectId, defaultG
             </div>
           </div>
 
-          {/* Due Date */}
-          <DatePicker date={dueDate} setDate={setDueDate} label="Due Date" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Due Date */}
+            <DatePicker date={dueDate} setDate={setDueDate} label="Due Date" />
+
+            {/* Estimated Hours */}
+            <div className="space-y-1.5 flex flex-col">
+              <Label className="text-xs font-bold text-foreground/85 uppercase tracking-wider">
+                Estimated Hours
+              </Label>
+              <Input
+                type="number"
+                step="any"
+                min="0"
+                placeholder="e.g. 4.5"
+                value={estimatedHours}
+                onChange={(e) => setEstimatedHours(e.target.value)}
+                className="bg-muted/15 border-border/40 focus-visible:border-primary/50 focus-visible:ring-primary/20 rounded-xl h-10 text-sm"
+              />
+            </div>
+          </div>
 
           {/* Actions */}
-          <div className="grid grid-cols-2 gap-3 pt-4 mt-auto border-t border-border/30">
-            <Button type="button" variant="outline" onClick={onClose} className="w-full h-9 rounded-xl cursor-pointer">
+          <div className="grid grid-cols-2 gap-4 pt-4 mt-auto border-t border-border/30">
+            <Button type="button" variant="outline" onClick={onClose} className="w-full h-10 rounded-xl cursor-pointer">
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={createTicketMutation.isPending}
-              className="w-full h-9 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm transition-all duration-200 cursor-pointer disabled:opacity-50 rounded-xl"
+              className="w-full h-10 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm transition-all duration-200 cursor-pointer disabled:opacity-50 rounded-xl"
             >
               {createTicketMutation.isPending ? (
                 <span className="flex items-center justify-center gap-1.5">

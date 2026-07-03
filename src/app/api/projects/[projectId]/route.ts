@@ -70,6 +70,27 @@ export async function GET(
                                 imageUrl: true,
                             },
                         },
+                        assignedBy: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true,
+                                imageUrl: true,
+                            },
+                        },
+                        reasons: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        email: true,
+                                        imageUrl: true,
+                                    }
+                                }
+                            },
+                            orderBy: { createdAt: "desc" }
+                        }
                     },
                 },
             },
@@ -230,6 +251,27 @@ export async function PATCH(
                                 imageUrl: true,
                             },
                         },
+                        assignedBy: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true,
+                                imageUrl: true,
+                            },
+                        },
+                        reasons: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        email: true,
+                                        imageUrl: true,
+                                    }
+                                }
+                            },
+                            orderBy: { createdAt: "desc" }
+                        }
                     },
                 },
             },

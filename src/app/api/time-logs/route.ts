@@ -138,6 +138,7 @@ export async function POST(req: NextRequest) {
         }
 
         // If ticketId is provided, resolve/verify the projectId
+        let targetTicket = null;
         if (ticketId) {
             const ticket = await prisma.ticket.findUnique({
                 where: { id: ticketId },
@@ -153,6 +154,7 @@ export async function POST(req: NextRequest) {
             }
 
             projectId = ticket.projectId;
+            targetTicket = ticket;
         }
 
         if (!projectId) {
@@ -180,6 +182,15 @@ export async function POST(req: NextRequest) {
 
         if (!isOwner && !isAdmin && !isMemberOrQa) {
             return NextResponse.json({ error: "Forbidden: You are not assigned to this project" }, { status: 403 });
+        }
+
+        if (targetTicket) {
+            const isProjectAdmin = dbUser.role === "admin" || project.admins.some((a) => a.id === dbUser.id);
+            if (!isOwner && !isProjectAdmin) {
+                if (targetTicket.assignedUserId !== dbUser.id) {
+                    return NextResponse.json({ error: "Forbidden: You can only log time on tickets assigned to you" }, { status: 403 });
+                }
+            }
         }
 
         const logStartTime = startTime ? new Date(startTime) : new Date();
@@ -284,7 +295,13 @@ export async function PATCH(req: NextRequest) {
         if (finalTicketId) {
             const ticket = await prisma.ticket.findUnique({
                 where: { id: finalTicketId },
-                include: { project: true }
+                include: {
+                    project: {
+                        include: {
+                            admins: { select: { id: true } }
+                        }
+                    }
+                }
             });
 
             if (!ticket || ticket.isDeleted) {
@@ -293,6 +310,13 @@ export async function PATCH(req: NextRequest) {
 
             if (ticket.project.companyId !== dbUser.companyId) {
                 return NextResponse.json({ error: "Unauthorized ticket access" }, { status: 403 });
+            }
+
+            const isProjectAdmin = dbUser.role === "admin" || ticket.project.admins.some((a) => a.id === dbUser.id);
+            if (!isOwner && !isProjectAdmin) {
+                if (ticket.assignedUserId !== dbUser.id) {
+                    return NextResponse.json({ error: "Forbidden: You can only log time on tickets assigned to you" }, { status: 403 });
+                }
             }
 
             finalProjectId = ticket.projectId;

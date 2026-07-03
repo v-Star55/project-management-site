@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/helpers/auth";
+import jwt from "jsonwebtoken";
 
 // ─── POST /api/workspace/create ──────────────────────────────────────────────
 // Creates a new company workspace and promotes the authenticated user to "owner".
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        await prisma.user.update({
+        const updatedUser = await prisma.user.update({
             where: { id: authUser.id },
             data: {
                 companyId: workspace.id,
@@ -37,7 +38,19 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        return NextResponse.json({ workspace }, { status: 201 });
+        // Regenerate JWT token with the new role
+        const tokenData = {
+            id: updatedUser.id,
+            email: updatedUser.email,
+            role: updatedUser.role,
+        };
+
+        const token = jwt.sign(tokenData, process.env.JWT_SECRET!, { expiresIn: "1h" });
+
+        const response = NextResponse.json({ workspace }, { status: 201 });
+        response.cookies.set("token", token, { httpOnly: true });
+
+        return response;
     } catch (error: any) {
         console.error(error);
         return NextResponse.json({ error: error.message }, { status: 500 });

@@ -98,8 +98,12 @@ export default function ProjectDetailPage() {
 
   const clients = projectData.members.filter((m) => m.role === "client")
 
+  const isMessagesTab = activeTab === "messages"
+
   return (
-    <div className="flex-1 flex flex-col gap-6 p-6 md:p-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className={`flex-1 flex flex-col w-full animate-in fade-in slide-in-from-bottom-4 duration-300 ${
+      isMessagesTab ? "h-[calc(100vh-64px)] overflow-hidden" : "gap-6 p-6 md:p-8"
+    }`}>
       
       {isEditing ? (
         /* Edit Project Mode */
@@ -183,7 +187,12 @@ export default function ProjectDetailPage() {
             </div>
           ) : (
             /* Discussions tab */
-            <ProjectDiscussions projectId={projectId as string} currentUserId={user?.id || ""} />
+            <ProjectDiscussions 
+              projectId={projectId as string} 
+              currentUserId={user?.id || ""} 
+              projectData={projectData}
+              userRole={userRole}
+            />
           )}
         </>
       )}

@@ -67,6 +67,8 @@ export async function GET(
                 lastActive: true,
                 designation: true,
                 createdAt: true,
+                isActive: true,
+                isPending: true,
                 projects: {
                     select: {
                         id: true,
@@ -130,6 +132,8 @@ export async function GET(
                 projects: mergedProjects,
                 designation: u.designation,
                 createdAt: u.createdAt,
+                isActive: u.isActive,
+                isPending: u.isPending,
             };
         });
 

@@ -20,6 +20,7 @@
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.107.0",
     "@tanstack/react-query": "^5.100.14",
+    "ably": "^2.23.0",
     "axios": "^1.16.1",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",

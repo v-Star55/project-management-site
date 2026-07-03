@@ -28,6 +28,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
+import { Button } from "@/components/ui/button"
+import { format } from "date-fns"
+import { cn } from "@/lib/utils"
 
 interface TimeLog {
   id: string
@@ -54,6 +59,116 @@ interface TimeLog {
     title: string
   } | null
   createdAt: string
+}
+
+const toDateTimeLocalString = (date: Date): string => {
+  const pad = (num: number) => String(num).padStart(2, "0")
+  const yyyy = date.getFullYear()
+  const MM = pad(date.getMonth() + 1)
+  const dd = pad(date.getDate())
+  const hh = pad(date.getHours())
+  const mm = pad(date.getMinutes())
+  return `${yyyy}-${MM}-${dd}T${hh}:${mm}`
+}
+
+interface DateTimePickerProps {
+  value: string
+  onChange: (val: string) => void
+  label: string
+}
+
+function DateTimePicker({ value, onChange, label }: DateTimePickerProps) {
+  const date = value ? new Date(value) : undefined
+
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    if (!selectedDate) return
+    const newDate = new Date(selectedDate)
+    if (date) {
+      newDate.setHours(date.getHours())
+      newDate.setMinutes(date.getMinutes())
+    } else {
+      newDate.setHours(12)
+      newDate.setMinutes(0)
+    }
+    newDate.setSeconds(0)
+    newDate.setMilliseconds(0)
+    onChange(toDateTimeLocalString(newDate))
+  }
+
+  const handleTimeChange = (type: "hour" | "minute", val: string) => {
+    if (!date) return
+    const newDate = new Date(date)
+    const intVal = parseInt(val, 10)
+    if (type === "hour") {
+      newDate.setHours(intVal)
+    } else {
+      newDate.setMinutes(intVal)
+    }
+    onChange(toDateTimeLocalString(newDate))
+  }
+
+  const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"))
+  const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, "0"))
+
+  const currentHour = date ? String(date.getHours()).padStart(2, "0") : "12"
+  const currentMinute = date ? String(date.getMinutes()).padStart(2, "0") : "00"
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{label}</label>
+      <Popover>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className={cn(
+              "w-full flex items-center justify-start text-left font-normal px-3 py-2 bg-muted/20 border border-border/40 rounded-xl text-xs hover:bg-muted/30 text-foreground h-10 cursor-pointer transition-all outline-none",
+              !date && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 size-4 text-muted-foreground shrink-0" />
+            <span className="truncate flex-1">
+              {date ? (
+                `${date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} • ${date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}`
+              ) : (
+                "Pick a date & time"
+              )}
+            </span>
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0 flex flex-col gap-2 rounded-2xl border border-border/60 shadow-xl bg-popover z-[350]" align="start">
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={handleDateSelect}
+          />
+          <div className="flex items-center gap-2 p-3 border-t border-border/20 bg-muted/20">
+            <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider shrink-0">Time:</span>
+            <div className="flex items-center gap-1 flex-1">
+              <select
+                value={currentHour}
+                onChange={(e) => handleTimeChange("hour", e.target.value)}
+                className="px-2 py-1 bg-card border border-border/40 rounded-md text-xs outline-none focus:border-primary/50 text-foreground flex-1"
+              >
+                {hours.map((h) => (
+                  <option key={h} value={h}>{h}</option>
+                ))}
+              </select>
+              <span className="text-muted-foreground font-bold">:</span>
+              <select
+                value={currentMinute}
+                onChange={(e) => handleTimeChange("minute", e.target.value)}
+                className="px-2 py-1 bg-card border border-border/40 rounded-md text-xs outline-none focus:border-primary/50 text-foreground flex-1"
+              >
+                {minutes.map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  )
 }
 
 export default function TimeLogsView() {
@@ -96,9 +211,9 @@ export default function TimeLogsView() {
 
   // ─── Fetch Tickets ────────────────────────────────────────────
   const { data: ticketsData } = useQuery({
-    queryKey: ["tickets"],
+    queryKey: ["tickets", "time-logs"],
     queryFn: async () => {
-      const res = await fetch("/api/tickets")
+      const res = await fetch("/api/tickets?scope=time-logs")
       if (!res.ok) throw new Error("Failed to fetch tickets")
       return res.json()
     }
@@ -473,21 +588,59 @@ export default function TimeLogsView() {
 
           {/* Date range inputs */}
           <div className="flex gap-2 items-center sm:col-span-2 lg:col-span-1">
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-2.5 py-1.5 bg-muted/30 hover:bg-muted/50 text-xs rounded-xl border border-border/40 focus:outline-none focus:border-primary/50 h-9"
-              placeholder="Start"
-            />
-            <span className="text-muted-foreground text-xs font-semibold">to</span>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-2.5 py-1.5 bg-muted/30 hover:bg-muted/50 text-xs rounded-xl border border-border/40 focus:outline-none focus:border-primary/50 h-9"
-              placeholder="End"
-            />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal bg-muted/30 border border-border/40 hover:bg-muted/50 text-xs rounded-xl h-9 px-2.5 shadow-none transition-all",
+                    !startDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-1.5 size-3.5 text-muted-foreground shrink-0" />
+                  <span className="truncate">
+                    {startDate ? format(new Date(startDate), "MMM d, yyyy") : "Start"}
+                  </span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 rounded-2xl border border-border/50 z-[200] bg-popover shadow-xl" align="start">
+                <Calendar
+                  mode="single"
+                  selected={startDate ? new Date(startDate) : undefined}
+                  onSelect={(date) => {
+                    setStartDate(date ? format(date, "yyyy-MM-dd") : "")
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
+
+            <span className="text-muted-foreground text-xs font-semibold shrink-0">to</span>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal bg-muted/30 border border-border/40 hover:bg-muted/50 text-xs rounded-xl h-9 px-2.5 shadow-none transition-all",
+                    !endDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-1.5 size-3.5 text-muted-foreground shrink-0" />
+                  <span className="truncate">
+                    {endDate ? format(new Date(endDate), "MMM d, yyyy") : "End"}
+                  </span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 rounded-2xl border border-border/50 z-[200] bg-popover shadow-xl" align="start">
+                <Calendar
+                  mode="single"
+                  selected={endDate ? new Date(endDate) : undefined}
+                  onSelect={(date) => {
+                    setEndDate(date ? format(date, "yyyy-MM-dd") : "")
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
         </div>
@@ -682,26 +835,16 @@ export default function TimeLogsView() {
 
               {/* Start & End Date Time inputs */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Start Date & Time</label>
-                  <input
-                    type="datetime-local"
-                    value={formStartTime}
-                    onChange={(e) => handleStartTimeChange(e.target.value)}
-                    className="w-full px-3 py-2 bg-muted/20 text-xs rounded-xl border border-border/40 focus:outline-none focus:border-primary/50 h-10"
-                    required
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">End Date & Time</label>
-                  <input
-                    type="datetime-local"
-                    value={formEndTime}
-                    onChange={(e) => handleEndTimeChange(e.target.value)}
-                    className="w-full px-3 py-2 bg-muted/20 text-xs rounded-xl border border-border/40 focus:outline-none focus:border-primary/50 h-10"
-                    required
-                  />
-                </div>
+                <DateTimePicker
+                  value={formStartTime}
+                  onChange={handleStartTimeChange}
+                  label="Start Date & Time"
+                />
+                <DateTimePicker
+                  value={formEndTime}
+                  onChange={handleEndTimeChange}
+                  label="End Date & Time"
+                />
               </div>
 
               {/* Duration input */}

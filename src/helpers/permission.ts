@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser, CustomUserPayload } from "@/helpers/auth";
+import { prisma } from "@/lib/prisma";
 
 /**
  * Verifies the token AND checks that the authenticated user's role
@@ -19,14 +20,23 @@ export async function requireRole(
             return user;
         }
 
-        if (!roles.includes(user.role)) {
+        // Fetch fresh role from the database to handle any dynamic role updates (e.g. workspace creation)
+        const dbUser = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { role: true }
+        });
+
+        if (!dbUser || !roles.includes(dbUser.role)) {
             return NextResponse.json(
                 { error: "Forbidden: insufficient permissions" },
                 { status: 403 }
             );
         }
 
-        return user;
+        return {
+            ...user,
+            role: dbUser.role
+        };
     } catch (error: any) {
         console.log(error);
         return NextResponse.json({ error: error.message }, { status: 500 });

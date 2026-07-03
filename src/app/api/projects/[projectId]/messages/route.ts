@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/helpers/permission";
+import { ablyRest } from "@/lib/ably";
 
 export async function GET(
     req: NextRequest,
@@ -63,9 +64,19 @@ export async function GET(
             }
         }
 
+        const { searchParams } = req.nextUrl;
+        const groupId = searchParams.get("groupId");
+
+        const whereCondition: any = { projectId, isDeleted: false };
+        if (groupId) {
+            whereCondition.discussionGroupId = groupId === "null" ? null : groupId;
+        } else {
+            whereCondition.discussionGroupId = null;
+        }
+
         // Fetch messages for the project
         const messages = await prisma.message.findMany({
-            where: { projectId },
+            where: whereCondition,
             include: {
                 user: {
                     select: {
@@ -149,7 +160,7 @@ export async function POST(
         }
 
         const body = await req.json();
-        const { text } = body;
+        const { text, groupId } = body;
 
         if (!text || !text.trim()) {
             return NextResponse.json({ error: "Message text is required" }, { status: 400 });
@@ -160,6 +171,7 @@ export async function POST(
                 text: text.trim(),
                 projectId,
                 userId: user.id,
+                discussionGroupId: groupId || null,
             },
             include: {
                 user: {
@@ -173,6 +185,16 @@ export async function POST(
                 },
             },
         });
+
+        // Publish to Ably
+        if (ablyRest) {
+            try {
+                const channel = ablyRest.channels.get(`project:${projectId}`);
+                await channel.publish("message", message);
+            } catch (ablyError) {
+                console.error("Failed to publish project message to Ably:", ablyError);
+            }
+        }
 
         return NextResponse.json({ message }, { status: 201 });
     } catch (error) {

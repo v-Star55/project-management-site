@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/helpers/permission";
+import { ablyRest } from "@/lib/ably";
 
 export async function PUT(
     req: NextRequest,
@@ -82,6 +83,16 @@ export async function PUT(
             },
         });
 
+        // Publish to Ably
+        if (ablyRest) {
+            try {
+                const channel = ablyRest.channels.get(`ticket:${ticketId}`);
+                await channel.publish("comment:updated", updatedMessage);
+            } catch (ablyError) {
+                console.error("Failed to publish ticket comment update to Ably:", ablyError);
+            }
+        }
+
         return NextResponse.json({ message: updatedMessage });
     } catch (error) {
         console.error("Error updating ticket message:", error);
@@ -154,6 +165,16 @@ export async function DELETE(
                 isDeleted: true,
             },
         });
+
+        // Publish to Ably
+        if (ablyRest) {
+            try {
+                const channel = ablyRest.channels.get(`ticket:${ticketId}`);
+                await channel.publish("comment:deleted", { id: messageId });
+            } catch (ablyError) {
+                console.error("Failed to publish ticket comment deletion to Ably:", ablyError);
+            }
+        }
 
         return NextResponse.json({ success: true, message: "Comment deleted successfully" });
     } catch (error) {

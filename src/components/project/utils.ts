@@ -10,6 +10,21 @@ export interface ProjectMember {
   designation: string | null
 }
 
+export interface TicketReason {
+  id: string
+  type: "BLOCKED" | "REOPENED"
+  reason: string
+  createdAt: string
+  ticketId: string
+  userId: string
+  user: {
+    id: string
+    name: string
+    email?: string
+    imageUrl: string | null
+  }
+}
+
 export interface ProjectTicket {
   id: string
   title: string
@@ -23,7 +38,14 @@ export interface ProjectTicket {
   assignedUserId?: string | null
   reasonBlocked?: string | null
   reasonReopen?: string | null
+  reasons?: TicketReason[]
   assignedUser: {
+    id: string
+    name: string
+    email?: string
+    imageUrl: string | null
+  } | null
+  assignedBy?: {
     id: string
     name: string
     email?: string
@@ -35,6 +57,7 @@ export interface ProjectTicket {
     name: string
     type: string
   } | null
+  estimatedHours?: number | null
 }
 
 export interface ProjectDetail {

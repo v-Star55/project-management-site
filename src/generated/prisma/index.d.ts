@@ -34,6 +34,11 @@ export type Project = $Result.DefaultSelection<Prisma.$ProjectPayload>
  */
 export type ProjectGroup = $Result.DefaultSelection<Prisma.$ProjectGroupPayload>
 /**
+ * Model ProjectDiscussionGroup
+ * 
+ */
+export type ProjectDiscussionGroup = $Result.DefaultSelection<Prisma.$ProjectDiscussionGroupPayload>
+/**
  * Model Ticket
  * 
  */
@@ -63,6 +68,11 @@ export type Note = $Result.DefaultSelection<Prisma.$NotePayload>
  * 
  */
 export type ActivityLog = $Result.DefaultSelection<Prisma.$ActivityLogPayload>
+/**
+ * Model TicketReason
+ * 
+ */
+export type TicketReason = $Result.DefaultSelection<Prisma.$TicketReasonPayload>
 
 /**
  * Enums
@@ -182,6 +192,22 @@ export const GroupStatus: {
 export type GroupStatus = (typeof GroupStatus)[keyof typeof GroupStatus]
 
 
+export const ProjectDiscussionGroupType: {
+  general: 'general',
+  discussion: 'discussion',
+  suggestion: 'suggestion',
+  complaint: 'complaint',
+  decision: 'decision',
+  question: 'question',
+  announcement: 'announcement',
+  feedback: 'feedback',
+  improvement: 'improvement',
+  other: 'other'
+};
+
+export type ProjectDiscussionGroupType = (typeof ProjectDiscussionGroupType)[keyof typeof ProjectDiscussionGroupType]
+
+
 export const ActivityAction: {
   PROJECT_CREATED: 'PROJECT_CREATED',
   PROJECT_UPDATED: 'PROJECT_UPDATED',
@@ -206,6 +232,14 @@ export const ActivityAction: {
 };
 
 export type ActivityAction = (typeof ActivityAction)[keyof typeof ActivityAction]
+
+
+export const TicketReasonType: {
+  BLOCKED: 'BLOCKED',
+  REOPENED: 'REOPENED'
+};
+
+export type TicketReasonType = (typeof TicketReasonType)[keyof typeof TicketReasonType]
 
 }
 
@@ -249,9 +283,17 @@ export type GroupStatus = $Enums.GroupStatus
 
 export const GroupStatus: typeof $Enums.GroupStatus
 
+export type ProjectDiscussionGroupType = $Enums.ProjectDiscussionGroupType
+
+export const ProjectDiscussionGroupType: typeof $Enums.ProjectDiscussionGroupType
+
 export type ActivityAction = $Enums.ActivityAction
 
 export const ActivityAction: typeof $Enums.ActivityAction
+
+export type TicketReasonType = $Enums.TicketReasonType
+
+export const TicketReasonType: typeof $Enums.TicketReasonType
 
 /**
  * ##  Prisma Client ʲˢ
@@ -415,6 +457,16 @@ export class PrismaClient<
   get projectGroup(): Prisma.ProjectGroupDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.projectDiscussionGroup`: Exposes CRUD operations for the **ProjectDiscussionGroup** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProjectDiscussionGroups
+    * const projectDiscussionGroups = await prisma.projectDiscussionGroup.findMany()
+    * ```
+    */
+  get projectDiscussionGroup(): Prisma.ProjectDiscussionGroupDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.ticket`: Exposes CRUD operations for the **Ticket** model.
     * Example usage:
     * ```ts
@@ -473,6 +525,16 @@ export class PrismaClient<
     * ```
     */
   get activityLog(): Prisma.ActivityLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.ticketReason`: Exposes CRUD operations for the **TicketReason** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TicketReasons
+    * const ticketReasons = await prisma.ticketReason.findMany()
+    * ```
+    */
+  get ticketReason(): Prisma.TicketReasonDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -911,12 +973,14 @@ export namespace Prisma {
     user: 'user',
     Project: 'Project',
     ProjectGroup: 'ProjectGroup',
+    ProjectDiscussionGroup: 'ProjectDiscussionGroup',
     Ticket: 'Ticket',
     TicketAttachment: 'TicketAttachment',
     Message: 'Message',
     timeLog: 'timeLog',
     Note: 'Note',
-    ActivityLog: 'ActivityLog'
+    ActivityLog: 'ActivityLog',
+    TicketReason: 'TicketReason'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -932,7 +996,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "company" | "user" | "project" | "projectGroup" | "ticket" | "ticketAttachment" | "message" | "timeLog" | "note" | "activityLog"
+      modelProps: "company" | "user" | "project" | "projectGroup" | "projectDiscussionGroup" | "ticket" | "ticketAttachment" | "message" | "timeLog" | "note" | "activityLog" | "ticketReason"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1229,6 +1293,80 @@ export namespace Prisma {
           count: {
             args: Prisma.ProjectGroupCountArgs<ExtArgs>
             result: $Utils.Optional<ProjectGroupCountAggregateOutputType> | number
+          }
+        }
+      }
+      ProjectDiscussionGroup: {
+        payload: Prisma.$ProjectDiscussionGroupPayload<ExtArgs>
+        fields: Prisma.ProjectDiscussionGroupFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProjectDiscussionGroupFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectDiscussionGroupPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProjectDiscussionGroupFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectDiscussionGroupPayload>
+          }
+          findFirst: {
+            args: Prisma.ProjectDiscussionGroupFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectDiscussionGroupPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProjectDiscussionGroupFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectDiscussionGroupPayload>
+          }
+          findMany: {
+            args: Prisma.ProjectDiscussionGroupFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectDiscussionGroupPayload>[]
+          }
+          create: {
+            args: Prisma.ProjectDiscussionGroupCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectDiscussionGroupPayload>
+          }
+          createMany: {
+            args: Prisma.ProjectDiscussionGroupCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProjectDiscussionGroupCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectDiscussionGroupPayload>[]
+          }
+          delete: {
+            args: Prisma.ProjectDiscussionGroupDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectDiscussionGroupPayload>
+          }
+          update: {
+            args: Prisma.ProjectDiscussionGroupUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectDiscussionGroupPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProjectDiscussionGroupDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProjectDiscussionGroupUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ProjectDiscussionGroupUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectDiscussionGroupPayload>[]
+          }
+          upsert: {
+            args: Prisma.ProjectDiscussionGroupUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectDiscussionGroupPayload>
+          }
+          aggregate: {
+            args: Prisma.ProjectDiscussionGroupAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProjectDiscussionGroup>
+          }
+          groupBy: {
+            args: Prisma.ProjectDiscussionGroupGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProjectDiscussionGroupGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProjectDiscussionGroupCountArgs<ExtArgs>
+            result: $Utils.Optional<ProjectDiscussionGroupCountAggregateOutputType> | number
           }
         }
       }
@@ -1676,6 +1814,80 @@ export namespace Prisma {
           }
         }
       }
+      TicketReason: {
+        payload: Prisma.$TicketReasonPayload<ExtArgs>
+        fields: Prisma.TicketReasonFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TicketReasonFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketReasonPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TicketReasonFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketReasonPayload>
+          }
+          findFirst: {
+            args: Prisma.TicketReasonFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketReasonPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TicketReasonFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketReasonPayload>
+          }
+          findMany: {
+            args: Prisma.TicketReasonFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketReasonPayload>[]
+          }
+          create: {
+            args: Prisma.TicketReasonCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketReasonPayload>
+          }
+          createMany: {
+            args: Prisma.TicketReasonCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TicketReasonCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketReasonPayload>[]
+          }
+          delete: {
+            args: Prisma.TicketReasonDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketReasonPayload>
+          }
+          update: {
+            args: Prisma.TicketReasonUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketReasonPayload>
+          }
+          deleteMany: {
+            args: Prisma.TicketReasonDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TicketReasonUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TicketReasonUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketReasonPayload>[]
+          }
+          upsert: {
+            args: Prisma.TicketReasonUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketReasonPayload>
+          }
+          aggregate: {
+            args: Prisma.TicketReasonAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTicketReason>
+          }
+          groupBy: {
+            args: Prisma.TicketReasonGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TicketReasonGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TicketReasonCountArgs<ExtArgs>
+            result: $Utils.Optional<TicketReasonCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1788,12 +2000,14 @@ export namespace Prisma {
     user?: userOmit
     project?: ProjectOmit
     projectGroup?: ProjectGroupOmit
+    projectDiscussionGroup?: ProjectDiscussionGroupOmit
     ticket?: TicketOmit
     ticketAttachment?: TicketAttachmentOmit
     message?: MessageOmit
     timeLog?: timeLogOmit
     note?: NoteOmit
     activityLog?: ActivityLogOmit
+    ticketReason?: TicketReasonOmit
   }
 
   /* Types for Logging */
@@ -1937,10 +2151,14 @@ export namespace Prisma {
     adminProjects: number
     messages: number
     assignedTickets: number
+    assignedByTickets: number
+    ticketReasons: number
     notes: number
     activityLogs: number
     targetActivityLogs: number
     uploadedAttachments: number
+    projectDiscussionGroups: number
+    joinedDiscussionGroups: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1949,10 +2167,14 @@ export namespace Prisma {
     adminProjects?: boolean | UserCountOutputTypeCountAdminProjectsArgs
     messages?: boolean | UserCountOutputTypeCountMessagesArgs
     assignedTickets?: boolean | UserCountOutputTypeCountAssignedTicketsArgs
+    assignedByTickets?: boolean | UserCountOutputTypeCountAssignedByTicketsArgs
+    ticketReasons?: boolean | UserCountOutputTypeCountTicketReasonsArgs
     notes?: boolean | UserCountOutputTypeCountNotesArgs
     activityLogs?: boolean | UserCountOutputTypeCountActivityLogsArgs
     targetActivityLogs?: boolean | UserCountOutputTypeCountTargetActivityLogsArgs
     uploadedAttachments?: boolean | UserCountOutputTypeCountUploadedAttachmentsArgs
+    projectDiscussionGroups?: boolean | UserCountOutputTypeCountProjectDiscussionGroupsArgs
+    joinedDiscussionGroups?: boolean | UserCountOutputTypeCountJoinedDiscussionGroupsArgs
   }
 
   // Custom InputTypes
@@ -2004,6 +2226,20 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
+  export type UserCountOutputTypeCountAssignedByTicketsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TicketWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountTicketReasonsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TicketReasonWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
   export type UserCountOutputTypeCountNotesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: NoteWhereInput
   }
@@ -2029,6 +2265,20 @@ export namespace Prisma {
     where?: TicketAttachmentWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountProjectDiscussionGroupsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProjectDiscussionGroupWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountJoinedDiscussionGroupsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProjectDiscussionGroupWhereInput
+  }
+
 
   /**
    * Count Type ProjectCountOutputType
@@ -2037,6 +2287,7 @@ export namespace Prisma {
   export type ProjectCountOutputType = {
     members: number
     admins: number
+    discussionGroups: number
     messages: number
     timeLogs: number
     groups: number
@@ -2046,6 +2297,7 @@ export namespace Prisma {
   export type ProjectCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     members?: boolean | ProjectCountOutputTypeCountMembersArgs
     admins?: boolean | ProjectCountOutputTypeCountAdminsArgs
+    discussionGroups?: boolean | ProjectCountOutputTypeCountDiscussionGroupsArgs
     messages?: boolean | ProjectCountOutputTypeCountMessagesArgs
     timeLogs?: boolean | ProjectCountOutputTypeCountTimeLogsArgs
     groups?: boolean | ProjectCountOutputTypeCountGroupsArgs
@@ -2075,6 +2327,13 @@ export namespace Prisma {
    */
   export type ProjectCountOutputTypeCountAdminsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: userWhereInput
+  }
+
+  /**
+   * ProjectCountOutputType without action
+   */
+  export type ProjectCountOutputTypeCountDiscussionGroupsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProjectDiscussionGroupWhereInput
   }
 
   /**
@@ -2138,17 +2397,70 @@ export namespace Prisma {
 
 
   /**
+   * Count Type ProjectDiscussionGroupCountOutputType
+   */
+
+  export type ProjectDiscussionGroupCountOutputType = {
+    tickets: number
+    members: number
+    messages: number
+  }
+
+  export type ProjectDiscussionGroupCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tickets?: boolean | ProjectDiscussionGroupCountOutputTypeCountTicketsArgs
+    members?: boolean | ProjectDiscussionGroupCountOutputTypeCountMembersArgs
+    messages?: boolean | ProjectDiscussionGroupCountOutputTypeCountMessagesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ProjectDiscussionGroupCountOutputType without action
+   */
+  export type ProjectDiscussionGroupCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroupCountOutputType
+     */
+    select?: ProjectDiscussionGroupCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ProjectDiscussionGroupCountOutputType without action
+   */
+  export type ProjectDiscussionGroupCountOutputTypeCountTicketsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TicketWhereInput
+  }
+
+  /**
+   * ProjectDiscussionGroupCountOutputType without action
+   */
+  export type ProjectDiscussionGroupCountOutputTypeCountMembersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: userWhereInput
+  }
+
+  /**
+   * ProjectDiscussionGroupCountOutputType without action
+   */
+  export type ProjectDiscussionGroupCountOutputTypeCountMessagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MessageWhereInput
+  }
+
+
+  /**
    * Count Type TicketCountOutputType
    */
 
   export type TicketCountOutputType = {
+    reasons: number
     timeLogs: number
+    discussionGroups: number
     attachments: number
     messages: number
   }
 
   export type TicketCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    reasons?: boolean | TicketCountOutputTypeCountReasonsArgs
     timeLogs?: boolean | TicketCountOutputTypeCountTimeLogsArgs
+    discussionGroups?: boolean | TicketCountOutputTypeCountDiscussionGroupsArgs
     attachments?: boolean | TicketCountOutputTypeCountAttachmentsArgs
     messages?: boolean | TicketCountOutputTypeCountMessagesArgs
   }
@@ -2167,8 +2479,22 @@ export namespace Prisma {
   /**
    * TicketCountOutputType without action
    */
+  export type TicketCountOutputTypeCountReasonsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TicketReasonWhereInput
+  }
+
+  /**
+   * TicketCountOutputType without action
+   */
   export type TicketCountOutputTypeCountTimeLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: timeLogWhereInput
+  }
+
+  /**
+   * TicketCountOutputType without action
+   */
+  export type TicketCountOutputTypeCountDiscussionGroupsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProjectDiscussionGroupWhereInput
   }
 
   /**
@@ -3371,6 +3697,7 @@ export namespace Prisma {
     isActive: boolean | null
     lastActive: Date | null
     designation: string | null
+    isPending: boolean | null
     forgotPasswordToken: string | null
     forgotPasswordTokenExpiry: Date | null
     isVerified: boolean | null
@@ -3391,6 +3718,7 @@ export namespace Prisma {
     isActive: boolean | null
     lastActive: Date | null
     designation: string | null
+    isPending: boolean | null
     forgotPasswordToken: string | null
     forgotPasswordTokenExpiry: Date | null
     isVerified: boolean | null
@@ -3411,6 +3739,7 @@ export namespace Prisma {
     isActive: number
     lastActive: number
     designation: number
+    isPending: number
     forgotPasswordToken: number
     forgotPasswordTokenExpiry: number
     isVerified: number
@@ -3433,6 +3762,7 @@ export namespace Prisma {
     isActive?: true
     lastActive?: true
     designation?: true
+    isPending?: true
     forgotPasswordToken?: true
     forgotPasswordTokenExpiry?: true
     isVerified?: true
@@ -3453,6 +3783,7 @@ export namespace Prisma {
     isActive?: true
     lastActive?: true
     designation?: true
+    isPending?: true
     forgotPasswordToken?: true
     forgotPasswordTokenExpiry?: true
     isVerified?: true
@@ -3473,6 +3804,7 @@ export namespace Prisma {
     isActive?: true
     lastActive?: true
     designation?: true
+    isPending?: true
     forgotPasswordToken?: true
     forgotPasswordTokenExpiry?: true
     isVerified?: true
@@ -3566,6 +3898,7 @@ export namespace Prisma {
     isActive: boolean
     lastActive: Date | null
     designation: string | null
+    isPending: boolean
     forgotPasswordToken: string | null
     forgotPasswordTokenExpiry: Date | null
     isVerified: boolean
@@ -3603,6 +3936,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: boolean
     designation?: boolean
+    isPending?: boolean
     forgotPasswordToken?: boolean
     forgotPasswordTokenExpiry?: boolean
     isVerified?: boolean
@@ -3615,10 +3949,14 @@ export namespace Prisma {
     adminProjects?: boolean | user$adminProjectsArgs<ExtArgs>
     messages?: boolean | user$messagesArgs<ExtArgs>
     assignedTickets?: boolean | user$assignedTicketsArgs<ExtArgs>
+    assignedByTickets?: boolean | user$assignedByTicketsArgs<ExtArgs>
+    ticketReasons?: boolean | user$ticketReasonsArgs<ExtArgs>
     notes?: boolean | user$notesArgs<ExtArgs>
     activityLogs?: boolean | user$activityLogsArgs<ExtArgs>
     targetActivityLogs?: boolean | user$targetActivityLogsArgs<ExtArgs>
     uploadedAttachments?: boolean | user$uploadedAttachmentsArgs<ExtArgs>
+    projectDiscussionGroups?: boolean | user$projectDiscussionGroupsArgs<ExtArgs>
+    joinedDiscussionGroups?: boolean | user$joinedDiscussionGroupsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -3634,6 +3972,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: boolean
     designation?: boolean
+    isPending?: boolean
     forgotPasswordToken?: boolean
     forgotPasswordTokenExpiry?: boolean
     isVerified?: boolean
@@ -3655,6 +3994,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: boolean
     designation?: boolean
+    isPending?: boolean
     forgotPasswordToken?: boolean
     forgotPasswordTokenExpiry?: boolean
     isVerified?: boolean
@@ -3676,6 +4016,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: boolean
     designation?: boolean
+    isPending?: boolean
     forgotPasswordToken?: boolean
     forgotPasswordTokenExpiry?: boolean
     isVerified?: boolean
@@ -3684,7 +4025,7 @@ export namespace Prisma {
     companyId?: boolean
   }
 
-  export type userOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "role" | "createdAt" | "updatedAt" | "imageUrl" | "isActive" | "lastActive" | "designation" | "forgotPasswordToken" | "forgotPasswordTokenExpiry" | "isVerified" | "verifyToken" | "verifyTokenExpiry" | "companyId", ExtArgs["result"]["user"]>
+  export type userOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "role" | "createdAt" | "updatedAt" | "imageUrl" | "isActive" | "lastActive" | "designation" | "isPending" | "forgotPasswordToken" | "forgotPasswordTokenExpiry" | "isVerified" | "verifyToken" | "verifyTokenExpiry" | "companyId", ExtArgs["result"]["user"]>
   export type userInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | user$companyArgs<ExtArgs>
     timeLogs?: boolean | user$timeLogsArgs<ExtArgs>
@@ -3692,10 +4033,14 @@ export namespace Prisma {
     adminProjects?: boolean | user$adminProjectsArgs<ExtArgs>
     messages?: boolean | user$messagesArgs<ExtArgs>
     assignedTickets?: boolean | user$assignedTicketsArgs<ExtArgs>
+    assignedByTickets?: boolean | user$assignedByTicketsArgs<ExtArgs>
+    ticketReasons?: boolean | user$ticketReasonsArgs<ExtArgs>
     notes?: boolean | user$notesArgs<ExtArgs>
     activityLogs?: boolean | user$activityLogsArgs<ExtArgs>
     targetActivityLogs?: boolean | user$targetActivityLogsArgs<ExtArgs>
     uploadedAttachments?: boolean | user$uploadedAttachmentsArgs<ExtArgs>
+    projectDiscussionGroups?: boolean | user$projectDiscussionGroupsArgs<ExtArgs>
+    joinedDiscussionGroups?: boolean | user$joinedDiscussionGroupsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type userIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3714,10 +4059,14 @@ export namespace Prisma {
       adminProjects: Prisma.$ProjectPayload<ExtArgs>[]
       messages: Prisma.$MessagePayload<ExtArgs>[]
       assignedTickets: Prisma.$TicketPayload<ExtArgs>[]
+      assignedByTickets: Prisma.$TicketPayload<ExtArgs>[]
+      ticketReasons: Prisma.$TicketReasonPayload<ExtArgs>[]
       notes: Prisma.$NotePayload<ExtArgs>[]
       activityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
       targetActivityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
       uploadedAttachments: Prisma.$TicketAttachmentPayload<ExtArgs>[]
+      projectDiscussionGroups: Prisma.$ProjectDiscussionGroupPayload<ExtArgs>[]
+      joinedDiscussionGroups: Prisma.$ProjectDiscussionGroupPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3731,6 +4080,7 @@ export namespace Prisma {
       isActive: boolean
       lastActive: Date | null
       designation: string | null
+      isPending: boolean
       forgotPasswordToken: string | null
       forgotPasswordTokenExpiry: Date | null
       isVerified: boolean
@@ -4137,10 +4487,14 @@ export namespace Prisma {
     adminProjects<T extends user$adminProjectsArgs<ExtArgs> = {}>(args?: Subset<T, user$adminProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     messages<T extends user$messagesArgs<ExtArgs> = {}>(args?: Subset<T, user$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assignedTickets<T extends user$assignedTicketsArgs<ExtArgs> = {}>(args?: Subset<T, user$assignedTicketsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    assignedByTickets<T extends user$assignedByTicketsArgs<ExtArgs> = {}>(args?: Subset<T, user$assignedByTicketsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    ticketReasons<T extends user$ticketReasonsArgs<ExtArgs> = {}>(args?: Subset<T, user$ticketReasonsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketReasonPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notes<T extends user$notesArgs<ExtArgs> = {}>(args?: Subset<T, user$notesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     activityLogs<T extends user$activityLogsArgs<ExtArgs> = {}>(args?: Subset<T, user$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     targetActivityLogs<T extends user$targetActivityLogsArgs<ExtArgs> = {}>(args?: Subset<T, user$targetActivityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     uploadedAttachments<T extends user$uploadedAttachmentsArgs<ExtArgs> = {}>(args?: Subset<T, user$uploadedAttachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    projectDiscussionGroups<T extends user$projectDiscussionGroupsArgs<ExtArgs> = {}>(args?: Subset<T, user$projectDiscussionGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectDiscussionGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    joinedDiscussionGroups<T extends user$joinedDiscussionGroupsArgs<ExtArgs> = {}>(args?: Subset<T, user$joinedDiscussionGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectDiscussionGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4181,6 +4535,7 @@ export namespace Prisma {
     readonly isActive: FieldRef<"user", 'Boolean'>
     readonly lastActive: FieldRef<"user", 'DateTime'>
     readonly designation: FieldRef<"user", 'String'>
+    readonly isPending: FieldRef<"user", 'Boolean'>
     readonly forgotPasswordToken: FieldRef<"user", 'String'>
     readonly forgotPasswordTokenExpiry: FieldRef<"user", 'DateTime'>
     readonly isVerified: FieldRef<"user", 'Boolean'>
@@ -4727,6 +5082,54 @@ export namespace Prisma {
   }
 
   /**
+   * user.assignedByTickets
+   */
+  export type user$assignedByTicketsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Ticket
+     */
+    select?: TicketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Ticket
+     */
+    omit?: TicketOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketInclude<ExtArgs> | null
+    where?: TicketWhereInput
+    orderBy?: TicketOrderByWithRelationInput | TicketOrderByWithRelationInput[]
+    cursor?: TicketWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TicketScalarFieldEnum | TicketScalarFieldEnum[]
+  }
+
+  /**
+   * user.ticketReasons
+   */
+  export type user$ticketReasonsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketReason
+     */
+    select?: TicketReasonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketReason
+     */
+    omit?: TicketReasonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketReasonInclude<ExtArgs> | null
+    where?: TicketReasonWhereInput
+    orderBy?: TicketReasonOrderByWithRelationInput | TicketReasonOrderByWithRelationInput[]
+    cursor?: TicketReasonWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TicketReasonScalarFieldEnum | TicketReasonScalarFieldEnum[]
+  }
+
+  /**
    * user.notes
    */
   export type user$notesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4820,6 +5223,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: TicketAttachmentScalarFieldEnum | TicketAttachmentScalarFieldEnum[]
+  }
+
+  /**
+   * user.projectDiscussionGroups
+   */
+  export type user$projectDiscussionGroupsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroup
+     */
+    select?: ProjectDiscussionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectDiscussionGroup
+     */
+    omit?: ProjectDiscussionGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectDiscussionGroupInclude<ExtArgs> | null
+    where?: ProjectDiscussionGroupWhereInput
+    orderBy?: ProjectDiscussionGroupOrderByWithRelationInput | ProjectDiscussionGroupOrderByWithRelationInput[]
+    cursor?: ProjectDiscussionGroupWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProjectDiscussionGroupScalarFieldEnum | ProjectDiscussionGroupScalarFieldEnum[]
+  }
+
+  /**
+   * user.joinedDiscussionGroups
+   */
+  export type user$joinedDiscussionGroupsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroup
+     */
+    select?: ProjectDiscussionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectDiscussionGroup
+     */
+    omit?: ProjectDiscussionGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectDiscussionGroupInclude<ExtArgs> | null
+    where?: ProjectDiscussionGroupWhereInput
+    orderBy?: ProjectDiscussionGroupOrderByWithRelationInput | ProjectDiscussionGroupOrderByWithRelationInput[]
+    cursor?: ProjectDiscussionGroupWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProjectDiscussionGroupScalarFieldEnum | ProjectDiscussionGroupScalarFieldEnum[]
   }
 
   /**
@@ -5080,6 +5531,7 @@ export namespace Prisma {
     members?: boolean | Project$membersArgs<ExtArgs>
     admins?: boolean | Project$adminsArgs<ExtArgs>
     company?: boolean | CompanyDefaultArgs<ExtArgs>
+    discussionGroups?: boolean | Project$discussionGroupsArgs<ExtArgs>
     messages?: boolean | Project$messagesArgs<ExtArgs>
     timeLogs?: boolean | Project$timeLogsArgs<ExtArgs>
     groups?: boolean | Project$groupsArgs<ExtArgs>
@@ -5145,6 +5597,7 @@ export namespace Prisma {
     members?: boolean | Project$membersArgs<ExtArgs>
     admins?: boolean | Project$adminsArgs<ExtArgs>
     company?: boolean | CompanyDefaultArgs<ExtArgs>
+    discussionGroups?: boolean | Project$discussionGroupsArgs<ExtArgs>
     messages?: boolean | Project$messagesArgs<ExtArgs>
     timeLogs?: boolean | Project$timeLogsArgs<ExtArgs>
     groups?: boolean | Project$groupsArgs<ExtArgs>
@@ -5164,6 +5617,7 @@ export namespace Prisma {
       members: Prisma.$userPayload<ExtArgs>[]
       admins: Prisma.$userPayload<ExtArgs>[]
       company: Prisma.$CompanyPayload<ExtArgs>
+      discussionGroups: Prisma.$ProjectDiscussionGroupPayload<ExtArgs>[]
       messages: Prisma.$MessagePayload<ExtArgs>[]
       timeLogs: Prisma.$timeLogPayload<ExtArgs>[]
       groups: Prisma.$ProjectGroupPayload<ExtArgs>[]
@@ -5581,6 +6035,7 @@ export namespace Prisma {
     members<T extends Project$membersArgs<ExtArgs> = {}>(args?: Subset<T, Project$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     admins<T extends Project$adminsArgs<ExtArgs> = {}>(args?: Subset<T, Project$adminsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    discussionGroups<T extends Project$discussionGroupsArgs<ExtArgs> = {}>(args?: Subset<T, Project$discussionGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectDiscussionGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     messages<T extends Project$messagesArgs<ExtArgs> = {}>(args?: Subset<T, Project$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     timeLogs<T extends Project$timeLogsArgs<ExtArgs> = {}>(args?: Subset<T, Project$timeLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$timeLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     groups<T extends Project$groupsArgs<ExtArgs> = {}>(args?: Subset<T, Project$groupsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -6074,6 +6529,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * Project.discussionGroups
+   */
+  export type Project$discussionGroupsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroup
+     */
+    select?: ProjectDiscussionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectDiscussionGroup
+     */
+    omit?: ProjectDiscussionGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectDiscussionGroupInclude<ExtArgs> | null
+    where?: ProjectDiscussionGroupWhereInput
+    orderBy?: ProjectDiscussionGroupOrderByWithRelationInput | ProjectDiscussionGroupOrderByWithRelationInput[]
+    cursor?: ProjectDiscussionGroupWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProjectDiscussionGroupScalarFieldEnum | ProjectDiscussionGroupScalarFieldEnum[]
   }
 
   /**
@@ -7397,13 +7876,1245 @@ export namespace Prisma {
 
 
   /**
+   * Model ProjectDiscussionGroup
+   */
+
+  export type AggregateProjectDiscussionGroup = {
+    _count: ProjectDiscussionGroupCountAggregateOutputType | null
+    _min: ProjectDiscussionGroupMinAggregateOutputType | null
+    _max: ProjectDiscussionGroupMaxAggregateOutputType | null
+  }
+
+  export type ProjectDiscussionGroupMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    type: $Enums.ProjectDiscussionGroupType | null
+    content: string | null
+    isPinned: boolean | null
+    isArchived: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    projectId: string | null
+    userId: string | null
+  }
+
+  export type ProjectDiscussionGroupMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    type: $Enums.ProjectDiscussionGroupType | null
+    content: string | null
+    isPinned: boolean | null
+    isArchived: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    projectId: string | null
+    userId: string | null
+  }
+
+  export type ProjectDiscussionGroupCountAggregateOutputType = {
+    id: number
+    title: number
+    type: number
+    content: number
+    isPinned: number
+    isArchived: number
+    createdAt: number
+    updatedAt: number
+    projectId: number
+    userId: number
+    _all: number
+  }
+
+
+  export type ProjectDiscussionGroupMinAggregateInputType = {
+    id?: true
+    title?: true
+    type?: true
+    content?: true
+    isPinned?: true
+    isArchived?: true
+    createdAt?: true
+    updatedAt?: true
+    projectId?: true
+    userId?: true
+  }
+
+  export type ProjectDiscussionGroupMaxAggregateInputType = {
+    id?: true
+    title?: true
+    type?: true
+    content?: true
+    isPinned?: true
+    isArchived?: true
+    createdAt?: true
+    updatedAt?: true
+    projectId?: true
+    userId?: true
+  }
+
+  export type ProjectDiscussionGroupCountAggregateInputType = {
+    id?: true
+    title?: true
+    type?: true
+    content?: true
+    isPinned?: true
+    isArchived?: true
+    createdAt?: true
+    updatedAt?: true
+    projectId?: true
+    userId?: true
+    _all?: true
+  }
+
+  export type ProjectDiscussionGroupAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProjectDiscussionGroup to aggregate.
+     */
+    where?: ProjectDiscussionGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProjectDiscussionGroups to fetch.
+     */
+    orderBy?: ProjectDiscussionGroupOrderByWithRelationInput | ProjectDiscussionGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProjectDiscussionGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProjectDiscussionGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProjectDiscussionGroups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProjectDiscussionGroups
+    **/
+    _count?: true | ProjectDiscussionGroupCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProjectDiscussionGroupMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProjectDiscussionGroupMaxAggregateInputType
+  }
+
+  export type GetProjectDiscussionGroupAggregateType<T extends ProjectDiscussionGroupAggregateArgs> = {
+        [P in keyof T & keyof AggregateProjectDiscussionGroup]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProjectDiscussionGroup[P]>
+      : GetScalarType<T[P], AggregateProjectDiscussionGroup[P]>
+  }
+
+
+
+
+  export type ProjectDiscussionGroupGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProjectDiscussionGroupWhereInput
+    orderBy?: ProjectDiscussionGroupOrderByWithAggregationInput | ProjectDiscussionGroupOrderByWithAggregationInput[]
+    by: ProjectDiscussionGroupScalarFieldEnum[] | ProjectDiscussionGroupScalarFieldEnum
+    having?: ProjectDiscussionGroupScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProjectDiscussionGroupCountAggregateInputType | true
+    _min?: ProjectDiscussionGroupMinAggregateInputType
+    _max?: ProjectDiscussionGroupMaxAggregateInputType
+  }
+
+  export type ProjectDiscussionGroupGroupByOutputType = {
+    id: string
+    title: string
+    type: $Enums.ProjectDiscussionGroupType
+    content: string | null
+    isPinned: boolean
+    isArchived: boolean
+    createdAt: Date
+    updatedAt: Date
+    projectId: string
+    userId: string
+    _count: ProjectDiscussionGroupCountAggregateOutputType | null
+    _min: ProjectDiscussionGroupMinAggregateOutputType | null
+    _max: ProjectDiscussionGroupMaxAggregateOutputType | null
+  }
+
+  type GetProjectDiscussionGroupGroupByPayload<T extends ProjectDiscussionGroupGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProjectDiscussionGroupGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProjectDiscussionGroupGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProjectDiscussionGroupGroupByOutputType[P]>
+            : GetScalarType<T[P], ProjectDiscussionGroupGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProjectDiscussionGroupSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    type?: boolean
+    content?: boolean
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    projectId?: boolean
+    userId?: boolean
+    tickets?: boolean | ProjectDiscussionGroup$ticketsArgs<ExtArgs>
+    members?: boolean | ProjectDiscussionGroup$membersArgs<ExtArgs>
+    messages?: boolean | ProjectDiscussionGroup$messagesArgs<ExtArgs>
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    user?: boolean | userDefaultArgs<ExtArgs>
+    _count?: boolean | ProjectDiscussionGroupCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["projectDiscussionGroup"]>
+
+  export type ProjectDiscussionGroupSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    type?: boolean
+    content?: boolean
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    projectId?: boolean
+    userId?: boolean
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    user?: boolean | userDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["projectDiscussionGroup"]>
+
+  export type ProjectDiscussionGroupSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    type?: boolean
+    content?: boolean
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    projectId?: boolean
+    userId?: boolean
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    user?: boolean | userDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["projectDiscussionGroup"]>
+
+  export type ProjectDiscussionGroupSelectScalar = {
+    id?: boolean
+    title?: boolean
+    type?: boolean
+    content?: boolean
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    projectId?: boolean
+    userId?: boolean
+  }
+
+  export type ProjectDiscussionGroupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "type" | "content" | "isPinned" | "isArchived" | "createdAt" | "updatedAt" | "projectId" | "userId", ExtArgs["result"]["projectDiscussionGroup"]>
+  export type ProjectDiscussionGroupInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tickets?: boolean | ProjectDiscussionGroup$ticketsArgs<ExtArgs>
+    members?: boolean | ProjectDiscussionGroup$membersArgs<ExtArgs>
+    messages?: boolean | ProjectDiscussionGroup$messagesArgs<ExtArgs>
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    user?: boolean | userDefaultArgs<ExtArgs>
+    _count?: boolean | ProjectDiscussionGroupCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ProjectDiscussionGroupIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    user?: boolean | userDefaultArgs<ExtArgs>
+  }
+  export type ProjectDiscussionGroupIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    user?: boolean | userDefaultArgs<ExtArgs>
+  }
+
+  export type $ProjectDiscussionGroupPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProjectDiscussionGroup"
+    objects: {
+      tickets: Prisma.$TicketPayload<ExtArgs>[]
+      members: Prisma.$userPayload<ExtArgs>[]
+      messages: Prisma.$MessagePayload<ExtArgs>[]
+      project: Prisma.$ProjectPayload<ExtArgs>
+      user: Prisma.$userPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      type: $Enums.ProjectDiscussionGroupType
+      content: string | null
+      isPinned: boolean
+      isArchived: boolean
+      createdAt: Date
+      updatedAt: Date
+      projectId: string
+      userId: string
+    }, ExtArgs["result"]["projectDiscussionGroup"]>
+    composites: {}
+  }
+
+  type ProjectDiscussionGroupGetPayload<S extends boolean | null | undefined | ProjectDiscussionGroupDefaultArgs> = $Result.GetResult<Prisma.$ProjectDiscussionGroupPayload, S>
+
+  type ProjectDiscussionGroupCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProjectDiscussionGroupFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProjectDiscussionGroupCountAggregateInputType | true
+    }
+
+  export interface ProjectDiscussionGroupDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProjectDiscussionGroup'], meta: { name: 'ProjectDiscussionGroup' } }
+    /**
+     * Find zero or one ProjectDiscussionGroup that matches the filter.
+     * @param {ProjectDiscussionGroupFindUniqueArgs} args - Arguments to find a ProjectDiscussionGroup
+     * @example
+     * // Get one ProjectDiscussionGroup
+     * const projectDiscussionGroup = await prisma.projectDiscussionGroup.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProjectDiscussionGroupFindUniqueArgs>(args: SelectSubset<T, ProjectDiscussionGroupFindUniqueArgs<ExtArgs>>): Prisma__ProjectDiscussionGroupClient<$Result.GetResult<Prisma.$ProjectDiscussionGroupPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProjectDiscussionGroup that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProjectDiscussionGroupFindUniqueOrThrowArgs} args - Arguments to find a ProjectDiscussionGroup
+     * @example
+     * // Get one ProjectDiscussionGroup
+     * const projectDiscussionGroup = await prisma.projectDiscussionGroup.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProjectDiscussionGroupFindUniqueOrThrowArgs>(args: SelectSubset<T, ProjectDiscussionGroupFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProjectDiscussionGroupClient<$Result.GetResult<Prisma.$ProjectDiscussionGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProjectDiscussionGroup that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectDiscussionGroupFindFirstArgs} args - Arguments to find a ProjectDiscussionGroup
+     * @example
+     * // Get one ProjectDiscussionGroup
+     * const projectDiscussionGroup = await prisma.projectDiscussionGroup.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProjectDiscussionGroupFindFirstArgs>(args?: SelectSubset<T, ProjectDiscussionGroupFindFirstArgs<ExtArgs>>): Prisma__ProjectDiscussionGroupClient<$Result.GetResult<Prisma.$ProjectDiscussionGroupPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProjectDiscussionGroup that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectDiscussionGroupFindFirstOrThrowArgs} args - Arguments to find a ProjectDiscussionGroup
+     * @example
+     * // Get one ProjectDiscussionGroup
+     * const projectDiscussionGroup = await prisma.projectDiscussionGroup.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProjectDiscussionGroupFindFirstOrThrowArgs>(args?: SelectSubset<T, ProjectDiscussionGroupFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProjectDiscussionGroupClient<$Result.GetResult<Prisma.$ProjectDiscussionGroupPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProjectDiscussionGroups that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectDiscussionGroupFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProjectDiscussionGroups
+     * const projectDiscussionGroups = await prisma.projectDiscussionGroup.findMany()
+     * 
+     * // Get first 10 ProjectDiscussionGroups
+     * const projectDiscussionGroups = await prisma.projectDiscussionGroup.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const projectDiscussionGroupWithIdOnly = await prisma.projectDiscussionGroup.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProjectDiscussionGroupFindManyArgs>(args?: SelectSubset<T, ProjectDiscussionGroupFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectDiscussionGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProjectDiscussionGroup.
+     * @param {ProjectDiscussionGroupCreateArgs} args - Arguments to create a ProjectDiscussionGroup.
+     * @example
+     * // Create one ProjectDiscussionGroup
+     * const ProjectDiscussionGroup = await prisma.projectDiscussionGroup.create({
+     *   data: {
+     *     // ... data to create a ProjectDiscussionGroup
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProjectDiscussionGroupCreateArgs>(args: SelectSubset<T, ProjectDiscussionGroupCreateArgs<ExtArgs>>): Prisma__ProjectDiscussionGroupClient<$Result.GetResult<Prisma.$ProjectDiscussionGroupPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProjectDiscussionGroups.
+     * @param {ProjectDiscussionGroupCreateManyArgs} args - Arguments to create many ProjectDiscussionGroups.
+     * @example
+     * // Create many ProjectDiscussionGroups
+     * const projectDiscussionGroup = await prisma.projectDiscussionGroup.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProjectDiscussionGroupCreateManyArgs>(args?: SelectSubset<T, ProjectDiscussionGroupCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProjectDiscussionGroups and returns the data saved in the database.
+     * @param {ProjectDiscussionGroupCreateManyAndReturnArgs} args - Arguments to create many ProjectDiscussionGroups.
+     * @example
+     * // Create many ProjectDiscussionGroups
+     * const projectDiscussionGroup = await prisma.projectDiscussionGroup.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProjectDiscussionGroups and only return the `id`
+     * const projectDiscussionGroupWithIdOnly = await prisma.projectDiscussionGroup.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProjectDiscussionGroupCreateManyAndReturnArgs>(args?: SelectSubset<T, ProjectDiscussionGroupCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectDiscussionGroupPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ProjectDiscussionGroup.
+     * @param {ProjectDiscussionGroupDeleteArgs} args - Arguments to delete one ProjectDiscussionGroup.
+     * @example
+     * // Delete one ProjectDiscussionGroup
+     * const ProjectDiscussionGroup = await prisma.projectDiscussionGroup.delete({
+     *   where: {
+     *     // ... filter to delete one ProjectDiscussionGroup
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProjectDiscussionGroupDeleteArgs>(args: SelectSubset<T, ProjectDiscussionGroupDeleteArgs<ExtArgs>>): Prisma__ProjectDiscussionGroupClient<$Result.GetResult<Prisma.$ProjectDiscussionGroupPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProjectDiscussionGroup.
+     * @param {ProjectDiscussionGroupUpdateArgs} args - Arguments to update one ProjectDiscussionGroup.
+     * @example
+     * // Update one ProjectDiscussionGroup
+     * const projectDiscussionGroup = await prisma.projectDiscussionGroup.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProjectDiscussionGroupUpdateArgs>(args: SelectSubset<T, ProjectDiscussionGroupUpdateArgs<ExtArgs>>): Prisma__ProjectDiscussionGroupClient<$Result.GetResult<Prisma.$ProjectDiscussionGroupPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProjectDiscussionGroups.
+     * @param {ProjectDiscussionGroupDeleteManyArgs} args - Arguments to filter ProjectDiscussionGroups to delete.
+     * @example
+     * // Delete a few ProjectDiscussionGroups
+     * const { count } = await prisma.projectDiscussionGroup.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProjectDiscussionGroupDeleteManyArgs>(args?: SelectSubset<T, ProjectDiscussionGroupDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProjectDiscussionGroups.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectDiscussionGroupUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProjectDiscussionGroups
+     * const projectDiscussionGroup = await prisma.projectDiscussionGroup.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProjectDiscussionGroupUpdateManyArgs>(args: SelectSubset<T, ProjectDiscussionGroupUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProjectDiscussionGroups and returns the data updated in the database.
+     * @param {ProjectDiscussionGroupUpdateManyAndReturnArgs} args - Arguments to update many ProjectDiscussionGroups.
+     * @example
+     * // Update many ProjectDiscussionGroups
+     * const projectDiscussionGroup = await prisma.projectDiscussionGroup.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ProjectDiscussionGroups and only return the `id`
+     * const projectDiscussionGroupWithIdOnly = await prisma.projectDiscussionGroup.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ProjectDiscussionGroupUpdateManyAndReturnArgs>(args: SelectSubset<T, ProjectDiscussionGroupUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectDiscussionGroupPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ProjectDiscussionGroup.
+     * @param {ProjectDiscussionGroupUpsertArgs} args - Arguments to update or create a ProjectDiscussionGroup.
+     * @example
+     * // Update or create a ProjectDiscussionGroup
+     * const projectDiscussionGroup = await prisma.projectDiscussionGroup.upsert({
+     *   create: {
+     *     // ... data to create a ProjectDiscussionGroup
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProjectDiscussionGroup we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProjectDiscussionGroupUpsertArgs>(args: SelectSubset<T, ProjectDiscussionGroupUpsertArgs<ExtArgs>>): Prisma__ProjectDiscussionGroupClient<$Result.GetResult<Prisma.$ProjectDiscussionGroupPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ProjectDiscussionGroups.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectDiscussionGroupCountArgs} args - Arguments to filter ProjectDiscussionGroups to count.
+     * @example
+     * // Count the number of ProjectDiscussionGroups
+     * const count = await prisma.projectDiscussionGroup.count({
+     *   where: {
+     *     // ... the filter for the ProjectDiscussionGroups we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProjectDiscussionGroupCountArgs>(
+      args?: Subset<T, ProjectDiscussionGroupCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProjectDiscussionGroupCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProjectDiscussionGroup.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectDiscussionGroupAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProjectDiscussionGroupAggregateArgs>(args: Subset<T, ProjectDiscussionGroupAggregateArgs>): Prisma.PrismaPromise<GetProjectDiscussionGroupAggregateType<T>>
+
+    /**
+     * Group by ProjectDiscussionGroup.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectDiscussionGroupGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProjectDiscussionGroupGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProjectDiscussionGroupGroupByArgs['orderBy'] }
+        : { orderBy?: ProjectDiscussionGroupGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProjectDiscussionGroupGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProjectDiscussionGroupGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProjectDiscussionGroup model
+   */
+  readonly fields: ProjectDiscussionGroupFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProjectDiscussionGroup.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProjectDiscussionGroupClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tickets<T extends ProjectDiscussionGroup$ticketsArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDiscussionGroup$ticketsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    members<T extends ProjectDiscussionGroup$membersArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDiscussionGroup$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    messages<T extends ProjectDiscussionGroup$messagesArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDiscussionGroup$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    project<T extends ProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDefaultArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends userDefaultArgs<ExtArgs> = {}>(args?: Subset<T, userDefaultArgs<ExtArgs>>): Prisma__userClient<$Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProjectDiscussionGroup model
+   */
+  interface ProjectDiscussionGroupFieldRefs {
+    readonly id: FieldRef<"ProjectDiscussionGroup", 'String'>
+    readonly title: FieldRef<"ProjectDiscussionGroup", 'String'>
+    readonly type: FieldRef<"ProjectDiscussionGroup", 'ProjectDiscussionGroupType'>
+    readonly content: FieldRef<"ProjectDiscussionGroup", 'String'>
+    readonly isPinned: FieldRef<"ProjectDiscussionGroup", 'Boolean'>
+    readonly isArchived: FieldRef<"ProjectDiscussionGroup", 'Boolean'>
+    readonly createdAt: FieldRef<"ProjectDiscussionGroup", 'DateTime'>
+    readonly updatedAt: FieldRef<"ProjectDiscussionGroup", 'DateTime'>
+    readonly projectId: FieldRef<"ProjectDiscussionGroup", 'String'>
+    readonly userId: FieldRef<"ProjectDiscussionGroup", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProjectDiscussionGroup findUnique
+   */
+  export type ProjectDiscussionGroupFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroup
+     */
+    select?: ProjectDiscussionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectDiscussionGroup
+     */
+    omit?: ProjectDiscussionGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectDiscussionGroupInclude<ExtArgs> | null
+    /**
+     * Filter, which ProjectDiscussionGroup to fetch.
+     */
+    where: ProjectDiscussionGroupWhereUniqueInput
+  }
+
+  /**
+   * ProjectDiscussionGroup findUniqueOrThrow
+   */
+  export type ProjectDiscussionGroupFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroup
+     */
+    select?: ProjectDiscussionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectDiscussionGroup
+     */
+    omit?: ProjectDiscussionGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectDiscussionGroupInclude<ExtArgs> | null
+    /**
+     * Filter, which ProjectDiscussionGroup to fetch.
+     */
+    where: ProjectDiscussionGroupWhereUniqueInput
+  }
+
+  /**
+   * ProjectDiscussionGroup findFirst
+   */
+  export type ProjectDiscussionGroupFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroup
+     */
+    select?: ProjectDiscussionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectDiscussionGroup
+     */
+    omit?: ProjectDiscussionGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectDiscussionGroupInclude<ExtArgs> | null
+    /**
+     * Filter, which ProjectDiscussionGroup to fetch.
+     */
+    where?: ProjectDiscussionGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProjectDiscussionGroups to fetch.
+     */
+    orderBy?: ProjectDiscussionGroupOrderByWithRelationInput | ProjectDiscussionGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProjectDiscussionGroups.
+     */
+    cursor?: ProjectDiscussionGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProjectDiscussionGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProjectDiscussionGroups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProjectDiscussionGroups.
+     */
+    distinct?: ProjectDiscussionGroupScalarFieldEnum | ProjectDiscussionGroupScalarFieldEnum[]
+  }
+
+  /**
+   * ProjectDiscussionGroup findFirstOrThrow
+   */
+  export type ProjectDiscussionGroupFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroup
+     */
+    select?: ProjectDiscussionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectDiscussionGroup
+     */
+    omit?: ProjectDiscussionGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectDiscussionGroupInclude<ExtArgs> | null
+    /**
+     * Filter, which ProjectDiscussionGroup to fetch.
+     */
+    where?: ProjectDiscussionGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProjectDiscussionGroups to fetch.
+     */
+    orderBy?: ProjectDiscussionGroupOrderByWithRelationInput | ProjectDiscussionGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProjectDiscussionGroups.
+     */
+    cursor?: ProjectDiscussionGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProjectDiscussionGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProjectDiscussionGroups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProjectDiscussionGroups.
+     */
+    distinct?: ProjectDiscussionGroupScalarFieldEnum | ProjectDiscussionGroupScalarFieldEnum[]
+  }
+
+  /**
+   * ProjectDiscussionGroup findMany
+   */
+  export type ProjectDiscussionGroupFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroup
+     */
+    select?: ProjectDiscussionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectDiscussionGroup
+     */
+    omit?: ProjectDiscussionGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectDiscussionGroupInclude<ExtArgs> | null
+    /**
+     * Filter, which ProjectDiscussionGroups to fetch.
+     */
+    where?: ProjectDiscussionGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProjectDiscussionGroups to fetch.
+     */
+    orderBy?: ProjectDiscussionGroupOrderByWithRelationInput | ProjectDiscussionGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProjectDiscussionGroups.
+     */
+    cursor?: ProjectDiscussionGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProjectDiscussionGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProjectDiscussionGroups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProjectDiscussionGroups.
+     */
+    distinct?: ProjectDiscussionGroupScalarFieldEnum | ProjectDiscussionGroupScalarFieldEnum[]
+  }
+
+  /**
+   * ProjectDiscussionGroup create
+   */
+  export type ProjectDiscussionGroupCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroup
+     */
+    select?: ProjectDiscussionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectDiscussionGroup
+     */
+    omit?: ProjectDiscussionGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectDiscussionGroupInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ProjectDiscussionGroup.
+     */
+    data: XOR<ProjectDiscussionGroupCreateInput, ProjectDiscussionGroupUncheckedCreateInput>
+  }
+
+  /**
+   * ProjectDiscussionGroup createMany
+   */
+  export type ProjectDiscussionGroupCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProjectDiscussionGroups.
+     */
+    data: ProjectDiscussionGroupCreateManyInput | ProjectDiscussionGroupCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProjectDiscussionGroup createManyAndReturn
+   */
+  export type ProjectDiscussionGroupCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroup
+     */
+    select?: ProjectDiscussionGroupSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectDiscussionGroup
+     */
+    omit?: ProjectDiscussionGroupOmit<ExtArgs> | null
+    /**
+     * The data used to create many ProjectDiscussionGroups.
+     */
+    data: ProjectDiscussionGroupCreateManyInput | ProjectDiscussionGroupCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectDiscussionGroupIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProjectDiscussionGroup update
+   */
+  export type ProjectDiscussionGroupUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroup
+     */
+    select?: ProjectDiscussionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectDiscussionGroup
+     */
+    omit?: ProjectDiscussionGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectDiscussionGroupInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ProjectDiscussionGroup.
+     */
+    data: XOR<ProjectDiscussionGroupUpdateInput, ProjectDiscussionGroupUncheckedUpdateInput>
+    /**
+     * Choose, which ProjectDiscussionGroup to update.
+     */
+    where: ProjectDiscussionGroupWhereUniqueInput
+  }
+
+  /**
+   * ProjectDiscussionGroup updateMany
+   */
+  export type ProjectDiscussionGroupUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProjectDiscussionGroups.
+     */
+    data: XOR<ProjectDiscussionGroupUpdateManyMutationInput, ProjectDiscussionGroupUncheckedUpdateManyInput>
+    /**
+     * Filter which ProjectDiscussionGroups to update
+     */
+    where?: ProjectDiscussionGroupWhereInput
+    /**
+     * Limit how many ProjectDiscussionGroups to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProjectDiscussionGroup updateManyAndReturn
+   */
+  export type ProjectDiscussionGroupUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroup
+     */
+    select?: ProjectDiscussionGroupSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectDiscussionGroup
+     */
+    omit?: ProjectDiscussionGroupOmit<ExtArgs> | null
+    /**
+     * The data used to update ProjectDiscussionGroups.
+     */
+    data: XOR<ProjectDiscussionGroupUpdateManyMutationInput, ProjectDiscussionGroupUncheckedUpdateManyInput>
+    /**
+     * Filter which ProjectDiscussionGroups to update
+     */
+    where?: ProjectDiscussionGroupWhereInput
+    /**
+     * Limit how many ProjectDiscussionGroups to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectDiscussionGroupIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProjectDiscussionGroup upsert
+   */
+  export type ProjectDiscussionGroupUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroup
+     */
+    select?: ProjectDiscussionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectDiscussionGroup
+     */
+    omit?: ProjectDiscussionGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectDiscussionGroupInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ProjectDiscussionGroup to update in case it exists.
+     */
+    where: ProjectDiscussionGroupWhereUniqueInput
+    /**
+     * In case the ProjectDiscussionGroup found by the `where` argument doesn't exist, create a new ProjectDiscussionGroup with this data.
+     */
+    create: XOR<ProjectDiscussionGroupCreateInput, ProjectDiscussionGroupUncheckedCreateInput>
+    /**
+     * In case the ProjectDiscussionGroup was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProjectDiscussionGroupUpdateInput, ProjectDiscussionGroupUncheckedUpdateInput>
+  }
+
+  /**
+   * ProjectDiscussionGroup delete
+   */
+  export type ProjectDiscussionGroupDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroup
+     */
+    select?: ProjectDiscussionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectDiscussionGroup
+     */
+    omit?: ProjectDiscussionGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectDiscussionGroupInclude<ExtArgs> | null
+    /**
+     * Filter which ProjectDiscussionGroup to delete.
+     */
+    where: ProjectDiscussionGroupWhereUniqueInput
+  }
+
+  /**
+   * ProjectDiscussionGroup deleteMany
+   */
+  export type ProjectDiscussionGroupDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProjectDiscussionGroups to delete
+     */
+    where?: ProjectDiscussionGroupWhereInput
+    /**
+     * Limit how many ProjectDiscussionGroups to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProjectDiscussionGroup.tickets
+   */
+  export type ProjectDiscussionGroup$ticketsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Ticket
+     */
+    select?: TicketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Ticket
+     */
+    omit?: TicketOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketInclude<ExtArgs> | null
+    where?: TicketWhereInput
+    orderBy?: TicketOrderByWithRelationInput | TicketOrderByWithRelationInput[]
+    cursor?: TicketWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TicketScalarFieldEnum | TicketScalarFieldEnum[]
+  }
+
+  /**
+   * ProjectDiscussionGroup.members
+   */
+  export type ProjectDiscussionGroup$membersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user
+     */
+    select?: userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user
+     */
+    omit?: userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: userInclude<ExtArgs> | null
+    where?: userWhereInput
+    orderBy?: userOrderByWithRelationInput | userOrderByWithRelationInput[]
+    cursor?: userWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * ProjectDiscussionGroup.messages
+   */
+  export type ProjectDiscussionGroup$messagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Message
+     */
+    select?: MessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Message
+     */
+    omit?: MessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageInclude<ExtArgs> | null
+    where?: MessageWhereInput
+    orderBy?: MessageOrderByWithRelationInput | MessageOrderByWithRelationInput[]
+    cursor?: MessageWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MessageScalarFieldEnum | MessageScalarFieldEnum[]
+  }
+
+  /**
+   * ProjectDiscussionGroup without action
+   */
+  export type ProjectDiscussionGroupDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroup
+     */
+    select?: ProjectDiscussionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectDiscussionGroup
+     */
+    omit?: ProjectDiscussionGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectDiscussionGroupInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model Ticket
    */
 
   export type AggregateTicket = {
     _count: TicketCountAggregateOutputType | null
+    _avg: TicketAvgAggregateOutputType | null
+    _sum: TicketSumAggregateOutputType | null
     _min: TicketMinAggregateOutputType | null
     _max: TicketMaxAggregateOutputType | null
+  }
+
+  export type TicketAvgAggregateOutputType = {
+    estimatedHours: number | null
+  }
+
+  export type TicketSumAggregateOutputType = {
+    estimatedHours: number | null
   }
 
   export type TicketMinAggregateOutputType = {
@@ -7422,9 +9133,11 @@ export namespace Prisma {
     reasonBlocked: string | null
     reasonReopen: string | null
     type: $Enums.TicketType | null
+    estimatedHours: number | null
     projectId: string | null
     groupId: string | null
     assignedUserId: string | null
+    assignedById: string | null
   }
 
   export type TicketMaxAggregateOutputType = {
@@ -7443,9 +9156,11 @@ export namespace Prisma {
     reasonBlocked: string | null
     reasonReopen: string | null
     type: $Enums.TicketType | null
+    estimatedHours: number | null
     projectId: string | null
     groupId: string | null
     assignedUserId: string | null
+    assignedById: string | null
   }
 
   export type TicketCountAggregateOutputType = {
@@ -7464,12 +9179,22 @@ export namespace Prisma {
     reasonBlocked: number
     reasonReopen: number
     type: number
+    estimatedHours: number
     projectId: number
     groupId: number
     assignedUserId: number
+    assignedById: number
     _all: number
   }
 
+
+  export type TicketAvgAggregateInputType = {
+    estimatedHours?: true
+  }
+
+  export type TicketSumAggregateInputType = {
+    estimatedHours?: true
+  }
 
   export type TicketMinAggregateInputType = {
     id?: true
@@ -7487,9 +9212,11 @@ export namespace Prisma {
     reasonBlocked?: true
     reasonReopen?: true
     type?: true
+    estimatedHours?: true
     projectId?: true
     groupId?: true
     assignedUserId?: true
+    assignedById?: true
   }
 
   export type TicketMaxAggregateInputType = {
@@ -7508,9 +9235,11 @@ export namespace Prisma {
     reasonBlocked?: true
     reasonReopen?: true
     type?: true
+    estimatedHours?: true
     projectId?: true
     groupId?: true
     assignedUserId?: true
+    assignedById?: true
   }
 
   export type TicketCountAggregateInputType = {
@@ -7529,9 +9258,11 @@ export namespace Prisma {
     reasonBlocked?: true
     reasonReopen?: true
     type?: true
+    estimatedHours?: true
     projectId?: true
     groupId?: true
     assignedUserId?: true
+    assignedById?: true
     _all?: true
   }
 
@@ -7573,6 +9304,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: TicketAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TicketSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: TicketMinAggregateInputType
@@ -7603,6 +9346,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: TicketCountAggregateInputType | true
+    _avg?: TicketAvgAggregateInputType
+    _sum?: TicketSumAggregateInputType
     _min?: TicketMinAggregateInputType
     _max?: TicketMaxAggregateInputType
   }
@@ -7623,10 +9368,14 @@ export namespace Prisma {
     reasonBlocked: string | null
     reasonReopen: string | null
     type: $Enums.TicketType
+    estimatedHours: number | null
     projectId: string
     groupId: string | null
     assignedUserId: string | null
+    assignedById: string | null
     _count: TicketCountAggregateOutputType | null
+    _avg: TicketAvgAggregateOutputType | null
+    _sum: TicketSumAggregateOutputType | null
     _min: TicketMinAggregateOutputType | null
     _max: TicketMaxAggregateOutputType | null
   }
@@ -7661,13 +9410,18 @@ export namespace Prisma {
     reasonBlocked?: boolean
     reasonReopen?: boolean
     type?: boolean
+    estimatedHours?: boolean
     projectId?: boolean
     groupId?: boolean
     assignedUserId?: boolean
+    assignedById?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     group?: boolean | Ticket$groupArgs<ExtArgs>
     assignedUser?: boolean | Ticket$assignedUserArgs<ExtArgs>
+    assignedBy?: boolean | Ticket$assignedByArgs<ExtArgs>
+    reasons?: boolean | Ticket$reasonsArgs<ExtArgs>
     timeLogs?: boolean | Ticket$timeLogsArgs<ExtArgs>
+    discussionGroups?: boolean | Ticket$discussionGroupsArgs<ExtArgs>
     attachments?: boolean | Ticket$attachmentsArgs<ExtArgs>
     messages?: boolean | Ticket$messagesArgs<ExtArgs>
     _count?: boolean | TicketCountOutputTypeDefaultArgs<ExtArgs>
@@ -7689,12 +9443,15 @@ export namespace Prisma {
     reasonBlocked?: boolean
     reasonReopen?: boolean
     type?: boolean
+    estimatedHours?: boolean
     projectId?: boolean
     groupId?: boolean
     assignedUserId?: boolean
+    assignedById?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     group?: boolean | Ticket$groupArgs<ExtArgs>
     assignedUser?: boolean | Ticket$assignedUserArgs<ExtArgs>
+    assignedBy?: boolean | Ticket$assignedByArgs<ExtArgs>
   }, ExtArgs["result"]["ticket"]>
 
   export type TicketSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -7713,12 +9470,15 @@ export namespace Prisma {
     reasonBlocked?: boolean
     reasonReopen?: boolean
     type?: boolean
+    estimatedHours?: boolean
     projectId?: boolean
     groupId?: boolean
     assignedUserId?: boolean
+    assignedById?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     group?: boolean | Ticket$groupArgs<ExtArgs>
     assignedUser?: boolean | Ticket$assignedUserArgs<ExtArgs>
+    assignedBy?: boolean | Ticket$assignedByArgs<ExtArgs>
   }, ExtArgs["result"]["ticket"]>
 
   export type TicketSelectScalar = {
@@ -7737,17 +9497,22 @@ export namespace Prisma {
     reasonBlocked?: boolean
     reasonReopen?: boolean
     type?: boolean
+    estimatedHours?: boolean
     projectId?: boolean
     groupId?: boolean
     assignedUserId?: boolean
+    assignedById?: boolean
   }
 
-  export type TicketOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "status" | "priority" | "createdAt" | "updatedAt" | "dueDate" | "isCompleted" | "completedAt" | "isDeleted" | "deletedAt" | "reasonBlocked" | "reasonReopen" | "type" | "projectId" | "groupId" | "assignedUserId", ExtArgs["result"]["ticket"]>
+  export type TicketOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "status" | "priority" | "createdAt" | "updatedAt" | "dueDate" | "isCompleted" | "completedAt" | "isDeleted" | "deletedAt" | "reasonBlocked" | "reasonReopen" | "type" | "estimatedHours" | "projectId" | "groupId" | "assignedUserId" | "assignedById", ExtArgs["result"]["ticket"]>
   export type TicketInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     group?: boolean | Ticket$groupArgs<ExtArgs>
     assignedUser?: boolean | Ticket$assignedUserArgs<ExtArgs>
+    assignedBy?: boolean | Ticket$assignedByArgs<ExtArgs>
+    reasons?: boolean | Ticket$reasonsArgs<ExtArgs>
     timeLogs?: boolean | Ticket$timeLogsArgs<ExtArgs>
+    discussionGroups?: boolean | Ticket$discussionGroupsArgs<ExtArgs>
     attachments?: boolean | Ticket$attachmentsArgs<ExtArgs>
     messages?: boolean | Ticket$messagesArgs<ExtArgs>
     _count?: boolean | TicketCountOutputTypeDefaultArgs<ExtArgs>
@@ -7756,11 +9521,13 @@ export namespace Prisma {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     group?: boolean | Ticket$groupArgs<ExtArgs>
     assignedUser?: boolean | Ticket$assignedUserArgs<ExtArgs>
+    assignedBy?: boolean | Ticket$assignedByArgs<ExtArgs>
   }
   export type TicketIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     group?: boolean | Ticket$groupArgs<ExtArgs>
     assignedUser?: boolean | Ticket$assignedUserArgs<ExtArgs>
+    assignedBy?: boolean | Ticket$assignedByArgs<ExtArgs>
   }
 
   export type $TicketPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7769,7 +9536,10 @@ export namespace Prisma {
       project: Prisma.$ProjectPayload<ExtArgs>
       group: Prisma.$ProjectGroupPayload<ExtArgs> | null
       assignedUser: Prisma.$userPayload<ExtArgs> | null
+      assignedBy: Prisma.$userPayload<ExtArgs> | null
+      reasons: Prisma.$TicketReasonPayload<ExtArgs>[]
       timeLogs: Prisma.$timeLogPayload<ExtArgs>[]
+      discussionGroups: Prisma.$ProjectDiscussionGroupPayload<ExtArgs>[]
       attachments: Prisma.$TicketAttachmentPayload<ExtArgs>[]
       messages: Prisma.$MessagePayload<ExtArgs>[]
     }
@@ -7789,9 +9559,11 @@ export namespace Prisma {
       reasonBlocked: string | null
       reasonReopen: string | null
       type: $Enums.TicketType
+      estimatedHours: number | null
       projectId: string
       groupId: string | null
       assignedUserId: string | null
+      assignedById: string | null
     }, ExtArgs["result"]["ticket"]>
     composites: {}
   }
@@ -8189,7 +9961,10 @@ export namespace Prisma {
     project<T extends ProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDefaultArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     group<T extends Ticket$groupArgs<ExtArgs> = {}>(args?: Subset<T, Ticket$groupArgs<ExtArgs>>): Prisma__ProjectGroupClient<$Result.GetResult<Prisma.$ProjectGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     assignedUser<T extends Ticket$assignedUserArgs<ExtArgs> = {}>(args?: Subset<T, Ticket$assignedUserArgs<ExtArgs>>): Prisma__userClient<$Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    assignedBy<T extends Ticket$assignedByArgs<ExtArgs> = {}>(args?: Subset<T, Ticket$assignedByArgs<ExtArgs>>): Prisma__userClient<$Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    reasons<T extends Ticket$reasonsArgs<ExtArgs> = {}>(args?: Subset<T, Ticket$reasonsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketReasonPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     timeLogs<T extends Ticket$timeLogsArgs<ExtArgs> = {}>(args?: Subset<T, Ticket$timeLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$timeLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    discussionGroups<T extends Ticket$discussionGroupsArgs<ExtArgs> = {}>(args?: Subset<T, Ticket$discussionGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectDiscussionGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     attachments<T extends Ticket$attachmentsArgs<ExtArgs> = {}>(args?: Subset<T, Ticket$attachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     messages<T extends Ticket$messagesArgs<ExtArgs> = {}>(args?: Subset<T, Ticket$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -8236,9 +10011,11 @@ export namespace Prisma {
     readonly reasonBlocked: FieldRef<"Ticket", 'String'>
     readonly reasonReopen: FieldRef<"Ticket", 'String'>
     readonly type: FieldRef<"Ticket", 'TicketType'>
+    readonly estimatedHours: FieldRef<"Ticket", 'Float'>
     readonly projectId: FieldRef<"Ticket", 'String'>
     readonly groupId: FieldRef<"Ticket", 'String'>
     readonly assignedUserId: FieldRef<"Ticket", 'String'>
+    readonly assignedById: FieldRef<"Ticket", 'String'>
   }
     
 
@@ -8678,6 +10455,49 @@ export namespace Prisma {
   }
 
   /**
+   * Ticket.assignedBy
+   */
+  export type Ticket$assignedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user
+     */
+    select?: userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user
+     */
+    omit?: userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: userInclude<ExtArgs> | null
+    where?: userWhereInput
+  }
+
+  /**
+   * Ticket.reasons
+   */
+  export type Ticket$reasonsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketReason
+     */
+    select?: TicketReasonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketReason
+     */
+    omit?: TicketReasonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketReasonInclude<ExtArgs> | null
+    where?: TicketReasonWhereInput
+    orderBy?: TicketReasonOrderByWithRelationInput | TicketReasonOrderByWithRelationInput[]
+    cursor?: TicketReasonWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TicketReasonScalarFieldEnum | TicketReasonScalarFieldEnum[]
+  }
+
+  /**
    * Ticket.timeLogs
    */
   export type Ticket$timeLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8699,6 +10519,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: TimeLogScalarFieldEnum | TimeLogScalarFieldEnum[]
+  }
+
+  /**
+   * Ticket.discussionGroups
+   */
+  export type Ticket$discussionGroupsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroup
+     */
+    select?: ProjectDiscussionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectDiscussionGroup
+     */
+    omit?: ProjectDiscussionGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectDiscussionGroupInclude<ExtArgs> | null
+    where?: ProjectDiscussionGroupWhereInput
+    orderBy?: ProjectDiscussionGroupOrderByWithRelationInput | ProjectDiscussionGroupOrderByWithRelationInput[]
+    cursor?: ProjectDiscussionGroupWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProjectDiscussionGroupScalarFieldEnum | ProjectDiscussionGroupScalarFieldEnum[]
   }
 
   /**
@@ -9892,6 +11736,7 @@ export namespace Prisma {
     projectId: string | null
     userId: string | null
     ticketId: string | null
+    discussionGroupId: string | null
   }
 
   export type MessageMaxAggregateOutputType = {
@@ -9905,6 +11750,7 @@ export namespace Prisma {
     projectId: string | null
     userId: string | null
     ticketId: string | null
+    discussionGroupId: string | null
   }
 
   export type MessageCountAggregateOutputType = {
@@ -9918,6 +11764,7 @@ export namespace Prisma {
     projectId: number
     userId: number
     ticketId: number
+    discussionGroupId: number
     _all: number
   }
 
@@ -9933,6 +11780,7 @@ export namespace Prisma {
     projectId?: true
     userId?: true
     ticketId?: true
+    discussionGroupId?: true
   }
 
   export type MessageMaxAggregateInputType = {
@@ -9946,6 +11794,7 @@ export namespace Prisma {
     projectId?: true
     userId?: true
     ticketId?: true
+    discussionGroupId?: true
   }
 
   export type MessageCountAggregateInputType = {
@@ -9959,6 +11808,7 @@ export namespace Prisma {
     projectId?: true
     userId?: true
     ticketId?: true
+    discussionGroupId?: true
     _all?: true
   }
 
@@ -10045,6 +11895,7 @@ export namespace Prisma {
     projectId: string
     userId: string
     ticketId: string | null
+    discussionGroupId: string | null
     _count: MessageCountAggregateOutputType | null
     _min: MessageMinAggregateOutputType | null
     _max: MessageMaxAggregateOutputType | null
@@ -10075,9 +11926,11 @@ export namespace Prisma {
     projectId?: boolean
     userId?: boolean
     ticketId?: boolean
+    discussionGroupId?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     user?: boolean | userDefaultArgs<ExtArgs>
     ticket?: boolean | Message$ticketArgs<ExtArgs>
+    discussionGroup?: boolean | Message$discussionGroupArgs<ExtArgs>
   }, ExtArgs["result"]["message"]>
 
   export type MessageSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -10091,9 +11944,11 @@ export namespace Prisma {
     projectId?: boolean
     userId?: boolean
     ticketId?: boolean
+    discussionGroupId?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     user?: boolean | userDefaultArgs<ExtArgs>
     ticket?: boolean | Message$ticketArgs<ExtArgs>
+    discussionGroup?: boolean | Message$discussionGroupArgs<ExtArgs>
   }, ExtArgs["result"]["message"]>
 
   export type MessageSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -10107,9 +11962,11 @@ export namespace Prisma {
     projectId?: boolean
     userId?: boolean
     ticketId?: boolean
+    discussionGroupId?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     user?: boolean | userDefaultArgs<ExtArgs>
     ticket?: boolean | Message$ticketArgs<ExtArgs>
+    discussionGroup?: boolean | Message$discussionGroupArgs<ExtArgs>
   }, ExtArgs["result"]["message"]>
 
   export type MessageSelectScalar = {
@@ -10123,23 +11980,27 @@ export namespace Prisma {
     projectId?: boolean
     userId?: boolean
     ticketId?: boolean
+    discussionGroupId?: boolean
   }
 
-  export type MessageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "text" | "createdAt" | "updatedAt" | "isRead" | "isStarred" | "isDeleted" | "projectId" | "userId" | "ticketId", ExtArgs["result"]["message"]>
+  export type MessageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "text" | "createdAt" | "updatedAt" | "isRead" | "isStarred" | "isDeleted" | "projectId" | "userId" | "ticketId" | "discussionGroupId", ExtArgs["result"]["message"]>
   export type MessageInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     user?: boolean | userDefaultArgs<ExtArgs>
     ticket?: boolean | Message$ticketArgs<ExtArgs>
+    discussionGroup?: boolean | Message$discussionGroupArgs<ExtArgs>
   }
   export type MessageIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     user?: boolean | userDefaultArgs<ExtArgs>
     ticket?: boolean | Message$ticketArgs<ExtArgs>
+    discussionGroup?: boolean | Message$discussionGroupArgs<ExtArgs>
   }
   export type MessageIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     user?: boolean | userDefaultArgs<ExtArgs>
     ticket?: boolean | Message$ticketArgs<ExtArgs>
+    discussionGroup?: boolean | Message$discussionGroupArgs<ExtArgs>
   }
 
   export type $MessagePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10148,6 +12009,7 @@ export namespace Prisma {
       project: Prisma.$ProjectPayload<ExtArgs>
       user: Prisma.$userPayload<ExtArgs>
       ticket: Prisma.$TicketPayload<ExtArgs> | null
+      discussionGroup: Prisma.$ProjectDiscussionGroupPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -10160,6 +12022,7 @@ export namespace Prisma {
       projectId: string
       userId: string
       ticketId: string | null
+      discussionGroupId: string | null
     }, ExtArgs["result"]["message"]>
     composites: {}
   }
@@ -10557,6 +12420,7 @@ export namespace Prisma {
     project<T extends ProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDefaultArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     user<T extends userDefaultArgs<ExtArgs> = {}>(args?: Subset<T, userDefaultArgs<ExtArgs>>): Prisma__userClient<$Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     ticket<T extends Message$ticketArgs<ExtArgs> = {}>(args?: Subset<T, Message$ticketArgs<ExtArgs>>): Prisma__TicketClient<$Result.GetResult<Prisma.$TicketPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    discussionGroup<T extends Message$discussionGroupArgs<ExtArgs> = {}>(args?: Subset<T, Message$discussionGroupArgs<ExtArgs>>): Prisma__ProjectDiscussionGroupClient<$Result.GetResult<Prisma.$ProjectDiscussionGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10596,6 +12460,7 @@ export namespace Prisma {
     readonly projectId: FieldRef<"Message", 'String'>
     readonly userId: FieldRef<"Message", 'String'>
     readonly ticketId: FieldRef<"Message", 'String'>
+    readonly discussionGroupId: FieldRef<"Message", 'String'>
   }
     
 
@@ -11013,6 +12878,25 @@ export namespace Prisma {
      */
     include?: TicketInclude<ExtArgs> | null
     where?: TicketWhereInput
+  }
+
+  /**
+   * Message.discussionGroup
+   */
+  export type Message$discussionGroupArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDiscussionGroup
+     */
+    select?: ProjectDiscussionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectDiscussionGroup
+     */
+    omit?: ProjectDiscussionGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectDiscussionGroupInclude<ExtArgs> | null
+    where?: ProjectDiscussionGroupWhereInput
   }
 
   /**
@@ -14512,6 +16396,1090 @@ export namespace Prisma {
 
 
   /**
+   * Model TicketReason
+   */
+
+  export type AggregateTicketReason = {
+    _count: TicketReasonCountAggregateOutputType | null
+    _min: TicketReasonMinAggregateOutputType | null
+    _max: TicketReasonMaxAggregateOutputType | null
+  }
+
+  export type TicketReasonMinAggregateOutputType = {
+    id: string | null
+    type: $Enums.TicketReasonType | null
+    reason: string | null
+    createdAt: Date | null
+    ticketId: string | null
+    userId: string | null
+  }
+
+  export type TicketReasonMaxAggregateOutputType = {
+    id: string | null
+    type: $Enums.TicketReasonType | null
+    reason: string | null
+    createdAt: Date | null
+    ticketId: string | null
+    userId: string | null
+  }
+
+  export type TicketReasonCountAggregateOutputType = {
+    id: number
+    type: number
+    reason: number
+    createdAt: number
+    ticketId: number
+    userId: number
+    _all: number
+  }
+
+
+  export type TicketReasonMinAggregateInputType = {
+    id?: true
+    type?: true
+    reason?: true
+    createdAt?: true
+    ticketId?: true
+    userId?: true
+  }
+
+  export type TicketReasonMaxAggregateInputType = {
+    id?: true
+    type?: true
+    reason?: true
+    createdAt?: true
+    ticketId?: true
+    userId?: true
+  }
+
+  export type TicketReasonCountAggregateInputType = {
+    id?: true
+    type?: true
+    reason?: true
+    createdAt?: true
+    ticketId?: true
+    userId?: true
+    _all?: true
+  }
+
+  export type TicketReasonAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TicketReason to aggregate.
+     */
+    where?: TicketReasonWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketReasons to fetch.
+     */
+    orderBy?: TicketReasonOrderByWithRelationInput | TicketReasonOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TicketReasonWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketReasons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketReasons.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TicketReasons
+    **/
+    _count?: true | TicketReasonCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TicketReasonMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TicketReasonMaxAggregateInputType
+  }
+
+  export type GetTicketReasonAggregateType<T extends TicketReasonAggregateArgs> = {
+        [P in keyof T & keyof AggregateTicketReason]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTicketReason[P]>
+      : GetScalarType<T[P], AggregateTicketReason[P]>
+  }
+
+
+
+
+  export type TicketReasonGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TicketReasonWhereInput
+    orderBy?: TicketReasonOrderByWithAggregationInput | TicketReasonOrderByWithAggregationInput[]
+    by: TicketReasonScalarFieldEnum[] | TicketReasonScalarFieldEnum
+    having?: TicketReasonScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TicketReasonCountAggregateInputType | true
+    _min?: TicketReasonMinAggregateInputType
+    _max?: TicketReasonMaxAggregateInputType
+  }
+
+  export type TicketReasonGroupByOutputType = {
+    id: string
+    type: $Enums.TicketReasonType
+    reason: string
+    createdAt: Date
+    ticketId: string
+    userId: string
+    _count: TicketReasonCountAggregateOutputType | null
+    _min: TicketReasonMinAggregateOutputType | null
+    _max: TicketReasonMaxAggregateOutputType | null
+  }
+
+  type GetTicketReasonGroupByPayload<T extends TicketReasonGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TicketReasonGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TicketReasonGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TicketReasonGroupByOutputType[P]>
+            : GetScalarType<T[P], TicketReasonGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TicketReasonSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    type?: boolean
+    reason?: boolean
+    createdAt?: boolean
+    ticketId?: boolean
+    userId?: boolean
+    ticket?: boolean | TicketDefaultArgs<ExtArgs>
+    user?: boolean | userDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ticketReason"]>
+
+  export type TicketReasonSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    type?: boolean
+    reason?: boolean
+    createdAt?: boolean
+    ticketId?: boolean
+    userId?: boolean
+    ticket?: boolean | TicketDefaultArgs<ExtArgs>
+    user?: boolean | userDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ticketReason"]>
+
+  export type TicketReasonSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    type?: boolean
+    reason?: boolean
+    createdAt?: boolean
+    ticketId?: boolean
+    userId?: boolean
+    ticket?: boolean | TicketDefaultArgs<ExtArgs>
+    user?: boolean | userDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ticketReason"]>
+
+  export type TicketReasonSelectScalar = {
+    id?: boolean
+    type?: boolean
+    reason?: boolean
+    createdAt?: boolean
+    ticketId?: boolean
+    userId?: boolean
+  }
+
+  export type TicketReasonOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "reason" | "createdAt" | "ticketId" | "userId", ExtArgs["result"]["ticketReason"]>
+  export type TicketReasonInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    ticket?: boolean | TicketDefaultArgs<ExtArgs>
+    user?: boolean | userDefaultArgs<ExtArgs>
+  }
+  export type TicketReasonIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    ticket?: boolean | TicketDefaultArgs<ExtArgs>
+    user?: boolean | userDefaultArgs<ExtArgs>
+  }
+  export type TicketReasonIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    ticket?: boolean | TicketDefaultArgs<ExtArgs>
+    user?: boolean | userDefaultArgs<ExtArgs>
+  }
+
+  export type $TicketReasonPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TicketReason"
+    objects: {
+      ticket: Prisma.$TicketPayload<ExtArgs>
+      user: Prisma.$userPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      type: $Enums.TicketReasonType
+      reason: string
+      createdAt: Date
+      ticketId: string
+      userId: string
+    }, ExtArgs["result"]["ticketReason"]>
+    composites: {}
+  }
+
+  type TicketReasonGetPayload<S extends boolean | null | undefined | TicketReasonDefaultArgs> = $Result.GetResult<Prisma.$TicketReasonPayload, S>
+
+  type TicketReasonCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TicketReasonFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TicketReasonCountAggregateInputType | true
+    }
+
+  export interface TicketReasonDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TicketReason'], meta: { name: 'TicketReason' } }
+    /**
+     * Find zero or one TicketReason that matches the filter.
+     * @param {TicketReasonFindUniqueArgs} args - Arguments to find a TicketReason
+     * @example
+     * // Get one TicketReason
+     * const ticketReason = await prisma.ticketReason.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TicketReasonFindUniqueArgs>(args: SelectSubset<T, TicketReasonFindUniqueArgs<ExtArgs>>): Prisma__TicketReasonClient<$Result.GetResult<Prisma.$TicketReasonPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TicketReason that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TicketReasonFindUniqueOrThrowArgs} args - Arguments to find a TicketReason
+     * @example
+     * // Get one TicketReason
+     * const ticketReason = await prisma.ticketReason.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TicketReasonFindUniqueOrThrowArgs>(args: SelectSubset<T, TicketReasonFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TicketReasonClient<$Result.GetResult<Prisma.$TicketReasonPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TicketReason that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketReasonFindFirstArgs} args - Arguments to find a TicketReason
+     * @example
+     * // Get one TicketReason
+     * const ticketReason = await prisma.ticketReason.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TicketReasonFindFirstArgs>(args?: SelectSubset<T, TicketReasonFindFirstArgs<ExtArgs>>): Prisma__TicketReasonClient<$Result.GetResult<Prisma.$TicketReasonPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TicketReason that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketReasonFindFirstOrThrowArgs} args - Arguments to find a TicketReason
+     * @example
+     * // Get one TicketReason
+     * const ticketReason = await prisma.ticketReason.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TicketReasonFindFirstOrThrowArgs>(args?: SelectSubset<T, TicketReasonFindFirstOrThrowArgs<ExtArgs>>): Prisma__TicketReasonClient<$Result.GetResult<Prisma.$TicketReasonPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TicketReasons that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketReasonFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TicketReasons
+     * const ticketReasons = await prisma.ticketReason.findMany()
+     * 
+     * // Get first 10 TicketReasons
+     * const ticketReasons = await prisma.ticketReason.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const ticketReasonWithIdOnly = await prisma.ticketReason.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TicketReasonFindManyArgs>(args?: SelectSubset<T, TicketReasonFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketReasonPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TicketReason.
+     * @param {TicketReasonCreateArgs} args - Arguments to create a TicketReason.
+     * @example
+     * // Create one TicketReason
+     * const TicketReason = await prisma.ticketReason.create({
+     *   data: {
+     *     // ... data to create a TicketReason
+     *   }
+     * })
+     * 
+     */
+    create<T extends TicketReasonCreateArgs>(args: SelectSubset<T, TicketReasonCreateArgs<ExtArgs>>): Prisma__TicketReasonClient<$Result.GetResult<Prisma.$TicketReasonPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TicketReasons.
+     * @param {TicketReasonCreateManyArgs} args - Arguments to create many TicketReasons.
+     * @example
+     * // Create many TicketReasons
+     * const ticketReason = await prisma.ticketReason.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TicketReasonCreateManyArgs>(args?: SelectSubset<T, TicketReasonCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TicketReasons and returns the data saved in the database.
+     * @param {TicketReasonCreateManyAndReturnArgs} args - Arguments to create many TicketReasons.
+     * @example
+     * // Create many TicketReasons
+     * const ticketReason = await prisma.ticketReason.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TicketReasons and only return the `id`
+     * const ticketReasonWithIdOnly = await prisma.ticketReason.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TicketReasonCreateManyAndReturnArgs>(args?: SelectSubset<T, TicketReasonCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketReasonPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TicketReason.
+     * @param {TicketReasonDeleteArgs} args - Arguments to delete one TicketReason.
+     * @example
+     * // Delete one TicketReason
+     * const TicketReason = await prisma.ticketReason.delete({
+     *   where: {
+     *     // ... filter to delete one TicketReason
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TicketReasonDeleteArgs>(args: SelectSubset<T, TicketReasonDeleteArgs<ExtArgs>>): Prisma__TicketReasonClient<$Result.GetResult<Prisma.$TicketReasonPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TicketReason.
+     * @param {TicketReasonUpdateArgs} args - Arguments to update one TicketReason.
+     * @example
+     * // Update one TicketReason
+     * const ticketReason = await prisma.ticketReason.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TicketReasonUpdateArgs>(args: SelectSubset<T, TicketReasonUpdateArgs<ExtArgs>>): Prisma__TicketReasonClient<$Result.GetResult<Prisma.$TicketReasonPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TicketReasons.
+     * @param {TicketReasonDeleteManyArgs} args - Arguments to filter TicketReasons to delete.
+     * @example
+     * // Delete a few TicketReasons
+     * const { count } = await prisma.ticketReason.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TicketReasonDeleteManyArgs>(args?: SelectSubset<T, TicketReasonDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TicketReasons.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketReasonUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TicketReasons
+     * const ticketReason = await prisma.ticketReason.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TicketReasonUpdateManyArgs>(args: SelectSubset<T, TicketReasonUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TicketReasons and returns the data updated in the database.
+     * @param {TicketReasonUpdateManyAndReturnArgs} args - Arguments to update many TicketReasons.
+     * @example
+     * // Update many TicketReasons
+     * const ticketReason = await prisma.ticketReason.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TicketReasons and only return the `id`
+     * const ticketReasonWithIdOnly = await prisma.ticketReason.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TicketReasonUpdateManyAndReturnArgs>(args: SelectSubset<T, TicketReasonUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketReasonPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TicketReason.
+     * @param {TicketReasonUpsertArgs} args - Arguments to update or create a TicketReason.
+     * @example
+     * // Update or create a TicketReason
+     * const ticketReason = await prisma.ticketReason.upsert({
+     *   create: {
+     *     // ... data to create a TicketReason
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TicketReason we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TicketReasonUpsertArgs>(args: SelectSubset<T, TicketReasonUpsertArgs<ExtArgs>>): Prisma__TicketReasonClient<$Result.GetResult<Prisma.$TicketReasonPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TicketReasons.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketReasonCountArgs} args - Arguments to filter TicketReasons to count.
+     * @example
+     * // Count the number of TicketReasons
+     * const count = await prisma.ticketReason.count({
+     *   where: {
+     *     // ... the filter for the TicketReasons we want to count
+     *   }
+     * })
+    **/
+    count<T extends TicketReasonCountArgs>(
+      args?: Subset<T, TicketReasonCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TicketReasonCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TicketReason.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketReasonAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TicketReasonAggregateArgs>(args: Subset<T, TicketReasonAggregateArgs>): Prisma.PrismaPromise<GetTicketReasonAggregateType<T>>
+
+    /**
+     * Group by TicketReason.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketReasonGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TicketReasonGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TicketReasonGroupByArgs['orderBy'] }
+        : { orderBy?: TicketReasonGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TicketReasonGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTicketReasonGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TicketReason model
+   */
+  readonly fields: TicketReasonFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TicketReason.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TicketReasonClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    ticket<T extends TicketDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TicketDefaultArgs<ExtArgs>>): Prisma__TicketClient<$Result.GetResult<Prisma.$TicketPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends userDefaultArgs<ExtArgs> = {}>(args?: Subset<T, userDefaultArgs<ExtArgs>>): Prisma__userClient<$Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TicketReason model
+   */
+  interface TicketReasonFieldRefs {
+    readonly id: FieldRef<"TicketReason", 'String'>
+    readonly type: FieldRef<"TicketReason", 'TicketReasonType'>
+    readonly reason: FieldRef<"TicketReason", 'String'>
+    readonly createdAt: FieldRef<"TicketReason", 'DateTime'>
+    readonly ticketId: FieldRef<"TicketReason", 'String'>
+    readonly userId: FieldRef<"TicketReason", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TicketReason findUnique
+   */
+  export type TicketReasonFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketReason
+     */
+    select?: TicketReasonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketReason
+     */
+    omit?: TicketReasonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketReasonInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketReason to fetch.
+     */
+    where: TicketReasonWhereUniqueInput
+  }
+
+  /**
+   * TicketReason findUniqueOrThrow
+   */
+  export type TicketReasonFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketReason
+     */
+    select?: TicketReasonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketReason
+     */
+    omit?: TicketReasonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketReasonInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketReason to fetch.
+     */
+    where: TicketReasonWhereUniqueInput
+  }
+
+  /**
+   * TicketReason findFirst
+   */
+  export type TicketReasonFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketReason
+     */
+    select?: TicketReasonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketReason
+     */
+    omit?: TicketReasonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketReasonInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketReason to fetch.
+     */
+    where?: TicketReasonWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketReasons to fetch.
+     */
+    orderBy?: TicketReasonOrderByWithRelationInput | TicketReasonOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TicketReasons.
+     */
+    cursor?: TicketReasonWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketReasons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketReasons.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TicketReasons.
+     */
+    distinct?: TicketReasonScalarFieldEnum | TicketReasonScalarFieldEnum[]
+  }
+
+  /**
+   * TicketReason findFirstOrThrow
+   */
+  export type TicketReasonFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketReason
+     */
+    select?: TicketReasonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketReason
+     */
+    omit?: TicketReasonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketReasonInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketReason to fetch.
+     */
+    where?: TicketReasonWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketReasons to fetch.
+     */
+    orderBy?: TicketReasonOrderByWithRelationInput | TicketReasonOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TicketReasons.
+     */
+    cursor?: TicketReasonWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketReasons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketReasons.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TicketReasons.
+     */
+    distinct?: TicketReasonScalarFieldEnum | TicketReasonScalarFieldEnum[]
+  }
+
+  /**
+   * TicketReason findMany
+   */
+  export type TicketReasonFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketReason
+     */
+    select?: TicketReasonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketReason
+     */
+    omit?: TicketReasonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketReasonInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketReasons to fetch.
+     */
+    where?: TicketReasonWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketReasons to fetch.
+     */
+    orderBy?: TicketReasonOrderByWithRelationInput | TicketReasonOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TicketReasons.
+     */
+    cursor?: TicketReasonWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketReasons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketReasons.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TicketReasons.
+     */
+    distinct?: TicketReasonScalarFieldEnum | TicketReasonScalarFieldEnum[]
+  }
+
+  /**
+   * TicketReason create
+   */
+  export type TicketReasonCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketReason
+     */
+    select?: TicketReasonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketReason
+     */
+    omit?: TicketReasonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketReasonInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TicketReason.
+     */
+    data: XOR<TicketReasonCreateInput, TicketReasonUncheckedCreateInput>
+  }
+
+  /**
+   * TicketReason createMany
+   */
+  export type TicketReasonCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TicketReasons.
+     */
+    data: TicketReasonCreateManyInput | TicketReasonCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TicketReason createManyAndReturn
+   */
+  export type TicketReasonCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketReason
+     */
+    select?: TicketReasonSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketReason
+     */
+    omit?: TicketReasonOmit<ExtArgs> | null
+    /**
+     * The data used to create many TicketReasons.
+     */
+    data: TicketReasonCreateManyInput | TicketReasonCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketReasonIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TicketReason update
+   */
+  export type TicketReasonUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketReason
+     */
+    select?: TicketReasonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketReason
+     */
+    omit?: TicketReasonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketReasonInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TicketReason.
+     */
+    data: XOR<TicketReasonUpdateInput, TicketReasonUncheckedUpdateInput>
+    /**
+     * Choose, which TicketReason to update.
+     */
+    where: TicketReasonWhereUniqueInput
+  }
+
+  /**
+   * TicketReason updateMany
+   */
+  export type TicketReasonUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TicketReasons.
+     */
+    data: XOR<TicketReasonUpdateManyMutationInput, TicketReasonUncheckedUpdateManyInput>
+    /**
+     * Filter which TicketReasons to update
+     */
+    where?: TicketReasonWhereInput
+    /**
+     * Limit how many TicketReasons to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TicketReason updateManyAndReturn
+   */
+  export type TicketReasonUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketReason
+     */
+    select?: TicketReasonSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketReason
+     */
+    omit?: TicketReasonOmit<ExtArgs> | null
+    /**
+     * The data used to update TicketReasons.
+     */
+    data: XOR<TicketReasonUpdateManyMutationInput, TicketReasonUncheckedUpdateManyInput>
+    /**
+     * Filter which TicketReasons to update
+     */
+    where?: TicketReasonWhereInput
+    /**
+     * Limit how many TicketReasons to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketReasonIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TicketReason upsert
+   */
+  export type TicketReasonUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketReason
+     */
+    select?: TicketReasonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketReason
+     */
+    omit?: TicketReasonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketReasonInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TicketReason to update in case it exists.
+     */
+    where: TicketReasonWhereUniqueInput
+    /**
+     * In case the TicketReason found by the `where` argument doesn't exist, create a new TicketReason with this data.
+     */
+    create: XOR<TicketReasonCreateInput, TicketReasonUncheckedCreateInput>
+    /**
+     * In case the TicketReason was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TicketReasonUpdateInput, TicketReasonUncheckedUpdateInput>
+  }
+
+  /**
+   * TicketReason delete
+   */
+  export type TicketReasonDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketReason
+     */
+    select?: TicketReasonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketReason
+     */
+    omit?: TicketReasonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketReasonInclude<ExtArgs> | null
+    /**
+     * Filter which TicketReason to delete.
+     */
+    where: TicketReasonWhereUniqueInput
+  }
+
+  /**
+   * TicketReason deleteMany
+   */
+  export type TicketReasonDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TicketReasons to delete
+     */
+    where?: TicketReasonWhereInput
+    /**
+     * Limit how many TicketReasons to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TicketReason without action
+   */
+  export type TicketReasonDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketReason
+     */
+    select?: TicketReasonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketReason
+     */
+    omit?: TicketReasonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketReasonInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -14548,6 +17516,7 @@ export namespace Prisma {
     isActive: 'isActive',
     lastActive: 'lastActive',
     designation: 'designation',
+    isPending: 'isPending',
     forgotPasswordToken: 'forgotPasswordToken',
     forgotPasswordTokenExpiry: 'forgotPasswordTokenExpiry',
     isVerified: 'isVerified',
@@ -14598,6 +17567,22 @@ export namespace Prisma {
   export type ProjectGroupScalarFieldEnum = (typeof ProjectGroupScalarFieldEnum)[keyof typeof ProjectGroupScalarFieldEnum]
 
 
+  export const ProjectDiscussionGroupScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    type: 'type',
+    content: 'content',
+    isPinned: 'isPinned',
+    isArchived: 'isArchived',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    projectId: 'projectId',
+    userId: 'userId'
+  };
+
+  export type ProjectDiscussionGroupScalarFieldEnum = (typeof ProjectDiscussionGroupScalarFieldEnum)[keyof typeof ProjectDiscussionGroupScalarFieldEnum]
+
+
   export const TicketScalarFieldEnum: {
     id: 'id',
     title: 'title',
@@ -14614,9 +17599,11 @@ export namespace Prisma {
     reasonBlocked: 'reasonBlocked',
     reasonReopen: 'reasonReopen',
     type: 'type',
+    estimatedHours: 'estimatedHours',
     projectId: 'projectId',
     groupId: 'groupId',
-    assignedUserId: 'assignedUserId'
+    assignedUserId: 'assignedUserId',
+    assignedById: 'assignedById'
   };
 
   export type TicketScalarFieldEnum = (typeof TicketScalarFieldEnum)[keyof typeof TicketScalarFieldEnum]
@@ -14644,7 +17631,8 @@ export namespace Prisma {
     isDeleted: 'isDeleted',
     projectId: 'projectId',
     userId: 'userId',
-    ticketId: 'ticketId'
+    ticketId: 'ticketId',
+    discussionGroupId: 'discussionGroupId'
   };
 
   export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum]
@@ -14694,6 +17682,18 @@ export namespace Prisma {
   };
 
   export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
+
+
+  export const TicketReasonScalarFieldEnum: {
+    id: 'id',
+    type: 'type',
+    reason: 'reason',
+    createdAt: 'createdAt',
+    ticketId: 'ticketId',
+    userId: 'userId'
+  };
+
+  export type TicketReasonScalarFieldEnum = (typeof TicketReasonScalarFieldEnum)[keyof typeof TicketReasonScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -14876,6 +17876,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'ProjectDiscussionGroupType'
+   */
+  export type EnumProjectDiscussionGroupTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProjectDiscussionGroupType'>
+    
+
+
+  /**
+   * Reference to a field of type 'ProjectDiscussionGroupType[]'
+   */
+  export type ListEnumProjectDiscussionGroupTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProjectDiscussionGroupType[]'>
+    
+
+
+  /**
    * Reference to a field of type 'TicketStatus'
    */
   export type EnumTicketStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TicketStatus'>
@@ -14914,6 +17928,20 @@ export namespace Prisma {
    * Reference to a field of type 'TicketType[]'
    */
   export type ListEnumTicketTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TicketType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 
@@ -14960,16 +17988,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Float'
+   * Reference to a field of type 'TicketReasonType'
    */
-  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+  export type EnumTicketReasonTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TicketReasonType'>
     
 
 
   /**
-   * Reference to a field of type 'Float[]'
+   * Reference to a field of type 'TicketReasonType[]'
    */
-  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+  export type ListEnumTicketReasonTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TicketReasonType[]'>
     
   /**
    * Deep Input Types
@@ -15055,6 +18083,7 @@ export namespace Prisma {
     isActive?: BoolFilter<"user"> | boolean
     lastActive?: DateTimeNullableFilter<"user"> | Date | string | null
     designation?: StringNullableFilter<"user"> | string | null
+    isPending?: BoolFilter<"user"> | boolean
     forgotPasswordToken?: StringNullableFilter<"user"> | string | null
     forgotPasswordTokenExpiry?: DateTimeNullableFilter<"user"> | Date | string | null
     isVerified?: BoolFilter<"user"> | boolean
@@ -15067,10 +18096,14 @@ export namespace Prisma {
     adminProjects?: ProjectListRelationFilter
     messages?: MessageListRelationFilter
     assignedTickets?: TicketListRelationFilter
+    assignedByTickets?: TicketListRelationFilter
+    ticketReasons?: TicketReasonListRelationFilter
     notes?: NoteListRelationFilter
     activityLogs?: ActivityLogListRelationFilter
     targetActivityLogs?: ActivityLogListRelationFilter
     uploadedAttachments?: TicketAttachmentListRelationFilter
+    projectDiscussionGroups?: ProjectDiscussionGroupListRelationFilter
+    joinedDiscussionGroups?: ProjectDiscussionGroupListRelationFilter
   }
 
   export type userOrderByWithRelationInput = {
@@ -15085,6 +18118,7 @@ export namespace Prisma {
     isActive?: SortOrder
     lastActive?: SortOrderInput | SortOrder
     designation?: SortOrderInput | SortOrder
+    isPending?: SortOrder
     forgotPasswordToken?: SortOrderInput | SortOrder
     forgotPasswordTokenExpiry?: SortOrderInput | SortOrder
     isVerified?: SortOrder
@@ -15097,10 +18131,14 @@ export namespace Prisma {
     adminProjects?: ProjectOrderByRelationAggregateInput
     messages?: MessageOrderByRelationAggregateInput
     assignedTickets?: TicketOrderByRelationAggregateInput
+    assignedByTickets?: TicketOrderByRelationAggregateInput
+    ticketReasons?: TicketReasonOrderByRelationAggregateInput
     notes?: NoteOrderByRelationAggregateInput
     activityLogs?: ActivityLogOrderByRelationAggregateInput
     targetActivityLogs?: ActivityLogOrderByRelationAggregateInput
     uploadedAttachments?: TicketAttachmentOrderByRelationAggregateInput
+    projectDiscussionGroups?: ProjectDiscussionGroupOrderByRelationAggregateInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupOrderByRelationAggregateInput
   }
 
   export type userWhereUniqueInput = Prisma.AtLeast<{
@@ -15118,6 +18156,7 @@ export namespace Prisma {
     isActive?: BoolFilter<"user"> | boolean
     lastActive?: DateTimeNullableFilter<"user"> | Date | string | null
     designation?: StringNullableFilter<"user"> | string | null
+    isPending?: BoolFilter<"user"> | boolean
     forgotPasswordToken?: StringNullableFilter<"user"> | string | null
     forgotPasswordTokenExpiry?: DateTimeNullableFilter<"user"> | Date | string | null
     isVerified?: BoolFilter<"user"> | boolean
@@ -15130,10 +18169,14 @@ export namespace Prisma {
     adminProjects?: ProjectListRelationFilter
     messages?: MessageListRelationFilter
     assignedTickets?: TicketListRelationFilter
+    assignedByTickets?: TicketListRelationFilter
+    ticketReasons?: TicketReasonListRelationFilter
     notes?: NoteListRelationFilter
     activityLogs?: ActivityLogListRelationFilter
     targetActivityLogs?: ActivityLogListRelationFilter
     uploadedAttachments?: TicketAttachmentListRelationFilter
+    projectDiscussionGroups?: ProjectDiscussionGroupListRelationFilter
+    joinedDiscussionGroups?: ProjectDiscussionGroupListRelationFilter
   }, "id" | "email">
 
   export type userOrderByWithAggregationInput = {
@@ -15148,6 +18191,7 @@ export namespace Prisma {
     isActive?: SortOrder
     lastActive?: SortOrderInput | SortOrder
     designation?: SortOrderInput | SortOrder
+    isPending?: SortOrder
     forgotPasswordToken?: SortOrderInput | SortOrder
     forgotPasswordTokenExpiry?: SortOrderInput | SortOrder
     isVerified?: SortOrder
@@ -15174,6 +18218,7 @@ export namespace Prisma {
     isActive?: BoolWithAggregatesFilter<"user"> | boolean
     lastActive?: DateTimeNullableWithAggregatesFilter<"user"> | Date | string | null
     designation?: StringNullableWithAggregatesFilter<"user"> | string | null
+    isPending?: BoolWithAggregatesFilter<"user"> | boolean
     forgotPasswordToken?: StringNullableWithAggregatesFilter<"user"> | string | null
     forgotPasswordTokenExpiry?: DateTimeNullableWithAggregatesFilter<"user"> | Date | string | null
     isVerified?: BoolWithAggregatesFilter<"user"> | boolean
@@ -15203,6 +18248,7 @@ export namespace Prisma {
     members?: UserListRelationFilter
     admins?: UserListRelationFilter
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    discussionGroups?: ProjectDiscussionGroupListRelationFilter
     messages?: MessageListRelationFilter
     timeLogs?: TimeLogListRelationFilter
     groups?: ProjectGroupListRelationFilter
@@ -15227,6 +18273,7 @@ export namespace Prisma {
     members?: userOrderByRelationAggregateInput
     admins?: userOrderByRelationAggregateInput
     company?: CompanyOrderByWithRelationInput
+    discussionGroups?: ProjectDiscussionGroupOrderByRelationAggregateInput
     messages?: MessageOrderByRelationAggregateInput
     timeLogs?: timeLogOrderByRelationAggregateInput
     groups?: ProjectGroupOrderByRelationAggregateInput
@@ -15254,6 +18301,7 @@ export namespace Prisma {
     members?: UserListRelationFilter
     admins?: UserListRelationFilter
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    discussionGroups?: ProjectDiscussionGroupListRelationFilter
     messages?: MessageListRelationFilter
     timeLogs?: TimeLogListRelationFilter
     groups?: ProjectGroupListRelationFilter
@@ -15401,6 +18449,98 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"ProjectGroup"> | Date | string
   }
 
+  export type ProjectDiscussionGroupWhereInput = {
+    AND?: ProjectDiscussionGroupWhereInput | ProjectDiscussionGroupWhereInput[]
+    OR?: ProjectDiscussionGroupWhereInput[]
+    NOT?: ProjectDiscussionGroupWhereInput | ProjectDiscussionGroupWhereInput[]
+    id?: StringFilter<"ProjectDiscussionGroup"> | string
+    title?: StringFilter<"ProjectDiscussionGroup"> | string
+    type?: EnumProjectDiscussionGroupTypeFilter<"ProjectDiscussionGroup"> | $Enums.ProjectDiscussionGroupType
+    content?: StringNullableFilter<"ProjectDiscussionGroup"> | string | null
+    isPinned?: BoolFilter<"ProjectDiscussionGroup"> | boolean
+    isArchived?: BoolFilter<"ProjectDiscussionGroup"> | boolean
+    createdAt?: DateTimeFilter<"ProjectDiscussionGroup"> | Date | string
+    updatedAt?: DateTimeFilter<"ProjectDiscussionGroup"> | Date | string
+    projectId?: StringFilter<"ProjectDiscussionGroup"> | string
+    userId?: StringFilter<"ProjectDiscussionGroup"> | string
+    tickets?: TicketListRelationFilter
+    members?: UserListRelationFilter
+    messages?: MessageListRelationFilter
+    project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
+    user?: XOR<UserScalarRelationFilter, userWhereInput>
+  }
+
+  export type ProjectDiscussionGroupOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    type?: SortOrder
+    content?: SortOrderInput | SortOrder
+    isPinned?: SortOrder
+    isArchived?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    projectId?: SortOrder
+    userId?: SortOrder
+    tickets?: TicketOrderByRelationAggregateInput
+    members?: userOrderByRelationAggregateInput
+    messages?: MessageOrderByRelationAggregateInput
+    project?: ProjectOrderByWithRelationInput
+    user?: userOrderByWithRelationInput
+  }
+
+  export type ProjectDiscussionGroupWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ProjectDiscussionGroupWhereInput | ProjectDiscussionGroupWhereInput[]
+    OR?: ProjectDiscussionGroupWhereInput[]
+    NOT?: ProjectDiscussionGroupWhereInput | ProjectDiscussionGroupWhereInput[]
+    title?: StringFilter<"ProjectDiscussionGroup"> | string
+    type?: EnumProjectDiscussionGroupTypeFilter<"ProjectDiscussionGroup"> | $Enums.ProjectDiscussionGroupType
+    content?: StringNullableFilter<"ProjectDiscussionGroup"> | string | null
+    isPinned?: BoolFilter<"ProjectDiscussionGroup"> | boolean
+    isArchived?: BoolFilter<"ProjectDiscussionGroup"> | boolean
+    createdAt?: DateTimeFilter<"ProjectDiscussionGroup"> | Date | string
+    updatedAt?: DateTimeFilter<"ProjectDiscussionGroup"> | Date | string
+    projectId?: StringFilter<"ProjectDiscussionGroup"> | string
+    userId?: StringFilter<"ProjectDiscussionGroup"> | string
+    tickets?: TicketListRelationFilter
+    members?: UserListRelationFilter
+    messages?: MessageListRelationFilter
+    project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
+    user?: XOR<UserScalarRelationFilter, userWhereInput>
+  }, "id">
+
+  export type ProjectDiscussionGroupOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    type?: SortOrder
+    content?: SortOrderInput | SortOrder
+    isPinned?: SortOrder
+    isArchived?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    projectId?: SortOrder
+    userId?: SortOrder
+    _count?: ProjectDiscussionGroupCountOrderByAggregateInput
+    _max?: ProjectDiscussionGroupMaxOrderByAggregateInput
+    _min?: ProjectDiscussionGroupMinOrderByAggregateInput
+  }
+
+  export type ProjectDiscussionGroupScalarWhereWithAggregatesInput = {
+    AND?: ProjectDiscussionGroupScalarWhereWithAggregatesInput | ProjectDiscussionGroupScalarWhereWithAggregatesInput[]
+    OR?: ProjectDiscussionGroupScalarWhereWithAggregatesInput[]
+    NOT?: ProjectDiscussionGroupScalarWhereWithAggregatesInput | ProjectDiscussionGroupScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ProjectDiscussionGroup"> | string
+    title?: StringWithAggregatesFilter<"ProjectDiscussionGroup"> | string
+    type?: EnumProjectDiscussionGroupTypeWithAggregatesFilter<"ProjectDiscussionGroup"> | $Enums.ProjectDiscussionGroupType
+    content?: StringNullableWithAggregatesFilter<"ProjectDiscussionGroup"> | string | null
+    isPinned?: BoolWithAggregatesFilter<"ProjectDiscussionGroup"> | boolean
+    isArchived?: BoolWithAggregatesFilter<"ProjectDiscussionGroup"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"ProjectDiscussionGroup"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ProjectDiscussionGroup"> | Date | string
+    projectId?: StringWithAggregatesFilter<"ProjectDiscussionGroup"> | string
+    userId?: StringWithAggregatesFilter<"ProjectDiscussionGroup"> | string
+  }
+
   export type TicketWhereInput = {
     AND?: TicketWhereInput | TicketWhereInput[]
     OR?: TicketWhereInput[]
@@ -15420,13 +18560,18 @@ export namespace Prisma {
     reasonBlocked?: StringNullableFilter<"Ticket"> | string | null
     reasonReopen?: StringNullableFilter<"Ticket"> | string | null
     type?: EnumTicketTypeFilter<"Ticket"> | $Enums.TicketType
+    estimatedHours?: FloatNullableFilter<"Ticket"> | number | null
     projectId?: StringFilter<"Ticket"> | string
     groupId?: StringNullableFilter<"Ticket"> | string | null
     assignedUserId?: StringNullableFilter<"Ticket"> | string | null
+    assignedById?: StringNullableFilter<"Ticket"> | string | null
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
     group?: XOR<ProjectGroupNullableScalarRelationFilter, ProjectGroupWhereInput> | null
     assignedUser?: XOR<UserNullableScalarRelationFilter, userWhereInput> | null
+    assignedBy?: XOR<UserNullableScalarRelationFilter, userWhereInput> | null
+    reasons?: TicketReasonListRelationFilter
     timeLogs?: TimeLogListRelationFilter
+    discussionGroups?: ProjectDiscussionGroupListRelationFilter
     attachments?: TicketAttachmentListRelationFilter
     messages?: MessageListRelationFilter
   }
@@ -15447,13 +18592,18 @@ export namespace Prisma {
     reasonBlocked?: SortOrderInput | SortOrder
     reasonReopen?: SortOrderInput | SortOrder
     type?: SortOrder
+    estimatedHours?: SortOrderInput | SortOrder
     projectId?: SortOrder
     groupId?: SortOrderInput | SortOrder
     assignedUserId?: SortOrderInput | SortOrder
+    assignedById?: SortOrderInput | SortOrder
     project?: ProjectOrderByWithRelationInput
     group?: ProjectGroupOrderByWithRelationInput
     assignedUser?: userOrderByWithRelationInput
+    assignedBy?: userOrderByWithRelationInput
+    reasons?: TicketReasonOrderByRelationAggregateInput
     timeLogs?: timeLogOrderByRelationAggregateInput
+    discussionGroups?: ProjectDiscussionGroupOrderByRelationAggregateInput
     attachments?: TicketAttachmentOrderByRelationAggregateInput
     messages?: MessageOrderByRelationAggregateInput
   }
@@ -15477,13 +18627,18 @@ export namespace Prisma {
     reasonBlocked?: StringNullableFilter<"Ticket"> | string | null
     reasonReopen?: StringNullableFilter<"Ticket"> | string | null
     type?: EnumTicketTypeFilter<"Ticket"> | $Enums.TicketType
+    estimatedHours?: FloatNullableFilter<"Ticket"> | number | null
     projectId?: StringFilter<"Ticket"> | string
     groupId?: StringNullableFilter<"Ticket"> | string | null
     assignedUserId?: StringNullableFilter<"Ticket"> | string | null
+    assignedById?: StringNullableFilter<"Ticket"> | string | null
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
     group?: XOR<ProjectGroupNullableScalarRelationFilter, ProjectGroupWhereInput> | null
     assignedUser?: XOR<UserNullableScalarRelationFilter, userWhereInput> | null
+    assignedBy?: XOR<UserNullableScalarRelationFilter, userWhereInput> | null
+    reasons?: TicketReasonListRelationFilter
     timeLogs?: TimeLogListRelationFilter
+    discussionGroups?: ProjectDiscussionGroupListRelationFilter
     attachments?: TicketAttachmentListRelationFilter
     messages?: MessageListRelationFilter
   }, "id">
@@ -15504,12 +18659,16 @@ export namespace Prisma {
     reasonBlocked?: SortOrderInput | SortOrder
     reasonReopen?: SortOrderInput | SortOrder
     type?: SortOrder
+    estimatedHours?: SortOrderInput | SortOrder
     projectId?: SortOrder
     groupId?: SortOrderInput | SortOrder
     assignedUserId?: SortOrderInput | SortOrder
+    assignedById?: SortOrderInput | SortOrder
     _count?: TicketCountOrderByAggregateInput
+    _avg?: TicketAvgOrderByAggregateInput
     _max?: TicketMaxOrderByAggregateInput
     _min?: TicketMinOrderByAggregateInput
+    _sum?: TicketSumOrderByAggregateInput
   }
 
   export type TicketScalarWhereWithAggregatesInput = {
@@ -15531,9 +18690,11 @@ export namespace Prisma {
     reasonBlocked?: StringNullableWithAggregatesFilter<"Ticket"> | string | null
     reasonReopen?: StringNullableWithAggregatesFilter<"Ticket"> | string | null
     type?: EnumTicketTypeWithAggregatesFilter<"Ticket"> | $Enums.TicketType
+    estimatedHours?: FloatNullableWithAggregatesFilter<"Ticket"> | number | null
     projectId?: StringWithAggregatesFilter<"Ticket"> | string
     groupId?: StringNullableWithAggregatesFilter<"Ticket"> | string | null
     assignedUserId?: StringNullableWithAggregatesFilter<"Ticket"> | string | null
+    assignedById?: StringNullableWithAggregatesFilter<"Ticket"> | string | null
   }
 
   export type TicketAttachmentWhereInput = {
@@ -15613,9 +18774,11 @@ export namespace Prisma {
     projectId?: StringFilter<"Message"> | string
     userId?: StringFilter<"Message"> | string
     ticketId?: StringNullableFilter<"Message"> | string | null
+    discussionGroupId?: StringNullableFilter<"Message"> | string | null
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
     user?: XOR<UserScalarRelationFilter, userWhereInput>
     ticket?: XOR<TicketNullableScalarRelationFilter, TicketWhereInput> | null
+    discussionGroup?: XOR<ProjectDiscussionGroupNullableScalarRelationFilter, ProjectDiscussionGroupWhereInput> | null
   }
 
   export type MessageOrderByWithRelationInput = {
@@ -15629,9 +18792,11 @@ export namespace Prisma {
     projectId?: SortOrder
     userId?: SortOrder
     ticketId?: SortOrderInput | SortOrder
+    discussionGroupId?: SortOrderInput | SortOrder
     project?: ProjectOrderByWithRelationInput
     user?: userOrderByWithRelationInput
     ticket?: TicketOrderByWithRelationInput
+    discussionGroup?: ProjectDiscussionGroupOrderByWithRelationInput
   }
 
   export type MessageWhereUniqueInput = Prisma.AtLeast<{
@@ -15648,9 +18813,11 @@ export namespace Prisma {
     projectId?: StringFilter<"Message"> | string
     userId?: StringFilter<"Message"> | string
     ticketId?: StringNullableFilter<"Message"> | string | null
+    discussionGroupId?: StringNullableFilter<"Message"> | string | null
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
     user?: XOR<UserScalarRelationFilter, userWhereInput>
     ticket?: XOR<TicketNullableScalarRelationFilter, TicketWhereInput> | null
+    discussionGroup?: XOR<ProjectDiscussionGroupNullableScalarRelationFilter, ProjectDiscussionGroupWhereInput> | null
   }, "id">
 
   export type MessageOrderByWithAggregationInput = {
@@ -15664,6 +18831,7 @@ export namespace Prisma {
     projectId?: SortOrder
     userId?: SortOrder
     ticketId?: SortOrderInput | SortOrder
+    discussionGroupId?: SortOrderInput | SortOrder
     _count?: MessageCountOrderByAggregateInput
     _max?: MessageMaxOrderByAggregateInput
     _min?: MessageMinOrderByAggregateInput
@@ -15683,6 +18851,7 @@ export namespace Prisma {
     projectId?: StringWithAggregatesFilter<"Message"> | string
     userId?: StringWithAggregatesFilter<"Message"> | string
     ticketId?: StringNullableWithAggregatesFilter<"Message"> | string | null
+    discussionGroupId?: StringNullableWithAggregatesFilter<"Message"> | string | null
   }
 
   export type timeLogWhereInput = {
@@ -15929,6 +19098,69 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"ActivityLog"> | Date | string
   }
 
+  export type TicketReasonWhereInput = {
+    AND?: TicketReasonWhereInput | TicketReasonWhereInput[]
+    OR?: TicketReasonWhereInput[]
+    NOT?: TicketReasonWhereInput | TicketReasonWhereInput[]
+    id?: StringFilter<"TicketReason"> | string
+    type?: EnumTicketReasonTypeFilter<"TicketReason"> | $Enums.TicketReasonType
+    reason?: StringFilter<"TicketReason"> | string
+    createdAt?: DateTimeFilter<"TicketReason"> | Date | string
+    ticketId?: StringFilter<"TicketReason"> | string
+    userId?: StringFilter<"TicketReason"> | string
+    ticket?: XOR<TicketScalarRelationFilter, TicketWhereInput>
+    user?: XOR<UserScalarRelationFilter, userWhereInput>
+  }
+
+  export type TicketReasonOrderByWithRelationInput = {
+    id?: SortOrder
+    type?: SortOrder
+    reason?: SortOrder
+    createdAt?: SortOrder
+    ticketId?: SortOrder
+    userId?: SortOrder
+    ticket?: TicketOrderByWithRelationInput
+    user?: userOrderByWithRelationInput
+  }
+
+  export type TicketReasonWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: TicketReasonWhereInput | TicketReasonWhereInput[]
+    OR?: TicketReasonWhereInput[]
+    NOT?: TicketReasonWhereInput | TicketReasonWhereInput[]
+    type?: EnumTicketReasonTypeFilter<"TicketReason"> | $Enums.TicketReasonType
+    reason?: StringFilter<"TicketReason"> | string
+    createdAt?: DateTimeFilter<"TicketReason"> | Date | string
+    ticketId?: StringFilter<"TicketReason"> | string
+    userId?: StringFilter<"TicketReason"> | string
+    ticket?: XOR<TicketScalarRelationFilter, TicketWhereInput>
+    user?: XOR<UserScalarRelationFilter, userWhereInput>
+  }, "id">
+
+  export type TicketReasonOrderByWithAggregationInput = {
+    id?: SortOrder
+    type?: SortOrder
+    reason?: SortOrder
+    createdAt?: SortOrder
+    ticketId?: SortOrder
+    userId?: SortOrder
+    _count?: TicketReasonCountOrderByAggregateInput
+    _max?: TicketReasonMaxOrderByAggregateInput
+    _min?: TicketReasonMinOrderByAggregateInput
+  }
+
+  export type TicketReasonScalarWhereWithAggregatesInput = {
+    AND?: TicketReasonScalarWhereWithAggregatesInput | TicketReasonScalarWhereWithAggregatesInput[]
+    OR?: TicketReasonScalarWhereWithAggregatesInput[]
+    NOT?: TicketReasonScalarWhereWithAggregatesInput | TicketReasonScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"TicketReason"> | string
+    type?: EnumTicketReasonTypeWithAggregatesFilter<"TicketReason"> | $Enums.TicketReasonType
+    reason?: StringWithAggregatesFilter<"TicketReason"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"TicketReason"> | Date | string
+    ticketId?: StringWithAggregatesFilter<"TicketReason"> | string
+    userId?: StringWithAggregatesFilter<"TicketReason"> | string
+  }
+
   export type CompanyCreateInput = {
     id?: string
     name: string
@@ -16013,6 +19245,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -16024,10 +19257,14 @@ export namespace Prisma {
     adminProjects?: ProjectCreateNestedManyWithoutAdminsInput
     messages?: MessageCreateNestedManyWithoutUserInput
     assignedTickets?: TicketCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonCreateNestedManyWithoutUserInput
     notes?: NoteCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutMembersInput
   }
 
   export type userUncheckedCreateInput = {
@@ -16042,6 +19279,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -16053,10 +19291,14 @@ export namespace Prisma {
     adminProjects?: ProjectUncheckedCreateNestedManyWithoutAdminsInput
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     assignedTickets?: TicketUncheckedCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketUncheckedCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonUncheckedCreateNestedManyWithoutUserInput
     notes?: NoteUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutMembersInput
   }
 
   export type userUpdateInput = {
@@ -16071,6 +19313,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -16082,10 +19325,14 @@ export namespace Prisma {
     adminProjects?: ProjectUpdateManyWithoutAdminsNestedInput
     messages?: MessageUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUpdateManyWithoutUserNestedInput
     notes?: NoteUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutMembersNestedInput
   }
 
   export type userUncheckedUpdateInput = {
@@ -16100,6 +19347,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -16111,10 +19359,14 @@ export namespace Prisma {
     adminProjects?: ProjectUncheckedUpdateManyWithoutAdminsNestedInput
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUncheckedUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUncheckedUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUncheckedUpdateManyWithoutUserNestedInput
     notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutMembersNestedInput
   }
 
   export type userCreateManyInput = {
@@ -16129,6 +19381,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -16149,6 +19402,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -16168,6 +19422,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -16193,6 +19448,7 @@ export namespace Prisma {
     members?: userCreateNestedManyWithoutProjectsInput
     admins?: userCreateNestedManyWithoutAdminProjectsInput
     company: CompanyCreateNestedOneWithoutProjectsInput
+    discussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutProjectInput
     messages?: MessageCreateNestedManyWithoutProjectInput
     timeLogs?: timeLogCreateNestedManyWithoutProjectInput
     groups?: ProjectGroupCreateNestedManyWithoutProjectInput
@@ -16216,6 +19472,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: userUncheckedCreateNestedManyWithoutProjectsInput
     admins?: userUncheckedCreateNestedManyWithoutAdminProjectsInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutProjectInput
     messages?: MessageUncheckedCreateNestedManyWithoutProjectInput
     timeLogs?: timeLogUncheckedCreateNestedManyWithoutProjectInput
     groups?: ProjectGroupUncheckedCreateNestedManyWithoutProjectInput
@@ -16239,6 +19496,7 @@ export namespace Prisma {
     members?: userUpdateManyWithoutProjectsNestedInput
     admins?: userUpdateManyWithoutAdminProjectsNestedInput
     company?: CompanyUpdateOneRequiredWithoutProjectsNestedInput
+    discussionGroups?: ProjectDiscussionGroupUpdateManyWithoutProjectNestedInput
     messages?: MessageUpdateManyWithoutProjectNestedInput
     timeLogs?: timeLogUpdateManyWithoutProjectNestedInput
     groups?: ProjectGroupUpdateManyWithoutProjectNestedInput
@@ -16262,6 +19520,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: userUncheckedUpdateManyWithoutProjectsNestedInput
     admins?: userUncheckedUpdateManyWithoutAdminProjectsNestedInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutProjectNestedInput
     messages?: MessageUncheckedUpdateManyWithoutProjectNestedInput
     timeLogs?: timeLogUncheckedUpdateManyWithoutProjectNestedInput
     groups?: ProjectGroupUncheckedUpdateManyWithoutProjectNestedInput
@@ -16432,6 +19691,107 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ProjectDiscussionGroupCreateInput = {
+    id?: string
+    title: string
+    type?: $Enums.ProjectDiscussionGroupType
+    content?: string | null
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tickets?: TicketCreateNestedManyWithoutDiscussionGroupsInput
+    members?: userCreateNestedManyWithoutJoinedDiscussionGroupsInput
+    messages?: MessageCreateNestedManyWithoutDiscussionGroupInput
+    project: ProjectCreateNestedOneWithoutDiscussionGroupsInput
+    user: userCreateNestedOneWithoutProjectDiscussionGroupsInput
+  }
+
+  export type ProjectDiscussionGroupUncheckedCreateInput = {
+    id?: string
+    title: string
+    type?: $Enums.ProjectDiscussionGroupType
+    content?: string | null
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    projectId: string
+    userId: string
+    tickets?: TicketUncheckedCreateNestedManyWithoutDiscussionGroupsInput
+    members?: userUncheckedCreateNestedManyWithoutJoinedDiscussionGroupsInput
+    messages?: MessageUncheckedCreateNestedManyWithoutDiscussionGroupInput
+  }
+
+  export type ProjectDiscussionGroupUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tickets?: TicketUpdateManyWithoutDiscussionGroupsNestedInput
+    members?: userUpdateManyWithoutJoinedDiscussionGroupsNestedInput
+    messages?: MessageUpdateManyWithoutDiscussionGroupNestedInput
+    project?: ProjectUpdateOneRequiredWithoutDiscussionGroupsNestedInput
+    user?: userUpdateOneRequiredWithoutProjectDiscussionGroupsNestedInput
+  }
+
+  export type ProjectDiscussionGroupUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    tickets?: TicketUncheckedUpdateManyWithoutDiscussionGroupsNestedInput
+    members?: userUncheckedUpdateManyWithoutJoinedDiscussionGroupsNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutDiscussionGroupNestedInput
+  }
+
+  export type ProjectDiscussionGroupCreateManyInput = {
+    id?: string
+    title: string
+    type?: $Enums.ProjectDiscussionGroupType
+    content?: string | null
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    projectId: string
+    userId: string
+  }
+
+  export type ProjectDiscussionGroupUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProjectDiscussionGroupUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+  }
+
   export type TicketCreateInput = {
     id?: string
     title: string
@@ -16448,10 +19808,14 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     project: ProjectCreateNestedOneWithoutTicketsInput
     group?: ProjectGroupCreateNestedOneWithoutTicketsInput
     assignedUser?: userCreateNestedOneWithoutAssignedTicketsInput
+    assignedBy?: userCreateNestedOneWithoutAssignedByTicketsInput
+    reasons?: TicketReasonCreateNestedManyWithoutTicketInput
     timeLogs?: timeLogCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutTicketsInput
     attachments?: TicketAttachmentCreateNestedManyWithoutTicketInput
     messages?: MessageCreateNestedManyWithoutTicketInput
   }
@@ -16472,10 +19836,14 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     projectId: string
     groupId?: string | null
     assignedUserId?: string | null
+    assignedById?: string | null
+    reasons?: TicketReasonUncheckedCreateNestedManyWithoutTicketInput
     timeLogs?: timeLogUncheckedCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutTicketsInput
     attachments?: TicketAttachmentUncheckedCreateNestedManyWithoutTicketInput
     messages?: MessageUncheckedCreateNestedManyWithoutTicketInput
   }
@@ -16496,10 +19864,14 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     project?: ProjectUpdateOneRequiredWithoutTicketsNestedInput
     group?: ProjectGroupUpdateOneWithoutTicketsNestedInput
     assignedUser?: userUpdateOneWithoutAssignedTicketsNestedInput
+    assignedBy?: userUpdateOneWithoutAssignedByTicketsNestedInput
+    reasons?: TicketReasonUpdateManyWithoutTicketNestedInput
     timeLogs?: timeLogUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUpdateManyWithoutTicketsNestedInput
     attachments?: TicketAttachmentUpdateManyWithoutTicketNestedInput
     messages?: MessageUpdateManyWithoutTicketNestedInput
   }
@@ -16520,10 +19892,14 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     projectId?: StringFieldUpdateOperationsInput | string
     groupId?: NullableStringFieldUpdateOperationsInput | string | null
     assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reasons?: TicketReasonUncheckedUpdateManyWithoutTicketNestedInput
     timeLogs?: timeLogUncheckedUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutTicketsNestedInput
     attachments?: TicketAttachmentUncheckedUpdateManyWithoutTicketNestedInput
     messages?: MessageUncheckedUpdateManyWithoutTicketNestedInput
   }
@@ -16544,9 +19920,11 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     projectId: string
     groupId?: string | null
     assignedUserId?: string | null
+    assignedById?: string | null
   }
 
   export type TicketUpdateManyMutationInput = {
@@ -16565,6 +19943,7 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type TicketUncheckedUpdateManyInput = {
@@ -16583,9 +19962,11 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     projectId?: StringFieldUpdateOperationsInput | string
     groupId?: NullableStringFieldUpdateOperationsInput | string | null
     assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TicketAttachmentCreateInput = {
@@ -16660,6 +20041,7 @@ export namespace Prisma {
     project: ProjectCreateNestedOneWithoutMessagesInput
     user: userCreateNestedOneWithoutMessagesInput
     ticket?: TicketCreateNestedOneWithoutMessagesInput
+    discussionGroup?: ProjectDiscussionGroupCreateNestedOneWithoutMessagesInput
   }
 
   export type MessageUncheckedCreateInput = {
@@ -16673,6 +20055,7 @@ export namespace Prisma {
     projectId: string
     userId: string
     ticketId?: string | null
+    discussionGroupId?: string | null
   }
 
   export type MessageUpdateInput = {
@@ -16686,6 +20069,7 @@ export namespace Prisma {
     project?: ProjectUpdateOneRequiredWithoutMessagesNestedInput
     user?: userUpdateOneRequiredWithoutMessagesNestedInput
     ticket?: TicketUpdateOneWithoutMessagesNestedInput
+    discussionGroup?: ProjectDiscussionGroupUpdateOneWithoutMessagesNestedInput
   }
 
   export type MessageUncheckedUpdateInput = {
@@ -16699,6 +20083,7 @@ export namespace Prisma {
     projectId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     ticketId?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionGroupId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MessageCreateManyInput = {
@@ -16712,6 +20097,7 @@ export namespace Prisma {
     projectId: string
     userId: string
     ticketId?: string | null
+    discussionGroupId?: string | null
   }
 
   export type MessageUpdateManyMutationInput = {
@@ -16735,6 +20121,7 @@ export namespace Prisma {
     projectId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     ticketId?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionGroupId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type timeLogCreateInput = {
@@ -16989,6 +20376,67 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type TicketReasonCreateInput = {
+    id?: string
+    type: $Enums.TicketReasonType
+    reason: string
+    createdAt?: Date | string
+    ticket: TicketCreateNestedOneWithoutReasonsInput
+    user: userCreateNestedOneWithoutTicketReasonsInput
+  }
+
+  export type TicketReasonUncheckedCreateInput = {
+    id?: string
+    type: $Enums.TicketReasonType
+    reason: string
+    createdAt?: Date | string
+    ticketId: string
+    userId: string
+  }
+
+  export type TicketReasonUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTicketReasonTypeFieldUpdateOperationsInput | $Enums.TicketReasonType
+    reason?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ticket?: TicketUpdateOneRequiredWithoutReasonsNestedInput
+    user?: userUpdateOneRequiredWithoutTicketReasonsNestedInput
+  }
+
+  export type TicketReasonUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTicketReasonTypeFieldUpdateOperationsInput | $Enums.TicketReasonType
+    reason?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ticketId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type TicketReasonCreateManyInput = {
+    id?: string
+    type: $Enums.TicketReasonType
+    reason: string
+    createdAt?: Date | string
+    ticketId: string
+    userId: string
+  }
+
+  export type TicketReasonUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTicketReasonTypeFieldUpdateOperationsInput | $Enums.TicketReasonType
+    reason?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TicketReasonUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTicketReasonTypeFieldUpdateOperationsInput | $Enums.TicketReasonType
+    reason?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ticketId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -17175,6 +20623,12 @@ export namespace Prisma {
     none?: TicketWhereInput
   }
 
+  export type TicketReasonListRelationFilter = {
+    every?: TicketReasonWhereInput
+    some?: TicketReasonWhereInput
+    none?: TicketReasonWhereInput
+  }
+
   export type ActivityLogListRelationFilter = {
     every?: ActivityLogWhereInput
     some?: ActivityLogWhereInput
@@ -17185,6 +20639,12 @@ export namespace Prisma {
     every?: TicketAttachmentWhereInput
     some?: TicketAttachmentWhereInput
     none?: TicketAttachmentWhereInput
+  }
+
+  export type ProjectDiscussionGroupListRelationFilter = {
+    every?: ProjectDiscussionGroupWhereInput
+    some?: ProjectDiscussionGroupWhereInput
+    none?: ProjectDiscussionGroupWhereInput
   }
 
   export type SortOrderInput = {
@@ -17204,11 +20664,19 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type TicketReasonOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type ActivityLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type TicketAttachmentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ProjectDiscussionGroupOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -17224,6 +20692,7 @@ export namespace Prisma {
     isActive?: SortOrder
     lastActive?: SortOrder
     designation?: SortOrder
+    isPending?: SortOrder
     forgotPasswordToken?: SortOrder
     forgotPasswordTokenExpiry?: SortOrder
     isVerified?: SortOrder
@@ -17244,6 +20713,7 @@ export namespace Prisma {
     isActive?: SortOrder
     lastActive?: SortOrder
     designation?: SortOrder
+    isPending?: SortOrder
     forgotPasswordToken?: SortOrder
     forgotPasswordTokenExpiry?: SortOrder
     isVerified?: SortOrder
@@ -17264,6 +20734,7 @@ export namespace Prisma {
     isActive?: SortOrder
     lastActive?: SortOrder
     designation?: SortOrder
+    isPending?: SortOrder
     forgotPasswordToken?: SortOrder
     forgotPasswordTokenExpiry?: SortOrder
     isVerified?: SortOrder
@@ -17530,6 +21001,67 @@ export namespace Prisma {
     _max?: NestedEnumGroupStatusFilter<$PrismaModel>
   }
 
+  export type EnumProjectDiscussionGroupTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProjectDiscussionGroupType | EnumProjectDiscussionGroupTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ProjectDiscussionGroupType[] | ListEnumProjectDiscussionGroupTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProjectDiscussionGroupType[] | ListEnumProjectDiscussionGroupTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumProjectDiscussionGroupTypeFilter<$PrismaModel> | $Enums.ProjectDiscussionGroupType
+  }
+
+  export type UserScalarRelationFilter = {
+    is?: userWhereInput
+    isNot?: userWhereInput
+  }
+
+  export type ProjectDiscussionGroupCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    type?: SortOrder
+    content?: SortOrder
+    isPinned?: SortOrder
+    isArchived?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    projectId?: SortOrder
+    userId?: SortOrder
+  }
+
+  export type ProjectDiscussionGroupMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    type?: SortOrder
+    content?: SortOrder
+    isPinned?: SortOrder
+    isArchived?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    projectId?: SortOrder
+    userId?: SortOrder
+  }
+
+  export type ProjectDiscussionGroupMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    type?: SortOrder
+    content?: SortOrder
+    isPinned?: SortOrder
+    isArchived?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    projectId?: SortOrder
+    userId?: SortOrder
+  }
+
+  export type EnumProjectDiscussionGroupTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProjectDiscussionGroupType | EnumProjectDiscussionGroupTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ProjectDiscussionGroupType[] | ListEnumProjectDiscussionGroupTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProjectDiscussionGroupType[] | ListEnumProjectDiscussionGroupTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumProjectDiscussionGroupTypeWithAggregatesFilter<$PrismaModel> | $Enums.ProjectDiscussionGroupType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProjectDiscussionGroupTypeFilter<$PrismaModel>
+    _max?: NestedEnumProjectDiscussionGroupTypeFilter<$PrismaModel>
+  }
+
   export type EnumTicketStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.TicketStatus | EnumTicketStatusFieldRefInput<$PrismaModel>
     in?: $Enums.TicketStatus[] | ListEnumTicketStatusFieldRefInput<$PrismaModel>
@@ -17549,6 +21081,17 @@ export namespace Prisma {
     in?: $Enums.TicketType[] | ListEnumTicketTypeFieldRefInput<$PrismaModel>
     notIn?: $Enums.TicketType[] | ListEnumTicketTypeFieldRefInput<$PrismaModel>
     not?: NestedEnumTicketTypeFilter<$PrismaModel> | $Enums.TicketType
+  }
+
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type ProjectGroupNullableScalarRelationFilter = {
@@ -17577,9 +21120,15 @@ export namespace Prisma {
     reasonBlocked?: SortOrder
     reasonReopen?: SortOrder
     type?: SortOrder
+    estimatedHours?: SortOrder
     projectId?: SortOrder
     groupId?: SortOrder
     assignedUserId?: SortOrder
+    assignedById?: SortOrder
+  }
+
+  export type TicketAvgOrderByAggregateInput = {
+    estimatedHours?: SortOrder
   }
 
   export type TicketMaxOrderByAggregateInput = {
@@ -17598,9 +21147,11 @@ export namespace Prisma {
     reasonBlocked?: SortOrder
     reasonReopen?: SortOrder
     type?: SortOrder
+    estimatedHours?: SortOrder
     projectId?: SortOrder
     groupId?: SortOrder
     assignedUserId?: SortOrder
+    assignedById?: SortOrder
   }
 
   export type TicketMinOrderByAggregateInput = {
@@ -17619,9 +21170,15 @@ export namespace Prisma {
     reasonBlocked?: SortOrder
     reasonReopen?: SortOrder
     type?: SortOrder
+    estimatedHours?: SortOrder
     projectId?: SortOrder
     groupId?: SortOrder
     assignedUserId?: SortOrder
+    assignedById?: SortOrder
+  }
+
+  export type TicketSumOrderByAggregateInput = {
+    estimatedHours?: SortOrder
   }
 
   export type EnumTicketStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -17652,6 +21209,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumTicketTypeFilter<$PrismaModel>
     _max?: NestedEnumTicketTypeFilter<$PrismaModel>
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type TicketScalarRelationFilter = {
@@ -17686,14 +21259,14 @@ export namespace Prisma {
     uploadedById?: SortOrder
   }
 
-  export type UserScalarRelationFilter = {
-    is?: userWhereInput
-    isNot?: userWhereInput
-  }
-
   export type TicketNullableScalarRelationFilter = {
     is?: TicketWhereInput | null
     isNot?: TicketWhereInput | null
+  }
+
+  export type ProjectDiscussionGroupNullableScalarRelationFilter = {
+    is?: ProjectDiscussionGroupWhereInput | null
+    isNot?: ProjectDiscussionGroupWhereInput | null
   }
 
   export type MessageCountOrderByAggregateInput = {
@@ -17707,6 +21280,7 @@ export namespace Prisma {
     projectId?: SortOrder
     userId?: SortOrder
     ticketId?: SortOrder
+    discussionGroupId?: SortOrder
   }
 
   export type MessageMaxOrderByAggregateInput = {
@@ -17720,6 +21294,7 @@ export namespace Prisma {
     projectId?: SortOrder
     userId?: SortOrder
     ticketId?: SortOrder
+    discussionGroupId?: SortOrder
   }
 
   export type MessageMinOrderByAggregateInput = {
@@ -17733,6 +21308,7 @@ export namespace Prisma {
     projectId?: SortOrder
     userId?: SortOrder
     ticketId?: SortOrder
+    discussionGroupId?: SortOrder
   }
 
   export type IntNullableFilter<$PrismaModel = never> = {
@@ -17950,6 +21526,50 @@ export namespace Prisma {
     _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
+  export type EnumTicketReasonTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.TicketReasonType | EnumTicketReasonTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.TicketReasonType[] | ListEnumTicketReasonTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TicketReasonType[] | ListEnumTicketReasonTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumTicketReasonTypeFilter<$PrismaModel> | $Enums.TicketReasonType
+  }
+
+  export type TicketReasonCountOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    reason?: SortOrder
+    createdAt?: SortOrder
+    ticketId?: SortOrder
+    userId?: SortOrder
+  }
+
+  export type TicketReasonMaxOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    reason?: SortOrder
+    createdAt?: SortOrder
+    ticketId?: SortOrder
+    userId?: SortOrder
+  }
+
+  export type TicketReasonMinOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    reason?: SortOrder
+    createdAt?: SortOrder
+    ticketId?: SortOrder
+    userId?: SortOrder
+  }
+
+  export type EnumTicketReasonTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TicketReasonType | EnumTicketReasonTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.TicketReasonType[] | ListEnumTicketReasonTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TicketReasonType[] | ListEnumTicketReasonTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumTicketReasonTypeWithAggregatesFilter<$PrismaModel> | $Enums.TicketReasonType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTicketReasonTypeFilter<$PrismaModel>
+    _max?: NestedEnumTicketReasonTypeFilter<$PrismaModel>
+  }
+
   export type ProjectCreateNestedManyWithoutCompanyInput = {
     create?: XOR<ProjectCreateWithoutCompanyInput, ProjectUncheckedCreateWithoutCompanyInput> | ProjectCreateWithoutCompanyInput[] | ProjectUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: ProjectCreateOrConnectWithoutCompanyInput | ProjectCreateOrConnectWithoutCompanyInput[]
@@ -18165,6 +21785,20 @@ export namespace Prisma {
     connect?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
   }
 
+  export type TicketCreateNestedManyWithoutAssignedByInput = {
+    create?: XOR<TicketCreateWithoutAssignedByInput, TicketUncheckedCreateWithoutAssignedByInput> | TicketCreateWithoutAssignedByInput[] | TicketUncheckedCreateWithoutAssignedByInput[]
+    connectOrCreate?: TicketCreateOrConnectWithoutAssignedByInput | TicketCreateOrConnectWithoutAssignedByInput[]
+    createMany?: TicketCreateManyAssignedByInputEnvelope
+    connect?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+  }
+
+  export type TicketReasonCreateNestedManyWithoutUserInput = {
+    create?: XOR<TicketReasonCreateWithoutUserInput, TicketReasonUncheckedCreateWithoutUserInput> | TicketReasonCreateWithoutUserInput[] | TicketReasonUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TicketReasonCreateOrConnectWithoutUserInput | TicketReasonCreateOrConnectWithoutUserInput[]
+    createMany?: TicketReasonCreateManyUserInputEnvelope
+    connect?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+  }
+
   export type NoteCreateNestedManyWithoutUserInput = {
     create?: XOR<NoteCreateWithoutUserInput, NoteUncheckedCreateWithoutUserInput> | NoteCreateWithoutUserInput[] | NoteUncheckedCreateWithoutUserInput[]
     connectOrCreate?: NoteCreateOrConnectWithoutUserInput | NoteCreateOrConnectWithoutUserInput[]
@@ -18191,6 +21825,19 @@ export namespace Prisma {
     connectOrCreate?: TicketAttachmentCreateOrConnectWithoutUploadedByInput | TicketAttachmentCreateOrConnectWithoutUploadedByInput[]
     createMany?: TicketAttachmentCreateManyUploadedByInputEnvelope
     connect?: TicketAttachmentWhereUniqueInput | TicketAttachmentWhereUniqueInput[]
+  }
+
+  export type ProjectDiscussionGroupCreateNestedManyWithoutUserInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutUserInput, ProjectDiscussionGroupUncheckedCreateWithoutUserInput> | ProjectDiscussionGroupCreateWithoutUserInput[] | ProjectDiscussionGroupUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutUserInput | ProjectDiscussionGroupCreateOrConnectWithoutUserInput[]
+    createMany?: ProjectDiscussionGroupCreateManyUserInputEnvelope
+    connect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+  }
+
+  export type ProjectDiscussionGroupCreateNestedManyWithoutMembersInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutMembersInput, ProjectDiscussionGroupUncheckedCreateWithoutMembersInput> | ProjectDiscussionGroupCreateWithoutMembersInput[] | ProjectDiscussionGroupUncheckedCreateWithoutMembersInput[]
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutMembersInput | ProjectDiscussionGroupCreateOrConnectWithoutMembersInput[]
+    connect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
   }
 
   export type timeLogUncheckedCreateNestedManyWithoutUserInput = {
@@ -18226,6 +21873,20 @@ export namespace Prisma {
     connect?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
   }
 
+  export type TicketUncheckedCreateNestedManyWithoutAssignedByInput = {
+    create?: XOR<TicketCreateWithoutAssignedByInput, TicketUncheckedCreateWithoutAssignedByInput> | TicketCreateWithoutAssignedByInput[] | TicketUncheckedCreateWithoutAssignedByInput[]
+    connectOrCreate?: TicketCreateOrConnectWithoutAssignedByInput | TicketCreateOrConnectWithoutAssignedByInput[]
+    createMany?: TicketCreateManyAssignedByInputEnvelope
+    connect?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+  }
+
+  export type TicketReasonUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<TicketReasonCreateWithoutUserInput, TicketReasonUncheckedCreateWithoutUserInput> | TicketReasonCreateWithoutUserInput[] | TicketReasonUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TicketReasonCreateOrConnectWithoutUserInput | TicketReasonCreateOrConnectWithoutUserInput[]
+    createMany?: TicketReasonCreateManyUserInputEnvelope
+    connect?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+  }
+
   export type NoteUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<NoteCreateWithoutUserInput, NoteUncheckedCreateWithoutUserInput> | NoteCreateWithoutUserInput[] | NoteUncheckedCreateWithoutUserInput[]
     connectOrCreate?: NoteCreateOrConnectWithoutUserInput | NoteCreateOrConnectWithoutUserInput[]
@@ -18252,6 +21913,19 @@ export namespace Prisma {
     connectOrCreate?: TicketAttachmentCreateOrConnectWithoutUploadedByInput | TicketAttachmentCreateOrConnectWithoutUploadedByInput[]
     createMany?: TicketAttachmentCreateManyUploadedByInputEnvelope
     connect?: TicketAttachmentWhereUniqueInput | TicketAttachmentWhereUniqueInput[]
+  }
+
+  export type ProjectDiscussionGroupUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutUserInput, ProjectDiscussionGroupUncheckedCreateWithoutUserInput> | ProjectDiscussionGroupCreateWithoutUserInput[] | ProjectDiscussionGroupUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutUserInput | ProjectDiscussionGroupCreateOrConnectWithoutUserInput[]
+    createMany?: ProjectDiscussionGroupCreateManyUserInputEnvelope
+    connect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+  }
+
+  export type ProjectDiscussionGroupUncheckedCreateNestedManyWithoutMembersInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutMembersInput, ProjectDiscussionGroupUncheckedCreateWithoutMembersInput> | ProjectDiscussionGroupCreateWithoutMembersInput[] | ProjectDiscussionGroupUncheckedCreateWithoutMembersInput[]
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutMembersInput | ProjectDiscussionGroupCreateOrConnectWithoutMembersInput[]
+    connect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
   }
 
   export type EnumRoleFieldUpdateOperationsInput = {
@@ -18352,6 +22026,34 @@ export namespace Prisma {
     deleteMany?: TicketScalarWhereInput | TicketScalarWhereInput[]
   }
 
+  export type TicketUpdateManyWithoutAssignedByNestedInput = {
+    create?: XOR<TicketCreateWithoutAssignedByInput, TicketUncheckedCreateWithoutAssignedByInput> | TicketCreateWithoutAssignedByInput[] | TicketUncheckedCreateWithoutAssignedByInput[]
+    connectOrCreate?: TicketCreateOrConnectWithoutAssignedByInput | TicketCreateOrConnectWithoutAssignedByInput[]
+    upsert?: TicketUpsertWithWhereUniqueWithoutAssignedByInput | TicketUpsertWithWhereUniqueWithoutAssignedByInput[]
+    createMany?: TicketCreateManyAssignedByInputEnvelope
+    set?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+    disconnect?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+    delete?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+    connect?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+    update?: TicketUpdateWithWhereUniqueWithoutAssignedByInput | TicketUpdateWithWhereUniqueWithoutAssignedByInput[]
+    updateMany?: TicketUpdateManyWithWhereWithoutAssignedByInput | TicketUpdateManyWithWhereWithoutAssignedByInput[]
+    deleteMany?: TicketScalarWhereInput | TicketScalarWhereInput[]
+  }
+
+  export type TicketReasonUpdateManyWithoutUserNestedInput = {
+    create?: XOR<TicketReasonCreateWithoutUserInput, TicketReasonUncheckedCreateWithoutUserInput> | TicketReasonCreateWithoutUserInput[] | TicketReasonUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TicketReasonCreateOrConnectWithoutUserInput | TicketReasonCreateOrConnectWithoutUserInput[]
+    upsert?: TicketReasonUpsertWithWhereUniqueWithoutUserInput | TicketReasonUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: TicketReasonCreateManyUserInputEnvelope
+    set?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+    disconnect?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+    delete?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+    connect?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+    update?: TicketReasonUpdateWithWhereUniqueWithoutUserInput | TicketReasonUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: TicketReasonUpdateManyWithWhereWithoutUserInput | TicketReasonUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: TicketReasonScalarWhereInput | TicketReasonScalarWhereInput[]
+  }
+
   export type NoteUpdateManyWithoutUserNestedInput = {
     create?: XOR<NoteCreateWithoutUserInput, NoteUncheckedCreateWithoutUserInput> | NoteCreateWithoutUserInput[] | NoteUncheckedCreateWithoutUserInput[]
     connectOrCreate?: NoteCreateOrConnectWithoutUserInput | NoteCreateOrConnectWithoutUserInput[]
@@ -18406,6 +22108,33 @@ export namespace Prisma {
     update?: TicketAttachmentUpdateWithWhereUniqueWithoutUploadedByInput | TicketAttachmentUpdateWithWhereUniqueWithoutUploadedByInput[]
     updateMany?: TicketAttachmentUpdateManyWithWhereWithoutUploadedByInput | TicketAttachmentUpdateManyWithWhereWithoutUploadedByInput[]
     deleteMany?: TicketAttachmentScalarWhereInput | TicketAttachmentScalarWhereInput[]
+  }
+
+  export type ProjectDiscussionGroupUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutUserInput, ProjectDiscussionGroupUncheckedCreateWithoutUserInput> | ProjectDiscussionGroupCreateWithoutUserInput[] | ProjectDiscussionGroupUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutUserInput | ProjectDiscussionGroupCreateOrConnectWithoutUserInput[]
+    upsert?: ProjectDiscussionGroupUpsertWithWhereUniqueWithoutUserInput | ProjectDiscussionGroupUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ProjectDiscussionGroupCreateManyUserInputEnvelope
+    set?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    disconnect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    delete?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    connect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    update?: ProjectDiscussionGroupUpdateWithWhereUniqueWithoutUserInput | ProjectDiscussionGroupUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ProjectDiscussionGroupUpdateManyWithWhereWithoutUserInput | ProjectDiscussionGroupUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ProjectDiscussionGroupScalarWhereInput | ProjectDiscussionGroupScalarWhereInput[]
+  }
+
+  export type ProjectDiscussionGroupUpdateManyWithoutMembersNestedInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutMembersInput, ProjectDiscussionGroupUncheckedCreateWithoutMembersInput> | ProjectDiscussionGroupCreateWithoutMembersInput[] | ProjectDiscussionGroupUncheckedCreateWithoutMembersInput[]
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutMembersInput | ProjectDiscussionGroupCreateOrConnectWithoutMembersInput[]
+    upsert?: ProjectDiscussionGroupUpsertWithWhereUniqueWithoutMembersInput | ProjectDiscussionGroupUpsertWithWhereUniqueWithoutMembersInput[]
+    set?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    disconnect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    delete?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    connect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    update?: ProjectDiscussionGroupUpdateWithWhereUniqueWithoutMembersInput | ProjectDiscussionGroupUpdateWithWhereUniqueWithoutMembersInput[]
+    updateMany?: ProjectDiscussionGroupUpdateManyWithWhereWithoutMembersInput | ProjectDiscussionGroupUpdateManyWithWhereWithoutMembersInput[]
+    deleteMany?: ProjectDiscussionGroupScalarWhereInput | ProjectDiscussionGroupScalarWhereInput[]
   }
 
   export type timeLogUncheckedUpdateManyWithoutUserNestedInput = {
@@ -18476,6 +22205,34 @@ export namespace Prisma {
     deleteMany?: TicketScalarWhereInput | TicketScalarWhereInput[]
   }
 
+  export type TicketUncheckedUpdateManyWithoutAssignedByNestedInput = {
+    create?: XOR<TicketCreateWithoutAssignedByInput, TicketUncheckedCreateWithoutAssignedByInput> | TicketCreateWithoutAssignedByInput[] | TicketUncheckedCreateWithoutAssignedByInput[]
+    connectOrCreate?: TicketCreateOrConnectWithoutAssignedByInput | TicketCreateOrConnectWithoutAssignedByInput[]
+    upsert?: TicketUpsertWithWhereUniqueWithoutAssignedByInput | TicketUpsertWithWhereUniqueWithoutAssignedByInput[]
+    createMany?: TicketCreateManyAssignedByInputEnvelope
+    set?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+    disconnect?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+    delete?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+    connect?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+    update?: TicketUpdateWithWhereUniqueWithoutAssignedByInput | TicketUpdateWithWhereUniqueWithoutAssignedByInput[]
+    updateMany?: TicketUpdateManyWithWhereWithoutAssignedByInput | TicketUpdateManyWithWhereWithoutAssignedByInput[]
+    deleteMany?: TicketScalarWhereInput | TicketScalarWhereInput[]
+  }
+
+  export type TicketReasonUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<TicketReasonCreateWithoutUserInput, TicketReasonUncheckedCreateWithoutUserInput> | TicketReasonCreateWithoutUserInput[] | TicketReasonUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TicketReasonCreateOrConnectWithoutUserInput | TicketReasonCreateOrConnectWithoutUserInput[]
+    upsert?: TicketReasonUpsertWithWhereUniqueWithoutUserInput | TicketReasonUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: TicketReasonCreateManyUserInputEnvelope
+    set?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+    disconnect?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+    delete?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+    connect?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+    update?: TicketReasonUpdateWithWhereUniqueWithoutUserInput | TicketReasonUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: TicketReasonUpdateManyWithWhereWithoutUserInput | TicketReasonUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: TicketReasonScalarWhereInput | TicketReasonScalarWhereInput[]
+  }
+
   export type NoteUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<NoteCreateWithoutUserInput, NoteUncheckedCreateWithoutUserInput> | NoteCreateWithoutUserInput[] | NoteUncheckedCreateWithoutUserInput[]
     connectOrCreate?: NoteCreateOrConnectWithoutUserInput | NoteCreateOrConnectWithoutUserInput[]
@@ -18532,6 +22289,33 @@ export namespace Prisma {
     deleteMany?: TicketAttachmentScalarWhereInput | TicketAttachmentScalarWhereInput[]
   }
 
+  export type ProjectDiscussionGroupUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutUserInput, ProjectDiscussionGroupUncheckedCreateWithoutUserInput> | ProjectDiscussionGroupCreateWithoutUserInput[] | ProjectDiscussionGroupUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutUserInput | ProjectDiscussionGroupCreateOrConnectWithoutUserInput[]
+    upsert?: ProjectDiscussionGroupUpsertWithWhereUniqueWithoutUserInput | ProjectDiscussionGroupUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ProjectDiscussionGroupCreateManyUserInputEnvelope
+    set?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    disconnect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    delete?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    connect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    update?: ProjectDiscussionGroupUpdateWithWhereUniqueWithoutUserInput | ProjectDiscussionGroupUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ProjectDiscussionGroupUpdateManyWithWhereWithoutUserInput | ProjectDiscussionGroupUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ProjectDiscussionGroupScalarWhereInput | ProjectDiscussionGroupScalarWhereInput[]
+  }
+
+  export type ProjectDiscussionGroupUncheckedUpdateManyWithoutMembersNestedInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutMembersInput, ProjectDiscussionGroupUncheckedCreateWithoutMembersInput> | ProjectDiscussionGroupCreateWithoutMembersInput[] | ProjectDiscussionGroupUncheckedCreateWithoutMembersInput[]
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutMembersInput | ProjectDiscussionGroupCreateOrConnectWithoutMembersInput[]
+    upsert?: ProjectDiscussionGroupUpsertWithWhereUniqueWithoutMembersInput | ProjectDiscussionGroupUpsertWithWhereUniqueWithoutMembersInput[]
+    set?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    disconnect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    delete?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    connect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    update?: ProjectDiscussionGroupUpdateWithWhereUniqueWithoutMembersInput | ProjectDiscussionGroupUpdateWithWhereUniqueWithoutMembersInput[]
+    updateMany?: ProjectDiscussionGroupUpdateManyWithWhereWithoutMembersInput | ProjectDiscussionGroupUpdateManyWithWhereWithoutMembersInput[]
+    deleteMany?: ProjectDiscussionGroupScalarWhereInput | ProjectDiscussionGroupScalarWhereInput[]
+  }
+
   export type userCreateNestedManyWithoutProjectsInput = {
     create?: XOR<userCreateWithoutProjectsInput, userUncheckedCreateWithoutProjectsInput> | userCreateWithoutProjectsInput[] | userUncheckedCreateWithoutProjectsInput[]
     connectOrCreate?: userCreateOrConnectWithoutProjectsInput | userCreateOrConnectWithoutProjectsInput[]
@@ -18548,6 +22332,13 @@ export namespace Prisma {
     create?: XOR<CompanyCreateWithoutProjectsInput, CompanyUncheckedCreateWithoutProjectsInput>
     connectOrCreate?: CompanyCreateOrConnectWithoutProjectsInput
     connect?: CompanyWhereUniqueInput
+  }
+
+  export type ProjectDiscussionGroupCreateNestedManyWithoutProjectInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutProjectInput, ProjectDiscussionGroupUncheckedCreateWithoutProjectInput> | ProjectDiscussionGroupCreateWithoutProjectInput[] | ProjectDiscussionGroupUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutProjectInput | ProjectDiscussionGroupCreateOrConnectWithoutProjectInput[]
+    createMany?: ProjectDiscussionGroupCreateManyProjectInputEnvelope
+    connect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
   }
 
   export type MessageCreateNestedManyWithoutProjectInput = {
@@ -18588,6 +22379,13 @@ export namespace Prisma {
     create?: XOR<userCreateWithoutAdminProjectsInput, userUncheckedCreateWithoutAdminProjectsInput> | userCreateWithoutAdminProjectsInput[] | userUncheckedCreateWithoutAdminProjectsInput[]
     connectOrCreate?: userCreateOrConnectWithoutAdminProjectsInput | userCreateOrConnectWithoutAdminProjectsInput[]
     connect?: userWhereUniqueInput | userWhereUniqueInput[]
+  }
+
+  export type ProjectDiscussionGroupUncheckedCreateNestedManyWithoutProjectInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutProjectInput, ProjectDiscussionGroupUncheckedCreateWithoutProjectInput> | ProjectDiscussionGroupCreateWithoutProjectInput[] | ProjectDiscussionGroupUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutProjectInput | ProjectDiscussionGroupCreateOrConnectWithoutProjectInput[]
+    createMany?: ProjectDiscussionGroupCreateManyProjectInputEnvelope
+    connect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
   }
 
   export type MessageUncheckedCreateNestedManyWithoutProjectInput = {
@@ -18662,6 +22460,20 @@ export namespace Prisma {
     upsert?: CompanyUpsertWithoutProjectsInput
     connect?: CompanyWhereUniqueInput
     update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutProjectsInput, CompanyUpdateWithoutProjectsInput>, CompanyUncheckedUpdateWithoutProjectsInput>
+  }
+
+  export type ProjectDiscussionGroupUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutProjectInput, ProjectDiscussionGroupUncheckedCreateWithoutProjectInput> | ProjectDiscussionGroupCreateWithoutProjectInput[] | ProjectDiscussionGroupUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutProjectInput | ProjectDiscussionGroupCreateOrConnectWithoutProjectInput[]
+    upsert?: ProjectDiscussionGroupUpsertWithWhereUniqueWithoutProjectInput | ProjectDiscussionGroupUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: ProjectDiscussionGroupCreateManyProjectInputEnvelope
+    set?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    disconnect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    delete?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    connect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    update?: ProjectDiscussionGroupUpdateWithWhereUniqueWithoutProjectInput | ProjectDiscussionGroupUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: ProjectDiscussionGroupUpdateManyWithWhereWithoutProjectInput | ProjectDiscussionGroupUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: ProjectDiscussionGroupScalarWhereInput | ProjectDiscussionGroupScalarWhereInput[]
   }
 
   export type MessageUpdateManyWithoutProjectNestedInput = {
@@ -18744,6 +22556,20 @@ export namespace Prisma {
     update?: userUpdateWithWhereUniqueWithoutAdminProjectsInput | userUpdateWithWhereUniqueWithoutAdminProjectsInput[]
     updateMany?: userUpdateManyWithWhereWithoutAdminProjectsInput | userUpdateManyWithWhereWithoutAdminProjectsInput[]
     deleteMany?: userScalarWhereInput | userScalarWhereInput[]
+  }
+
+  export type ProjectDiscussionGroupUncheckedUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutProjectInput, ProjectDiscussionGroupUncheckedCreateWithoutProjectInput> | ProjectDiscussionGroupCreateWithoutProjectInput[] | ProjectDiscussionGroupUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutProjectInput | ProjectDiscussionGroupCreateOrConnectWithoutProjectInput[]
+    upsert?: ProjectDiscussionGroupUpsertWithWhereUniqueWithoutProjectInput | ProjectDiscussionGroupUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: ProjectDiscussionGroupCreateManyProjectInputEnvelope
+    set?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    disconnect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    delete?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    connect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    update?: ProjectDiscussionGroupUpdateWithWhereUniqueWithoutProjectInput | ProjectDiscussionGroupUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: ProjectDiscussionGroupUpdateManyWithWhereWithoutProjectInput | ProjectDiscussionGroupUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: ProjectDiscussionGroupScalarWhereInput | ProjectDiscussionGroupScalarWhereInput[]
   }
 
   export type MessageUncheckedUpdateManyWithoutProjectNestedInput = {
@@ -18880,6 +22706,156 @@ export namespace Prisma {
     deleteMany?: TicketScalarWhereInput | TicketScalarWhereInput[]
   }
 
+  export type TicketCreateNestedManyWithoutDiscussionGroupsInput = {
+    create?: XOR<TicketCreateWithoutDiscussionGroupsInput, TicketUncheckedCreateWithoutDiscussionGroupsInput> | TicketCreateWithoutDiscussionGroupsInput[] | TicketUncheckedCreateWithoutDiscussionGroupsInput[]
+    connectOrCreate?: TicketCreateOrConnectWithoutDiscussionGroupsInput | TicketCreateOrConnectWithoutDiscussionGroupsInput[]
+    connect?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+  }
+
+  export type userCreateNestedManyWithoutJoinedDiscussionGroupsInput = {
+    create?: XOR<userCreateWithoutJoinedDiscussionGroupsInput, userUncheckedCreateWithoutJoinedDiscussionGroupsInput> | userCreateWithoutJoinedDiscussionGroupsInput[] | userUncheckedCreateWithoutJoinedDiscussionGroupsInput[]
+    connectOrCreate?: userCreateOrConnectWithoutJoinedDiscussionGroupsInput | userCreateOrConnectWithoutJoinedDiscussionGroupsInput[]
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+  }
+
+  export type MessageCreateNestedManyWithoutDiscussionGroupInput = {
+    create?: XOR<MessageCreateWithoutDiscussionGroupInput, MessageUncheckedCreateWithoutDiscussionGroupInput> | MessageCreateWithoutDiscussionGroupInput[] | MessageUncheckedCreateWithoutDiscussionGroupInput[]
+    connectOrCreate?: MessageCreateOrConnectWithoutDiscussionGroupInput | MessageCreateOrConnectWithoutDiscussionGroupInput[]
+    createMany?: MessageCreateManyDiscussionGroupInputEnvelope
+    connect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+  }
+
+  export type ProjectCreateNestedOneWithoutDiscussionGroupsInput = {
+    create?: XOR<ProjectCreateWithoutDiscussionGroupsInput, ProjectUncheckedCreateWithoutDiscussionGroupsInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutDiscussionGroupsInput
+    connect?: ProjectWhereUniqueInput
+  }
+
+  export type userCreateNestedOneWithoutProjectDiscussionGroupsInput = {
+    create?: XOR<userCreateWithoutProjectDiscussionGroupsInput, userUncheckedCreateWithoutProjectDiscussionGroupsInput>
+    connectOrCreate?: userCreateOrConnectWithoutProjectDiscussionGroupsInput
+    connect?: userWhereUniqueInput
+  }
+
+  export type TicketUncheckedCreateNestedManyWithoutDiscussionGroupsInput = {
+    create?: XOR<TicketCreateWithoutDiscussionGroupsInput, TicketUncheckedCreateWithoutDiscussionGroupsInput> | TicketCreateWithoutDiscussionGroupsInput[] | TicketUncheckedCreateWithoutDiscussionGroupsInput[]
+    connectOrCreate?: TicketCreateOrConnectWithoutDiscussionGroupsInput | TicketCreateOrConnectWithoutDiscussionGroupsInput[]
+    connect?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+  }
+
+  export type userUncheckedCreateNestedManyWithoutJoinedDiscussionGroupsInput = {
+    create?: XOR<userCreateWithoutJoinedDiscussionGroupsInput, userUncheckedCreateWithoutJoinedDiscussionGroupsInput> | userCreateWithoutJoinedDiscussionGroupsInput[] | userUncheckedCreateWithoutJoinedDiscussionGroupsInput[]
+    connectOrCreate?: userCreateOrConnectWithoutJoinedDiscussionGroupsInput | userCreateOrConnectWithoutJoinedDiscussionGroupsInput[]
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+  }
+
+  export type MessageUncheckedCreateNestedManyWithoutDiscussionGroupInput = {
+    create?: XOR<MessageCreateWithoutDiscussionGroupInput, MessageUncheckedCreateWithoutDiscussionGroupInput> | MessageCreateWithoutDiscussionGroupInput[] | MessageUncheckedCreateWithoutDiscussionGroupInput[]
+    connectOrCreate?: MessageCreateOrConnectWithoutDiscussionGroupInput | MessageCreateOrConnectWithoutDiscussionGroupInput[]
+    createMany?: MessageCreateManyDiscussionGroupInputEnvelope
+    connect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+  }
+
+  export type EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput = {
+    set?: $Enums.ProjectDiscussionGroupType
+  }
+
+  export type TicketUpdateManyWithoutDiscussionGroupsNestedInput = {
+    create?: XOR<TicketCreateWithoutDiscussionGroupsInput, TicketUncheckedCreateWithoutDiscussionGroupsInput> | TicketCreateWithoutDiscussionGroupsInput[] | TicketUncheckedCreateWithoutDiscussionGroupsInput[]
+    connectOrCreate?: TicketCreateOrConnectWithoutDiscussionGroupsInput | TicketCreateOrConnectWithoutDiscussionGroupsInput[]
+    upsert?: TicketUpsertWithWhereUniqueWithoutDiscussionGroupsInput | TicketUpsertWithWhereUniqueWithoutDiscussionGroupsInput[]
+    set?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+    disconnect?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+    delete?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+    connect?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+    update?: TicketUpdateWithWhereUniqueWithoutDiscussionGroupsInput | TicketUpdateWithWhereUniqueWithoutDiscussionGroupsInput[]
+    updateMany?: TicketUpdateManyWithWhereWithoutDiscussionGroupsInput | TicketUpdateManyWithWhereWithoutDiscussionGroupsInput[]
+    deleteMany?: TicketScalarWhereInput | TicketScalarWhereInput[]
+  }
+
+  export type userUpdateManyWithoutJoinedDiscussionGroupsNestedInput = {
+    create?: XOR<userCreateWithoutJoinedDiscussionGroupsInput, userUncheckedCreateWithoutJoinedDiscussionGroupsInput> | userCreateWithoutJoinedDiscussionGroupsInput[] | userUncheckedCreateWithoutJoinedDiscussionGroupsInput[]
+    connectOrCreate?: userCreateOrConnectWithoutJoinedDiscussionGroupsInput | userCreateOrConnectWithoutJoinedDiscussionGroupsInput[]
+    upsert?: userUpsertWithWhereUniqueWithoutJoinedDiscussionGroupsInput | userUpsertWithWhereUniqueWithoutJoinedDiscussionGroupsInput[]
+    set?: userWhereUniqueInput | userWhereUniqueInput[]
+    disconnect?: userWhereUniqueInput | userWhereUniqueInput[]
+    delete?: userWhereUniqueInput | userWhereUniqueInput[]
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+    update?: userUpdateWithWhereUniqueWithoutJoinedDiscussionGroupsInput | userUpdateWithWhereUniqueWithoutJoinedDiscussionGroupsInput[]
+    updateMany?: userUpdateManyWithWhereWithoutJoinedDiscussionGroupsInput | userUpdateManyWithWhereWithoutJoinedDiscussionGroupsInput[]
+    deleteMany?: userScalarWhereInput | userScalarWhereInput[]
+  }
+
+  export type MessageUpdateManyWithoutDiscussionGroupNestedInput = {
+    create?: XOR<MessageCreateWithoutDiscussionGroupInput, MessageUncheckedCreateWithoutDiscussionGroupInput> | MessageCreateWithoutDiscussionGroupInput[] | MessageUncheckedCreateWithoutDiscussionGroupInput[]
+    connectOrCreate?: MessageCreateOrConnectWithoutDiscussionGroupInput | MessageCreateOrConnectWithoutDiscussionGroupInput[]
+    upsert?: MessageUpsertWithWhereUniqueWithoutDiscussionGroupInput | MessageUpsertWithWhereUniqueWithoutDiscussionGroupInput[]
+    createMany?: MessageCreateManyDiscussionGroupInputEnvelope
+    set?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    disconnect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    delete?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    connect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    update?: MessageUpdateWithWhereUniqueWithoutDiscussionGroupInput | MessageUpdateWithWhereUniqueWithoutDiscussionGroupInput[]
+    updateMany?: MessageUpdateManyWithWhereWithoutDiscussionGroupInput | MessageUpdateManyWithWhereWithoutDiscussionGroupInput[]
+    deleteMany?: MessageScalarWhereInput | MessageScalarWhereInput[]
+  }
+
+  export type ProjectUpdateOneRequiredWithoutDiscussionGroupsNestedInput = {
+    create?: XOR<ProjectCreateWithoutDiscussionGroupsInput, ProjectUncheckedCreateWithoutDiscussionGroupsInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutDiscussionGroupsInput
+    upsert?: ProjectUpsertWithoutDiscussionGroupsInput
+    connect?: ProjectWhereUniqueInput
+    update?: XOR<XOR<ProjectUpdateToOneWithWhereWithoutDiscussionGroupsInput, ProjectUpdateWithoutDiscussionGroupsInput>, ProjectUncheckedUpdateWithoutDiscussionGroupsInput>
+  }
+
+  export type userUpdateOneRequiredWithoutProjectDiscussionGroupsNestedInput = {
+    create?: XOR<userCreateWithoutProjectDiscussionGroupsInput, userUncheckedCreateWithoutProjectDiscussionGroupsInput>
+    connectOrCreate?: userCreateOrConnectWithoutProjectDiscussionGroupsInput
+    upsert?: userUpsertWithoutProjectDiscussionGroupsInput
+    connect?: userWhereUniqueInput
+    update?: XOR<XOR<userUpdateToOneWithWhereWithoutProjectDiscussionGroupsInput, userUpdateWithoutProjectDiscussionGroupsInput>, userUncheckedUpdateWithoutProjectDiscussionGroupsInput>
+  }
+
+  export type TicketUncheckedUpdateManyWithoutDiscussionGroupsNestedInput = {
+    create?: XOR<TicketCreateWithoutDiscussionGroupsInput, TicketUncheckedCreateWithoutDiscussionGroupsInput> | TicketCreateWithoutDiscussionGroupsInput[] | TicketUncheckedCreateWithoutDiscussionGroupsInput[]
+    connectOrCreate?: TicketCreateOrConnectWithoutDiscussionGroupsInput | TicketCreateOrConnectWithoutDiscussionGroupsInput[]
+    upsert?: TicketUpsertWithWhereUniqueWithoutDiscussionGroupsInput | TicketUpsertWithWhereUniqueWithoutDiscussionGroupsInput[]
+    set?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+    disconnect?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+    delete?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+    connect?: TicketWhereUniqueInput | TicketWhereUniqueInput[]
+    update?: TicketUpdateWithWhereUniqueWithoutDiscussionGroupsInput | TicketUpdateWithWhereUniqueWithoutDiscussionGroupsInput[]
+    updateMany?: TicketUpdateManyWithWhereWithoutDiscussionGroupsInput | TicketUpdateManyWithWhereWithoutDiscussionGroupsInput[]
+    deleteMany?: TicketScalarWhereInput | TicketScalarWhereInput[]
+  }
+
+  export type userUncheckedUpdateManyWithoutJoinedDiscussionGroupsNestedInput = {
+    create?: XOR<userCreateWithoutJoinedDiscussionGroupsInput, userUncheckedCreateWithoutJoinedDiscussionGroupsInput> | userCreateWithoutJoinedDiscussionGroupsInput[] | userUncheckedCreateWithoutJoinedDiscussionGroupsInput[]
+    connectOrCreate?: userCreateOrConnectWithoutJoinedDiscussionGroupsInput | userCreateOrConnectWithoutJoinedDiscussionGroupsInput[]
+    upsert?: userUpsertWithWhereUniqueWithoutJoinedDiscussionGroupsInput | userUpsertWithWhereUniqueWithoutJoinedDiscussionGroupsInput[]
+    set?: userWhereUniqueInput | userWhereUniqueInput[]
+    disconnect?: userWhereUniqueInput | userWhereUniqueInput[]
+    delete?: userWhereUniqueInput | userWhereUniqueInput[]
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+    update?: userUpdateWithWhereUniqueWithoutJoinedDiscussionGroupsInput | userUpdateWithWhereUniqueWithoutJoinedDiscussionGroupsInput[]
+    updateMany?: userUpdateManyWithWhereWithoutJoinedDiscussionGroupsInput | userUpdateManyWithWhereWithoutJoinedDiscussionGroupsInput[]
+    deleteMany?: userScalarWhereInput | userScalarWhereInput[]
+  }
+
+  export type MessageUncheckedUpdateManyWithoutDiscussionGroupNestedInput = {
+    create?: XOR<MessageCreateWithoutDiscussionGroupInput, MessageUncheckedCreateWithoutDiscussionGroupInput> | MessageCreateWithoutDiscussionGroupInput[] | MessageUncheckedCreateWithoutDiscussionGroupInput[]
+    connectOrCreate?: MessageCreateOrConnectWithoutDiscussionGroupInput | MessageCreateOrConnectWithoutDiscussionGroupInput[]
+    upsert?: MessageUpsertWithWhereUniqueWithoutDiscussionGroupInput | MessageUpsertWithWhereUniqueWithoutDiscussionGroupInput[]
+    createMany?: MessageCreateManyDiscussionGroupInputEnvelope
+    set?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    disconnect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    delete?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    connect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
+    update?: MessageUpdateWithWhereUniqueWithoutDiscussionGroupInput | MessageUpdateWithWhereUniqueWithoutDiscussionGroupInput[]
+    updateMany?: MessageUpdateManyWithWhereWithoutDiscussionGroupInput | MessageUpdateManyWithWhereWithoutDiscussionGroupInput[]
+    deleteMany?: MessageScalarWhereInput | MessageScalarWhereInput[]
+  }
+
   export type ProjectCreateNestedOneWithoutTicketsInput = {
     create?: XOR<ProjectCreateWithoutTicketsInput, ProjectUncheckedCreateWithoutTicketsInput>
     connectOrCreate?: ProjectCreateOrConnectWithoutTicketsInput
@@ -18898,11 +22874,30 @@ export namespace Prisma {
     connect?: userWhereUniqueInput
   }
 
+  export type userCreateNestedOneWithoutAssignedByTicketsInput = {
+    create?: XOR<userCreateWithoutAssignedByTicketsInput, userUncheckedCreateWithoutAssignedByTicketsInput>
+    connectOrCreate?: userCreateOrConnectWithoutAssignedByTicketsInput
+    connect?: userWhereUniqueInput
+  }
+
+  export type TicketReasonCreateNestedManyWithoutTicketInput = {
+    create?: XOR<TicketReasonCreateWithoutTicketInput, TicketReasonUncheckedCreateWithoutTicketInput> | TicketReasonCreateWithoutTicketInput[] | TicketReasonUncheckedCreateWithoutTicketInput[]
+    connectOrCreate?: TicketReasonCreateOrConnectWithoutTicketInput | TicketReasonCreateOrConnectWithoutTicketInput[]
+    createMany?: TicketReasonCreateManyTicketInputEnvelope
+    connect?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+  }
+
   export type timeLogCreateNestedManyWithoutTicketInput = {
     create?: XOR<timeLogCreateWithoutTicketInput, timeLogUncheckedCreateWithoutTicketInput> | timeLogCreateWithoutTicketInput[] | timeLogUncheckedCreateWithoutTicketInput[]
     connectOrCreate?: timeLogCreateOrConnectWithoutTicketInput | timeLogCreateOrConnectWithoutTicketInput[]
     createMany?: timeLogCreateManyTicketInputEnvelope
     connect?: timeLogWhereUniqueInput | timeLogWhereUniqueInput[]
+  }
+
+  export type ProjectDiscussionGroupCreateNestedManyWithoutTicketsInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutTicketsInput, ProjectDiscussionGroupUncheckedCreateWithoutTicketsInput> | ProjectDiscussionGroupCreateWithoutTicketsInput[] | ProjectDiscussionGroupUncheckedCreateWithoutTicketsInput[]
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutTicketsInput | ProjectDiscussionGroupCreateOrConnectWithoutTicketsInput[]
+    connect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
   }
 
   export type TicketAttachmentCreateNestedManyWithoutTicketInput = {
@@ -18919,11 +22914,24 @@ export namespace Prisma {
     connect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
   }
 
+  export type TicketReasonUncheckedCreateNestedManyWithoutTicketInput = {
+    create?: XOR<TicketReasonCreateWithoutTicketInput, TicketReasonUncheckedCreateWithoutTicketInput> | TicketReasonCreateWithoutTicketInput[] | TicketReasonUncheckedCreateWithoutTicketInput[]
+    connectOrCreate?: TicketReasonCreateOrConnectWithoutTicketInput | TicketReasonCreateOrConnectWithoutTicketInput[]
+    createMany?: TicketReasonCreateManyTicketInputEnvelope
+    connect?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+  }
+
   export type timeLogUncheckedCreateNestedManyWithoutTicketInput = {
     create?: XOR<timeLogCreateWithoutTicketInput, timeLogUncheckedCreateWithoutTicketInput> | timeLogCreateWithoutTicketInput[] | timeLogUncheckedCreateWithoutTicketInput[]
     connectOrCreate?: timeLogCreateOrConnectWithoutTicketInput | timeLogCreateOrConnectWithoutTicketInput[]
     createMany?: timeLogCreateManyTicketInputEnvelope
     connect?: timeLogWhereUniqueInput | timeLogWhereUniqueInput[]
+  }
+
+  export type ProjectDiscussionGroupUncheckedCreateNestedManyWithoutTicketsInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutTicketsInput, ProjectDiscussionGroupUncheckedCreateWithoutTicketsInput> | ProjectDiscussionGroupCreateWithoutTicketsInput[] | ProjectDiscussionGroupUncheckedCreateWithoutTicketsInput[]
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutTicketsInput | ProjectDiscussionGroupCreateOrConnectWithoutTicketsInput[]
+    connect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
   }
 
   export type TicketAttachmentUncheckedCreateNestedManyWithoutTicketInput = {
@@ -18950,6 +22958,14 @@ export namespace Prisma {
 
   export type EnumTicketTypeFieldUpdateOperationsInput = {
     set?: $Enums.TicketType
+  }
+
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type ProjectUpdateOneRequiredWithoutTicketsNestedInput = {
@@ -18980,6 +22996,30 @@ export namespace Prisma {
     update?: XOR<XOR<userUpdateToOneWithWhereWithoutAssignedTicketsInput, userUpdateWithoutAssignedTicketsInput>, userUncheckedUpdateWithoutAssignedTicketsInput>
   }
 
+  export type userUpdateOneWithoutAssignedByTicketsNestedInput = {
+    create?: XOR<userCreateWithoutAssignedByTicketsInput, userUncheckedCreateWithoutAssignedByTicketsInput>
+    connectOrCreate?: userCreateOrConnectWithoutAssignedByTicketsInput
+    upsert?: userUpsertWithoutAssignedByTicketsInput
+    disconnect?: userWhereInput | boolean
+    delete?: userWhereInput | boolean
+    connect?: userWhereUniqueInput
+    update?: XOR<XOR<userUpdateToOneWithWhereWithoutAssignedByTicketsInput, userUpdateWithoutAssignedByTicketsInput>, userUncheckedUpdateWithoutAssignedByTicketsInput>
+  }
+
+  export type TicketReasonUpdateManyWithoutTicketNestedInput = {
+    create?: XOR<TicketReasonCreateWithoutTicketInput, TicketReasonUncheckedCreateWithoutTicketInput> | TicketReasonCreateWithoutTicketInput[] | TicketReasonUncheckedCreateWithoutTicketInput[]
+    connectOrCreate?: TicketReasonCreateOrConnectWithoutTicketInput | TicketReasonCreateOrConnectWithoutTicketInput[]
+    upsert?: TicketReasonUpsertWithWhereUniqueWithoutTicketInput | TicketReasonUpsertWithWhereUniqueWithoutTicketInput[]
+    createMany?: TicketReasonCreateManyTicketInputEnvelope
+    set?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+    disconnect?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+    delete?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+    connect?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+    update?: TicketReasonUpdateWithWhereUniqueWithoutTicketInput | TicketReasonUpdateWithWhereUniqueWithoutTicketInput[]
+    updateMany?: TicketReasonUpdateManyWithWhereWithoutTicketInput | TicketReasonUpdateManyWithWhereWithoutTicketInput[]
+    deleteMany?: TicketReasonScalarWhereInput | TicketReasonScalarWhereInput[]
+  }
+
   export type timeLogUpdateManyWithoutTicketNestedInput = {
     create?: XOR<timeLogCreateWithoutTicketInput, timeLogUncheckedCreateWithoutTicketInput> | timeLogCreateWithoutTicketInput[] | timeLogUncheckedCreateWithoutTicketInput[]
     connectOrCreate?: timeLogCreateOrConnectWithoutTicketInput | timeLogCreateOrConnectWithoutTicketInput[]
@@ -18992,6 +23032,19 @@ export namespace Prisma {
     update?: timeLogUpdateWithWhereUniqueWithoutTicketInput | timeLogUpdateWithWhereUniqueWithoutTicketInput[]
     updateMany?: timeLogUpdateManyWithWhereWithoutTicketInput | timeLogUpdateManyWithWhereWithoutTicketInput[]
     deleteMany?: timeLogScalarWhereInput | timeLogScalarWhereInput[]
+  }
+
+  export type ProjectDiscussionGroupUpdateManyWithoutTicketsNestedInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutTicketsInput, ProjectDiscussionGroupUncheckedCreateWithoutTicketsInput> | ProjectDiscussionGroupCreateWithoutTicketsInput[] | ProjectDiscussionGroupUncheckedCreateWithoutTicketsInput[]
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutTicketsInput | ProjectDiscussionGroupCreateOrConnectWithoutTicketsInput[]
+    upsert?: ProjectDiscussionGroupUpsertWithWhereUniqueWithoutTicketsInput | ProjectDiscussionGroupUpsertWithWhereUniqueWithoutTicketsInput[]
+    set?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    disconnect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    delete?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    connect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    update?: ProjectDiscussionGroupUpdateWithWhereUniqueWithoutTicketsInput | ProjectDiscussionGroupUpdateWithWhereUniqueWithoutTicketsInput[]
+    updateMany?: ProjectDiscussionGroupUpdateManyWithWhereWithoutTicketsInput | ProjectDiscussionGroupUpdateManyWithWhereWithoutTicketsInput[]
+    deleteMany?: ProjectDiscussionGroupScalarWhereInput | ProjectDiscussionGroupScalarWhereInput[]
   }
 
   export type TicketAttachmentUpdateManyWithoutTicketNestedInput = {
@@ -19022,6 +23075,20 @@ export namespace Prisma {
     deleteMany?: MessageScalarWhereInput | MessageScalarWhereInput[]
   }
 
+  export type TicketReasonUncheckedUpdateManyWithoutTicketNestedInput = {
+    create?: XOR<TicketReasonCreateWithoutTicketInput, TicketReasonUncheckedCreateWithoutTicketInput> | TicketReasonCreateWithoutTicketInput[] | TicketReasonUncheckedCreateWithoutTicketInput[]
+    connectOrCreate?: TicketReasonCreateOrConnectWithoutTicketInput | TicketReasonCreateOrConnectWithoutTicketInput[]
+    upsert?: TicketReasonUpsertWithWhereUniqueWithoutTicketInput | TicketReasonUpsertWithWhereUniqueWithoutTicketInput[]
+    createMany?: TicketReasonCreateManyTicketInputEnvelope
+    set?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+    disconnect?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+    delete?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+    connect?: TicketReasonWhereUniqueInput | TicketReasonWhereUniqueInput[]
+    update?: TicketReasonUpdateWithWhereUniqueWithoutTicketInput | TicketReasonUpdateWithWhereUniqueWithoutTicketInput[]
+    updateMany?: TicketReasonUpdateManyWithWhereWithoutTicketInput | TicketReasonUpdateManyWithWhereWithoutTicketInput[]
+    deleteMany?: TicketReasonScalarWhereInput | TicketReasonScalarWhereInput[]
+  }
+
   export type timeLogUncheckedUpdateManyWithoutTicketNestedInput = {
     create?: XOR<timeLogCreateWithoutTicketInput, timeLogUncheckedCreateWithoutTicketInput> | timeLogCreateWithoutTicketInput[] | timeLogUncheckedCreateWithoutTicketInput[]
     connectOrCreate?: timeLogCreateOrConnectWithoutTicketInput | timeLogCreateOrConnectWithoutTicketInput[]
@@ -19034,6 +23101,19 @@ export namespace Prisma {
     update?: timeLogUpdateWithWhereUniqueWithoutTicketInput | timeLogUpdateWithWhereUniqueWithoutTicketInput[]
     updateMany?: timeLogUpdateManyWithWhereWithoutTicketInput | timeLogUpdateManyWithWhereWithoutTicketInput[]
     deleteMany?: timeLogScalarWhereInput | timeLogScalarWhereInput[]
+  }
+
+  export type ProjectDiscussionGroupUncheckedUpdateManyWithoutTicketsNestedInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutTicketsInput, ProjectDiscussionGroupUncheckedCreateWithoutTicketsInput> | ProjectDiscussionGroupCreateWithoutTicketsInput[] | ProjectDiscussionGroupUncheckedCreateWithoutTicketsInput[]
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutTicketsInput | ProjectDiscussionGroupCreateOrConnectWithoutTicketsInput[]
+    upsert?: ProjectDiscussionGroupUpsertWithWhereUniqueWithoutTicketsInput | ProjectDiscussionGroupUpsertWithWhereUniqueWithoutTicketsInput[]
+    set?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    disconnect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    delete?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    connect?: ProjectDiscussionGroupWhereUniqueInput | ProjectDiscussionGroupWhereUniqueInput[]
+    update?: ProjectDiscussionGroupUpdateWithWhereUniqueWithoutTicketsInput | ProjectDiscussionGroupUpdateWithWhereUniqueWithoutTicketsInput[]
+    updateMany?: ProjectDiscussionGroupUpdateManyWithWhereWithoutTicketsInput | ProjectDiscussionGroupUpdateManyWithWhereWithoutTicketsInput[]
+    deleteMany?: ProjectDiscussionGroupScalarWhereInput | ProjectDiscussionGroupScalarWhereInput[]
   }
 
   export type TicketAttachmentUncheckedUpdateManyWithoutTicketNestedInput = {
@@ -19112,6 +23192,12 @@ export namespace Prisma {
     connect?: TicketWhereUniqueInput
   }
 
+  export type ProjectDiscussionGroupCreateNestedOneWithoutMessagesInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutMessagesInput, ProjectDiscussionGroupUncheckedCreateWithoutMessagesInput>
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutMessagesInput
+    connect?: ProjectDiscussionGroupWhereUniqueInput
+  }
+
   export type ProjectUpdateOneRequiredWithoutMessagesNestedInput = {
     create?: XOR<ProjectCreateWithoutMessagesInput, ProjectUncheckedCreateWithoutMessagesInput>
     connectOrCreate?: ProjectCreateOrConnectWithoutMessagesInput
@@ -19136,6 +23222,16 @@ export namespace Prisma {
     delete?: TicketWhereInput | boolean
     connect?: TicketWhereUniqueInput
     update?: XOR<XOR<TicketUpdateToOneWithWhereWithoutMessagesInput, TicketUpdateWithoutMessagesInput>, TicketUncheckedUpdateWithoutMessagesInput>
+  }
+
+  export type ProjectDiscussionGroupUpdateOneWithoutMessagesNestedInput = {
+    create?: XOR<ProjectDiscussionGroupCreateWithoutMessagesInput, ProjectDiscussionGroupUncheckedCreateWithoutMessagesInput>
+    connectOrCreate?: ProjectDiscussionGroupCreateOrConnectWithoutMessagesInput
+    upsert?: ProjectDiscussionGroupUpsertWithoutMessagesInput
+    disconnect?: ProjectDiscussionGroupWhereInput | boolean
+    delete?: ProjectDiscussionGroupWhereInput | boolean
+    connect?: ProjectDiscussionGroupWhereUniqueInput
+    update?: XOR<XOR<ProjectDiscussionGroupUpdateToOneWithWhereWithoutMessagesInput, ProjectDiscussionGroupUpdateWithoutMessagesInput>, ProjectDiscussionGroupUncheckedUpdateWithoutMessagesInput>
   }
 
   export type userCreateNestedOneWithoutTimeLogsInput = {
@@ -19252,6 +23348,38 @@ export namespace Prisma {
     delete?: userWhereInput | boolean
     connect?: userWhereUniqueInput
     update?: XOR<XOR<userUpdateToOneWithWhereWithoutTargetActivityLogsInput, userUpdateWithoutTargetActivityLogsInput>, userUncheckedUpdateWithoutTargetActivityLogsInput>
+  }
+
+  export type TicketCreateNestedOneWithoutReasonsInput = {
+    create?: XOR<TicketCreateWithoutReasonsInput, TicketUncheckedCreateWithoutReasonsInput>
+    connectOrCreate?: TicketCreateOrConnectWithoutReasonsInput
+    connect?: TicketWhereUniqueInput
+  }
+
+  export type userCreateNestedOneWithoutTicketReasonsInput = {
+    create?: XOR<userCreateWithoutTicketReasonsInput, userUncheckedCreateWithoutTicketReasonsInput>
+    connectOrCreate?: userCreateOrConnectWithoutTicketReasonsInput
+    connect?: userWhereUniqueInput
+  }
+
+  export type EnumTicketReasonTypeFieldUpdateOperationsInput = {
+    set?: $Enums.TicketReasonType
+  }
+
+  export type TicketUpdateOneRequiredWithoutReasonsNestedInput = {
+    create?: XOR<TicketCreateWithoutReasonsInput, TicketUncheckedCreateWithoutReasonsInput>
+    connectOrCreate?: TicketCreateOrConnectWithoutReasonsInput
+    upsert?: TicketUpsertWithoutReasonsInput
+    connect?: TicketWhereUniqueInput
+    update?: XOR<XOR<TicketUpdateToOneWithWhereWithoutReasonsInput, TicketUpdateWithoutReasonsInput>, TicketUncheckedUpdateWithoutReasonsInput>
+  }
+
+  export type userUpdateOneRequiredWithoutTicketReasonsNestedInput = {
+    create?: XOR<userCreateWithoutTicketReasonsInput, userUncheckedCreateWithoutTicketReasonsInput>
+    connectOrCreate?: userCreateOrConnectWithoutTicketReasonsInput
+    upsert?: userUpsertWithoutTicketReasonsInput
+    connect?: userWhereUniqueInput
+    update?: XOR<XOR<userUpdateToOneWithWhereWithoutTicketReasonsInput, userUpdateWithoutTicketReasonsInput>, userUncheckedUpdateWithoutTicketReasonsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -19520,6 +23648,23 @@ export namespace Prisma {
     _max?: NestedEnumGroupStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumProjectDiscussionGroupTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProjectDiscussionGroupType | EnumProjectDiscussionGroupTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ProjectDiscussionGroupType[] | ListEnumProjectDiscussionGroupTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProjectDiscussionGroupType[] | ListEnumProjectDiscussionGroupTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumProjectDiscussionGroupTypeFilter<$PrismaModel> | $Enums.ProjectDiscussionGroupType
+  }
+
+  export type NestedEnumProjectDiscussionGroupTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProjectDiscussionGroupType | EnumProjectDiscussionGroupTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ProjectDiscussionGroupType[] | ListEnumProjectDiscussionGroupTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProjectDiscussionGroupType[] | ListEnumProjectDiscussionGroupTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumProjectDiscussionGroupTypeWithAggregatesFilter<$PrismaModel> | $Enums.ProjectDiscussionGroupType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProjectDiscussionGroupTypeFilter<$PrismaModel>
+    _max?: NestedEnumProjectDiscussionGroupTypeFilter<$PrismaModel>
+  }
+
   export type NestedEnumTicketStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.TicketStatus | EnumTicketStatusFieldRefInput<$PrismaModel>
     in?: $Enums.TicketStatus[] | ListEnumTicketStatusFieldRefInput<$PrismaModel>
@@ -19539,6 +23684,17 @@ export namespace Prisma {
     in?: $Enums.TicketType[] | ListEnumTicketTypeFieldRefInput<$PrismaModel>
     notIn?: $Enums.TicketType[] | ListEnumTicketTypeFieldRefInput<$PrismaModel>
     not?: NestedEnumTicketTypeFilter<$PrismaModel> | $Enums.TicketType
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedEnumTicketStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -19571,6 +23727,22 @@ export namespace Prisma {
     _max?: NestedEnumTicketTypeFilter<$PrismaModel>
   }
 
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -19585,17 +23757,6 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-
-  export type NestedFloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedEnumActivityActionFilter<$PrismaModel = never> = {
@@ -19638,6 +23799,23 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedEnumTicketReasonTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.TicketReasonType | EnumTicketReasonTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.TicketReasonType[] | ListEnumTicketReasonTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TicketReasonType[] | ListEnumTicketReasonTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumTicketReasonTypeFilter<$PrismaModel> | $Enums.TicketReasonType
+  }
+
+  export type NestedEnumTicketReasonTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TicketReasonType | EnumTicketReasonTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.TicketReasonType[] | ListEnumTicketReasonTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TicketReasonType[] | ListEnumTicketReasonTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumTicketReasonTypeWithAggregatesFilter<$PrismaModel> | $Enums.TicketReasonType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTicketReasonTypeFilter<$PrismaModel>
+    _max?: NestedEnumTicketReasonTypeFilter<$PrismaModel>
+  }
+
   export type ProjectCreateWithoutCompanyInput = {
     id?: string
     title: string
@@ -19654,6 +23832,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: userCreateNestedManyWithoutProjectsInput
     admins?: userCreateNestedManyWithoutAdminProjectsInput
+    discussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutProjectInput
     messages?: MessageCreateNestedManyWithoutProjectInput
     timeLogs?: timeLogCreateNestedManyWithoutProjectInput
     groups?: ProjectGroupCreateNestedManyWithoutProjectInput
@@ -19676,6 +23855,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: userUncheckedCreateNestedManyWithoutProjectsInput
     admins?: userUncheckedCreateNestedManyWithoutAdminProjectsInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutProjectInput
     messages?: MessageUncheckedCreateNestedManyWithoutProjectInput
     timeLogs?: timeLogUncheckedCreateNestedManyWithoutProjectInput
     groups?: ProjectGroupUncheckedCreateNestedManyWithoutProjectInput
@@ -19704,6 +23884,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -19714,10 +23895,14 @@ export namespace Prisma {
     adminProjects?: ProjectCreateNestedManyWithoutAdminsInput
     messages?: MessageCreateNestedManyWithoutUserInput
     assignedTickets?: TicketCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonCreateNestedManyWithoutUserInput
     notes?: NoteCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutMembersInput
   }
 
   export type userUncheckedCreateWithoutCompanyInput = {
@@ -19732,6 +23917,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -19742,10 +23928,14 @@ export namespace Prisma {
     adminProjects?: ProjectUncheckedCreateNestedManyWithoutAdminsInput
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     assignedTickets?: TicketUncheckedCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketUncheckedCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonUncheckedCreateNestedManyWithoutUserInput
     notes?: NoteUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutMembersInput
   }
 
   export type userCreateOrConnectWithoutCompanyInput = {
@@ -19897,6 +24087,7 @@ export namespace Prisma {
     isActive?: BoolFilter<"user"> | boolean
     lastActive?: DateTimeNullableFilter<"user"> | Date | string | null
     designation?: StringNullableFilter<"user"> | string | null
+    isPending?: BoolFilter<"user"> | boolean
     forgotPasswordToken?: StringNullableFilter<"user"> | string | null
     forgotPasswordTokenExpiry?: DateTimeNullableFilter<"user"> | Date | string | null
     isVerified?: BoolFilter<"user"> | boolean
@@ -20047,6 +24238,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     admins?: userCreateNestedManyWithoutAdminProjectsInput
     company: CompanyCreateNestedOneWithoutProjectsInput
+    discussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutProjectInput
     messages?: MessageCreateNestedManyWithoutProjectInput
     timeLogs?: timeLogCreateNestedManyWithoutProjectInput
     groups?: ProjectGroupCreateNestedManyWithoutProjectInput
@@ -20069,6 +24261,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     admins?: userUncheckedCreateNestedManyWithoutAdminProjectsInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutProjectInput
     messages?: MessageUncheckedCreateNestedManyWithoutProjectInput
     timeLogs?: timeLogUncheckedCreateNestedManyWithoutProjectInput
     groups?: ProjectGroupUncheckedCreateNestedManyWithoutProjectInput
@@ -20096,6 +24289,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: userCreateNestedManyWithoutProjectsInput
     company: CompanyCreateNestedOneWithoutProjectsInput
+    discussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutProjectInput
     messages?: MessageCreateNestedManyWithoutProjectInput
     timeLogs?: timeLogCreateNestedManyWithoutProjectInput
     groups?: ProjectGroupCreateNestedManyWithoutProjectInput
@@ -20118,6 +24312,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     members?: userUncheckedCreateNestedManyWithoutProjectsInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutProjectInput
     messages?: MessageUncheckedCreateNestedManyWithoutProjectInput
     timeLogs?: timeLogUncheckedCreateNestedManyWithoutProjectInput
     groups?: ProjectGroupUncheckedCreateNestedManyWithoutProjectInput
@@ -20139,6 +24334,7 @@ export namespace Prisma {
     isDeleted?: boolean
     project: ProjectCreateNestedOneWithoutMessagesInput
     ticket?: TicketCreateNestedOneWithoutMessagesInput
+    discussionGroup?: ProjectDiscussionGroupCreateNestedOneWithoutMessagesInput
   }
 
   export type MessageUncheckedCreateWithoutUserInput = {
@@ -20151,6 +24347,7 @@ export namespace Prisma {
     isDeleted?: boolean
     projectId: string
     ticketId?: string | null
+    discussionGroupId?: string | null
   }
 
   export type MessageCreateOrConnectWithoutUserInput = {
@@ -20179,9 +24376,13 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     project: ProjectCreateNestedOneWithoutTicketsInput
     group?: ProjectGroupCreateNestedOneWithoutTicketsInput
+    assignedBy?: userCreateNestedOneWithoutAssignedByTicketsInput
+    reasons?: TicketReasonCreateNestedManyWithoutTicketInput
     timeLogs?: timeLogCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutTicketsInput
     attachments?: TicketAttachmentCreateNestedManyWithoutTicketInput
     messages?: MessageCreateNestedManyWithoutTicketInput
   }
@@ -20202,9 +24403,13 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     projectId: string
     groupId?: string | null
+    assignedById?: string | null
+    reasons?: TicketReasonUncheckedCreateNestedManyWithoutTicketInput
     timeLogs?: timeLogUncheckedCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutTicketsInput
     attachments?: TicketAttachmentUncheckedCreateNestedManyWithoutTicketInput
     messages?: MessageUncheckedCreateNestedManyWithoutTicketInput
   }
@@ -20216,6 +24421,96 @@ export namespace Prisma {
 
   export type TicketCreateManyAssignedUserInputEnvelope = {
     data: TicketCreateManyAssignedUserInput | TicketCreateManyAssignedUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TicketCreateWithoutAssignedByInput = {
+    id?: string
+    title: string
+    description: string
+    status?: $Enums.TicketStatus
+    priority?: $Enums.Priority
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dueDate?: Date | string | null
+    isCompleted?: boolean
+    completedAt?: Date | string | null
+    isDeleted?: boolean
+    deletedAt?: Date | string | null
+    reasonBlocked?: string | null
+    reasonReopen?: string | null
+    type?: $Enums.TicketType
+    estimatedHours?: number | null
+    project: ProjectCreateNestedOneWithoutTicketsInput
+    group?: ProjectGroupCreateNestedOneWithoutTicketsInput
+    assignedUser?: userCreateNestedOneWithoutAssignedTicketsInput
+    reasons?: TicketReasonCreateNestedManyWithoutTicketInput
+    timeLogs?: timeLogCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutTicketsInput
+    attachments?: TicketAttachmentCreateNestedManyWithoutTicketInput
+    messages?: MessageCreateNestedManyWithoutTicketInput
+  }
+
+  export type TicketUncheckedCreateWithoutAssignedByInput = {
+    id?: string
+    title: string
+    description: string
+    status?: $Enums.TicketStatus
+    priority?: $Enums.Priority
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dueDate?: Date | string | null
+    isCompleted?: boolean
+    completedAt?: Date | string | null
+    isDeleted?: boolean
+    deletedAt?: Date | string | null
+    reasonBlocked?: string | null
+    reasonReopen?: string | null
+    type?: $Enums.TicketType
+    estimatedHours?: number | null
+    projectId: string
+    groupId?: string | null
+    assignedUserId?: string | null
+    reasons?: TicketReasonUncheckedCreateNestedManyWithoutTicketInput
+    timeLogs?: timeLogUncheckedCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutTicketsInput
+    attachments?: TicketAttachmentUncheckedCreateNestedManyWithoutTicketInput
+    messages?: MessageUncheckedCreateNestedManyWithoutTicketInput
+  }
+
+  export type TicketCreateOrConnectWithoutAssignedByInput = {
+    where: TicketWhereUniqueInput
+    create: XOR<TicketCreateWithoutAssignedByInput, TicketUncheckedCreateWithoutAssignedByInput>
+  }
+
+  export type TicketCreateManyAssignedByInputEnvelope = {
+    data: TicketCreateManyAssignedByInput | TicketCreateManyAssignedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TicketReasonCreateWithoutUserInput = {
+    id?: string
+    type: $Enums.TicketReasonType
+    reason: string
+    createdAt?: Date | string
+    ticket: TicketCreateNestedOneWithoutReasonsInput
+  }
+
+  export type TicketReasonUncheckedCreateWithoutUserInput = {
+    id?: string
+    type: $Enums.TicketReasonType
+    reason: string
+    createdAt?: Date | string
+    ticketId: string
+  }
+
+  export type TicketReasonCreateOrConnectWithoutUserInput = {
+    where: TicketReasonWhereUniqueInput
+    create: XOR<TicketReasonCreateWithoutUserInput, TicketReasonUncheckedCreateWithoutUserInput>
+  }
+
+  export type TicketReasonCreateManyUserInputEnvelope = {
+    data: TicketReasonCreateManyUserInput | TicketReasonCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -20341,6 +24636,81 @@ export namespace Prisma {
   export type TicketAttachmentCreateManyUploadedByInputEnvelope = {
     data: TicketAttachmentCreateManyUploadedByInput | TicketAttachmentCreateManyUploadedByInput[]
     skipDuplicates?: boolean
+  }
+
+  export type ProjectDiscussionGroupCreateWithoutUserInput = {
+    id?: string
+    title: string
+    type?: $Enums.ProjectDiscussionGroupType
+    content?: string | null
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tickets?: TicketCreateNestedManyWithoutDiscussionGroupsInput
+    members?: userCreateNestedManyWithoutJoinedDiscussionGroupsInput
+    messages?: MessageCreateNestedManyWithoutDiscussionGroupInput
+    project: ProjectCreateNestedOneWithoutDiscussionGroupsInput
+  }
+
+  export type ProjectDiscussionGroupUncheckedCreateWithoutUserInput = {
+    id?: string
+    title: string
+    type?: $Enums.ProjectDiscussionGroupType
+    content?: string | null
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    projectId: string
+    tickets?: TicketUncheckedCreateNestedManyWithoutDiscussionGroupsInput
+    members?: userUncheckedCreateNestedManyWithoutJoinedDiscussionGroupsInput
+    messages?: MessageUncheckedCreateNestedManyWithoutDiscussionGroupInput
+  }
+
+  export type ProjectDiscussionGroupCreateOrConnectWithoutUserInput = {
+    where: ProjectDiscussionGroupWhereUniqueInput
+    create: XOR<ProjectDiscussionGroupCreateWithoutUserInput, ProjectDiscussionGroupUncheckedCreateWithoutUserInput>
+  }
+
+  export type ProjectDiscussionGroupCreateManyUserInputEnvelope = {
+    data: ProjectDiscussionGroupCreateManyUserInput | ProjectDiscussionGroupCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ProjectDiscussionGroupCreateWithoutMembersInput = {
+    id?: string
+    title: string
+    type?: $Enums.ProjectDiscussionGroupType
+    content?: string | null
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tickets?: TicketCreateNestedManyWithoutDiscussionGroupsInput
+    messages?: MessageCreateNestedManyWithoutDiscussionGroupInput
+    project: ProjectCreateNestedOneWithoutDiscussionGroupsInput
+    user: userCreateNestedOneWithoutProjectDiscussionGroupsInput
+  }
+
+  export type ProjectDiscussionGroupUncheckedCreateWithoutMembersInput = {
+    id?: string
+    title: string
+    type?: $Enums.ProjectDiscussionGroupType
+    content?: string | null
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    projectId: string
+    userId: string
+    tickets?: TicketUncheckedCreateNestedManyWithoutDiscussionGroupsInput
+    messages?: MessageUncheckedCreateNestedManyWithoutDiscussionGroupInput
+  }
+
+  export type ProjectDiscussionGroupCreateOrConnectWithoutMembersInput = {
+    where: ProjectDiscussionGroupWhereUniqueInput
+    create: XOR<ProjectDiscussionGroupCreateWithoutMembersInput, ProjectDiscussionGroupUncheckedCreateWithoutMembersInput>
   }
 
   export type CompanyUpsertWithoutUserInput = {
@@ -20470,6 +24840,7 @@ export namespace Prisma {
     projectId?: StringFilter<"Message"> | string
     userId?: StringFilter<"Message"> | string
     ticketId?: StringNullableFilter<"Message"> | string | null
+    discussionGroupId?: StringNullableFilter<"Message"> | string | null
   }
 
   export type TicketUpsertWithWhereUniqueWithoutAssignedUserInput = {
@@ -20507,9 +24878,55 @@ export namespace Prisma {
     reasonBlocked?: StringNullableFilter<"Ticket"> | string | null
     reasonReopen?: StringNullableFilter<"Ticket"> | string | null
     type?: EnumTicketTypeFilter<"Ticket"> | $Enums.TicketType
+    estimatedHours?: FloatNullableFilter<"Ticket"> | number | null
     projectId?: StringFilter<"Ticket"> | string
     groupId?: StringNullableFilter<"Ticket"> | string | null
     assignedUserId?: StringNullableFilter<"Ticket"> | string | null
+    assignedById?: StringNullableFilter<"Ticket"> | string | null
+  }
+
+  export type TicketUpsertWithWhereUniqueWithoutAssignedByInput = {
+    where: TicketWhereUniqueInput
+    update: XOR<TicketUpdateWithoutAssignedByInput, TicketUncheckedUpdateWithoutAssignedByInput>
+    create: XOR<TicketCreateWithoutAssignedByInput, TicketUncheckedCreateWithoutAssignedByInput>
+  }
+
+  export type TicketUpdateWithWhereUniqueWithoutAssignedByInput = {
+    where: TicketWhereUniqueInput
+    data: XOR<TicketUpdateWithoutAssignedByInput, TicketUncheckedUpdateWithoutAssignedByInput>
+  }
+
+  export type TicketUpdateManyWithWhereWithoutAssignedByInput = {
+    where: TicketScalarWhereInput
+    data: XOR<TicketUpdateManyMutationInput, TicketUncheckedUpdateManyWithoutAssignedByInput>
+  }
+
+  export type TicketReasonUpsertWithWhereUniqueWithoutUserInput = {
+    where: TicketReasonWhereUniqueInput
+    update: XOR<TicketReasonUpdateWithoutUserInput, TicketReasonUncheckedUpdateWithoutUserInput>
+    create: XOR<TicketReasonCreateWithoutUserInput, TicketReasonUncheckedCreateWithoutUserInput>
+  }
+
+  export type TicketReasonUpdateWithWhereUniqueWithoutUserInput = {
+    where: TicketReasonWhereUniqueInput
+    data: XOR<TicketReasonUpdateWithoutUserInput, TicketReasonUncheckedUpdateWithoutUserInput>
+  }
+
+  export type TicketReasonUpdateManyWithWhereWithoutUserInput = {
+    where: TicketReasonScalarWhereInput
+    data: XOR<TicketReasonUpdateManyMutationInput, TicketReasonUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type TicketReasonScalarWhereInput = {
+    AND?: TicketReasonScalarWhereInput | TicketReasonScalarWhereInput[]
+    OR?: TicketReasonScalarWhereInput[]
+    NOT?: TicketReasonScalarWhereInput | TicketReasonScalarWhereInput[]
+    id?: StringFilter<"TicketReason"> | string
+    type?: EnumTicketReasonTypeFilter<"TicketReason"> | $Enums.TicketReasonType
+    reason?: StringFilter<"TicketReason"> | string
+    createdAt?: DateTimeFilter<"TicketReason"> | Date | string
+    ticketId?: StringFilter<"TicketReason"> | string
+    userId?: StringFilter<"TicketReason"> | string
   }
 
   export type NoteUpsertWithWhereUniqueWithoutUserInput = {
@@ -20604,6 +25021,54 @@ export namespace Prisma {
     uploadedById?: StringNullableFilter<"TicketAttachment"> | string | null
   }
 
+  export type ProjectDiscussionGroupUpsertWithWhereUniqueWithoutUserInput = {
+    where: ProjectDiscussionGroupWhereUniqueInput
+    update: XOR<ProjectDiscussionGroupUpdateWithoutUserInput, ProjectDiscussionGroupUncheckedUpdateWithoutUserInput>
+    create: XOR<ProjectDiscussionGroupCreateWithoutUserInput, ProjectDiscussionGroupUncheckedCreateWithoutUserInput>
+  }
+
+  export type ProjectDiscussionGroupUpdateWithWhereUniqueWithoutUserInput = {
+    where: ProjectDiscussionGroupWhereUniqueInput
+    data: XOR<ProjectDiscussionGroupUpdateWithoutUserInput, ProjectDiscussionGroupUncheckedUpdateWithoutUserInput>
+  }
+
+  export type ProjectDiscussionGroupUpdateManyWithWhereWithoutUserInput = {
+    where: ProjectDiscussionGroupScalarWhereInput
+    data: XOR<ProjectDiscussionGroupUpdateManyMutationInput, ProjectDiscussionGroupUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type ProjectDiscussionGroupScalarWhereInput = {
+    AND?: ProjectDiscussionGroupScalarWhereInput | ProjectDiscussionGroupScalarWhereInput[]
+    OR?: ProjectDiscussionGroupScalarWhereInput[]
+    NOT?: ProjectDiscussionGroupScalarWhereInput | ProjectDiscussionGroupScalarWhereInput[]
+    id?: StringFilter<"ProjectDiscussionGroup"> | string
+    title?: StringFilter<"ProjectDiscussionGroup"> | string
+    type?: EnumProjectDiscussionGroupTypeFilter<"ProjectDiscussionGroup"> | $Enums.ProjectDiscussionGroupType
+    content?: StringNullableFilter<"ProjectDiscussionGroup"> | string | null
+    isPinned?: BoolFilter<"ProjectDiscussionGroup"> | boolean
+    isArchived?: BoolFilter<"ProjectDiscussionGroup"> | boolean
+    createdAt?: DateTimeFilter<"ProjectDiscussionGroup"> | Date | string
+    updatedAt?: DateTimeFilter<"ProjectDiscussionGroup"> | Date | string
+    projectId?: StringFilter<"ProjectDiscussionGroup"> | string
+    userId?: StringFilter<"ProjectDiscussionGroup"> | string
+  }
+
+  export type ProjectDiscussionGroupUpsertWithWhereUniqueWithoutMembersInput = {
+    where: ProjectDiscussionGroupWhereUniqueInput
+    update: XOR<ProjectDiscussionGroupUpdateWithoutMembersInput, ProjectDiscussionGroupUncheckedUpdateWithoutMembersInput>
+    create: XOR<ProjectDiscussionGroupCreateWithoutMembersInput, ProjectDiscussionGroupUncheckedCreateWithoutMembersInput>
+  }
+
+  export type ProjectDiscussionGroupUpdateWithWhereUniqueWithoutMembersInput = {
+    where: ProjectDiscussionGroupWhereUniqueInput
+    data: XOR<ProjectDiscussionGroupUpdateWithoutMembersInput, ProjectDiscussionGroupUncheckedUpdateWithoutMembersInput>
+  }
+
+  export type ProjectDiscussionGroupUpdateManyWithWhereWithoutMembersInput = {
+    where: ProjectDiscussionGroupScalarWhereInput
+    data: XOR<ProjectDiscussionGroupUpdateManyMutationInput, ProjectDiscussionGroupUncheckedUpdateManyWithoutMembersInput>
+  }
+
   export type userCreateWithoutProjectsInput = {
     id?: string
     name: string
@@ -20616,6 +25081,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -20626,10 +25092,14 @@ export namespace Prisma {
     adminProjects?: ProjectCreateNestedManyWithoutAdminsInput
     messages?: MessageCreateNestedManyWithoutUserInput
     assignedTickets?: TicketCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonCreateNestedManyWithoutUserInput
     notes?: NoteCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutMembersInput
   }
 
   export type userUncheckedCreateWithoutProjectsInput = {
@@ -20644,6 +25114,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -20654,10 +25125,14 @@ export namespace Prisma {
     adminProjects?: ProjectUncheckedCreateNestedManyWithoutAdminsInput
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     assignedTickets?: TicketUncheckedCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketUncheckedCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonUncheckedCreateNestedManyWithoutUserInput
     notes?: NoteUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutMembersInput
   }
 
   export type userCreateOrConnectWithoutProjectsInput = {
@@ -20677,6 +25152,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -20687,10 +25163,14 @@ export namespace Prisma {
     projects?: ProjectCreateNestedManyWithoutMembersInput
     messages?: MessageCreateNestedManyWithoutUserInput
     assignedTickets?: TicketCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonCreateNestedManyWithoutUserInput
     notes?: NoteCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutMembersInput
   }
 
   export type userUncheckedCreateWithoutAdminProjectsInput = {
@@ -20705,6 +25185,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -20715,10 +25196,14 @@ export namespace Prisma {
     projects?: ProjectUncheckedCreateNestedManyWithoutMembersInput
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     assignedTickets?: TicketUncheckedCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketUncheckedCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonUncheckedCreateNestedManyWithoutUserInput
     notes?: NoteUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutMembersInput
   }
 
   export type userCreateOrConnectWithoutAdminProjectsInput = {
@@ -20753,6 +25238,46 @@ export namespace Prisma {
     create: XOR<CompanyCreateWithoutProjectsInput, CompanyUncheckedCreateWithoutProjectsInput>
   }
 
+  export type ProjectDiscussionGroupCreateWithoutProjectInput = {
+    id?: string
+    title: string
+    type?: $Enums.ProjectDiscussionGroupType
+    content?: string | null
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tickets?: TicketCreateNestedManyWithoutDiscussionGroupsInput
+    members?: userCreateNestedManyWithoutJoinedDiscussionGroupsInput
+    messages?: MessageCreateNestedManyWithoutDiscussionGroupInput
+    user: userCreateNestedOneWithoutProjectDiscussionGroupsInput
+  }
+
+  export type ProjectDiscussionGroupUncheckedCreateWithoutProjectInput = {
+    id?: string
+    title: string
+    type?: $Enums.ProjectDiscussionGroupType
+    content?: string | null
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    userId: string
+    tickets?: TicketUncheckedCreateNestedManyWithoutDiscussionGroupsInput
+    members?: userUncheckedCreateNestedManyWithoutJoinedDiscussionGroupsInput
+    messages?: MessageUncheckedCreateNestedManyWithoutDiscussionGroupInput
+  }
+
+  export type ProjectDiscussionGroupCreateOrConnectWithoutProjectInput = {
+    where: ProjectDiscussionGroupWhereUniqueInput
+    create: XOR<ProjectDiscussionGroupCreateWithoutProjectInput, ProjectDiscussionGroupUncheckedCreateWithoutProjectInput>
+  }
+
+  export type ProjectDiscussionGroupCreateManyProjectInputEnvelope = {
+    data: ProjectDiscussionGroupCreateManyProjectInput | ProjectDiscussionGroupCreateManyProjectInput[]
+    skipDuplicates?: boolean
+  }
+
   export type MessageCreateWithoutProjectInput = {
     id?: string
     text: string
@@ -20763,6 +25288,7 @@ export namespace Prisma {
     isDeleted?: boolean
     user: userCreateNestedOneWithoutMessagesInput
     ticket?: TicketCreateNestedOneWithoutMessagesInput
+    discussionGroup?: ProjectDiscussionGroupCreateNestedOneWithoutMessagesInput
   }
 
   export type MessageUncheckedCreateWithoutProjectInput = {
@@ -20775,6 +25301,7 @@ export namespace Prisma {
     isDeleted?: boolean
     userId: string
     ticketId?: string | null
+    discussionGroupId?: string | null
   }
 
   export type MessageCreateOrConnectWithoutProjectInput = {
@@ -20879,9 +25406,13 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     group?: ProjectGroupCreateNestedOneWithoutTicketsInput
     assignedUser?: userCreateNestedOneWithoutAssignedTicketsInput
+    assignedBy?: userCreateNestedOneWithoutAssignedByTicketsInput
+    reasons?: TicketReasonCreateNestedManyWithoutTicketInput
     timeLogs?: timeLogCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutTicketsInput
     attachments?: TicketAttachmentCreateNestedManyWithoutTicketInput
     messages?: MessageCreateNestedManyWithoutTicketInput
   }
@@ -20902,9 +25433,13 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     groupId?: string | null
     assignedUserId?: string | null
+    assignedById?: string | null
+    reasons?: TicketReasonUncheckedCreateNestedManyWithoutTicketInput
     timeLogs?: timeLogUncheckedCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutTicketsInput
     attachments?: TicketAttachmentUncheckedCreateNestedManyWithoutTicketInput
     messages?: MessageUncheckedCreateNestedManyWithoutTicketInput
   }
@@ -20982,6 +25517,22 @@ export namespace Prisma {
     user?: userUncheckedUpdateManyWithoutCompanyNestedInput
     notes?: NoteUncheckedUpdateManyWithoutCompanyNestedInput
     projectGroups?: ProjectGroupUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type ProjectDiscussionGroupUpsertWithWhereUniqueWithoutProjectInput = {
+    where: ProjectDiscussionGroupWhereUniqueInput
+    update: XOR<ProjectDiscussionGroupUpdateWithoutProjectInput, ProjectDiscussionGroupUncheckedUpdateWithoutProjectInput>
+    create: XOR<ProjectDiscussionGroupCreateWithoutProjectInput, ProjectDiscussionGroupUncheckedCreateWithoutProjectInput>
+  }
+
+  export type ProjectDiscussionGroupUpdateWithWhereUniqueWithoutProjectInput = {
+    where: ProjectDiscussionGroupWhereUniqueInput
+    data: XOR<ProjectDiscussionGroupUpdateWithoutProjectInput, ProjectDiscussionGroupUncheckedUpdateWithoutProjectInput>
+  }
+
+  export type ProjectDiscussionGroupUpdateManyWithWhereWithoutProjectInput = {
+    where: ProjectDiscussionGroupScalarWhereInput
+    data: XOR<ProjectDiscussionGroupUpdateManyMutationInput, ProjectDiscussionGroupUncheckedUpdateManyWithoutProjectInput>
   }
 
   export type MessageUpsertWithWhereUniqueWithoutProjectInput = {
@@ -21064,9 +25615,13 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     project: ProjectCreateNestedOneWithoutTicketsInput
     assignedUser?: userCreateNestedOneWithoutAssignedTicketsInput
+    assignedBy?: userCreateNestedOneWithoutAssignedByTicketsInput
+    reasons?: TicketReasonCreateNestedManyWithoutTicketInput
     timeLogs?: timeLogCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutTicketsInput
     attachments?: TicketAttachmentCreateNestedManyWithoutTicketInput
     messages?: MessageCreateNestedManyWithoutTicketInput
   }
@@ -21087,9 +25642,13 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     projectId: string
     assignedUserId?: string | null
+    assignedById?: string | null
+    reasons?: TicketReasonUncheckedCreateNestedManyWithoutTicketInput
     timeLogs?: timeLogUncheckedCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutTicketsInput
     attachments?: TicketAttachmentUncheckedCreateNestedManyWithoutTicketInput
     messages?: MessageUncheckedCreateNestedManyWithoutTicketInput
   }
@@ -21148,6 +25707,7 @@ export namespace Prisma {
     members?: userCreateNestedManyWithoutProjectsInput
     admins?: userCreateNestedManyWithoutAdminProjectsInput
     company: CompanyCreateNestedOneWithoutProjectsInput
+    discussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutProjectInput
     messages?: MessageCreateNestedManyWithoutProjectInput
     timeLogs?: timeLogCreateNestedManyWithoutProjectInput
     tickets?: TicketCreateNestedManyWithoutProjectInput
@@ -21170,6 +25730,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: userUncheckedCreateNestedManyWithoutProjectsInput
     admins?: userUncheckedCreateNestedManyWithoutAdminProjectsInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutProjectInput
     messages?: MessageUncheckedCreateNestedManyWithoutProjectInput
     timeLogs?: timeLogUncheckedCreateNestedManyWithoutProjectInput
     tickets?: TicketUncheckedCreateNestedManyWithoutProjectInput
@@ -21257,6 +25818,7 @@ export namespace Prisma {
     members?: userUpdateManyWithoutProjectsNestedInput
     admins?: userUpdateManyWithoutAdminProjectsNestedInput
     company?: CompanyUpdateOneRequiredWithoutProjectsNestedInput
+    discussionGroups?: ProjectDiscussionGroupUpdateManyWithoutProjectNestedInput
     messages?: MessageUpdateManyWithoutProjectNestedInput
     timeLogs?: timeLogUpdateManyWithoutProjectNestedInput
     tickets?: TicketUpdateManyWithoutProjectNestedInput
@@ -21279,9 +25841,480 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: userUncheckedUpdateManyWithoutProjectsNestedInput
     admins?: userUncheckedUpdateManyWithoutAdminProjectsNestedInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutProjectNestedInput
     messages?: MessageUncheckedUpdateManyWithoutProjectNestedInput
     timeLogs?: timeLogUncheckedUpdateManyWithoutProjectNestedInput
     tickets?: TicketUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
+  export type TicketCreateWithoutDiscussionGroupsInput = {
+    id?: string
+    title: string
+    description: string
+    status?: $Enums.TicketStatus
+    priority?: $Enums.Priority
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dueDate?: Date | string | null
+    isCompleted?: boolean
+    completedAt?: Date | string | null
+    isDeleted?: boolean
+    deletedAt?: Date | string | null
+    reasonBlocked?: string | null
+    reasonReopen?: string | null
+    type?: $Enums.TicketType
+    estimatedHours?: number | null
+    project: ProjectCreateNestedOneWithoutTicketsInput
+    group?: ProjectGroupCreateNestedOneWithoutTicketsInput
+    assignedUser?: userCreateNestedOneWithoutAssignedTicketsInput
+    assignedBy?: userCreateNestedOneWithoutAssignedByTicketsInput
+    reasons?: TicketReasonCreateNestedManyWithoutTicketInput
+    timeLogs?: timeLogCreateNestedManyWithoutTicketInput
+    attachments?: TicketAttachmentCreateNestedManyWithoutTicketInput
+    messages?: MessageCreateNestedManyWithoutTicketInput
+  }
+
+  export type TicketUncheckedCreateWithoutDiscussionGroupsInput = {
+    id?: string
+    title: string
+    description: string
+    status?: $Enums.TicketStatus
+    priority?: $Enums.Priority
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dueDate?: Date | string | null
+    isCompleted?: boolean
+    completedAt?: Date | string | null
+    isDeleted?: boolean
+    deletedAt?: Date | string | null
+    reasonBlocked?: string | null
+    reasonReopen?: string | null
+    type?: $Enums.TicketType
+    estimatedHours?: number | null
+    projectId: string
+    groupId?: string | null
+    assignedUserId?: string | null
+    assignedById?: string | null
+    reasons?: TicketReasonUncheckedCreateNestedManyWithoutTicketInput
+    timeLogs?: timeLogUncheckedCreateNestedManyWithoutTicketInput
+    attachments?: TicketAttachmentUncheckedCreateNestedManyWithoutTicketInput
+    messages?: MessageUncheckedCreateNestedManyWithoutTicketInput
+  }
+
+  export type TicketCreateOrConnectWithoutDiscussionGroupsInput = {
+    where: TicketWhereUniqueInput
+    create: XOR<TicketCreateWithoutDiscussionGroupsInput, TicketUncheckedCreateWithoutDiscussionGroupsInput>
+  }
+
+  export type userCreateWithoutJoinedDiscussionGroupsInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    role?: $Enums.Role
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    imageUrl?: string | null
+    isActive?: boolean
+    lastActive?: Date | string | null
+    designation?: string | null
+    isPending?: boolean
+    forgotPasswordToken?: string | null
+    forgotPasswordTokenExpiry?: Date | string | null
+    isVerified?: boolean
+    verifyToken?: string | null
+    verifyTokenExpiry?: Date | string | null
+    company?: CompanyCreateNestedOneWithoutUserInput
+    timeLogs?: timeLogCreateNestedManyWithoutUserInput
+    projects?: ProjectCreateNestedManyWithoutMembersInput
+    adminProjects?: ProjectCreateNestedManyWithoutAdminsInput
+    messages?: MessageCreateNestedManyWithoutUserInput
+    assignedTickets?: TicketCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonCreateNestedManyWithoutUserInput
+    notes?: NoteCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
+    targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutUserInput
+  }
+
+  export type userUncheckedCreateWithoutJoinedDiscussionGroupsInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    role?: $Enums.Role
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    imageUrl?: string | null
+    isActive?: boolean
+    lastActive?: Date | string | null
+    designation?: string | null
+    isPending?: boolean
+    forgotPasswordToken?: string | null
+    forgotPasswordTokenExpiry?: Date | string | null
+    isVerified?: boolean
+    verifyToken?: string | null
+    verifyTokenExpiry?: Date | string | null
+    companyId?: string | null
+    timeLogs?: timeLogUncheckedCreateNestedManyWithoutUserInput
+    projects?: ProjectUncheckedCreateNestedManyWithoutMembersInput
+    adminProjects?: ProjectUncheckedCreateNestedManyWithoutAdminsInput
+    messages?: MessageUncheckedCreateNestedManyWithoutUserInput
+    assignedTickets?: TicketUncheckedCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketUncheckedCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonUncheckedCreateNestedManyWithoutUserInput
+    notes?: NoteUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
+    targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type userCreateOrConnectWithoutJoinedDiscussionGroupsInput = {
+    where: userWhereUniqueInput
+    create: XOR<userCreateWithoutJoinedDiscussionGroupsInput, userUncheckedCreateWithoutJoinedDiscussionGroupsInput>
+  }
+
+  export type MessageCreateWithoutDiscussionGroupInput = {
+    id?: string
+    text: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isRead?: boolean
+    isStarred?: boolean
+    isDeleted?: boolean
+    project: ProjectCreateNestedOneWithoutMessagesInput
+    user: userCreateNestedOneWithoutMessagesInput
+    ticket?: TicketCreateNestedOneWithoutMessagesInput
+  }
+
+  export type MessageUncheckedCreateWithoutDiscussionGroupInput = {
+    id?: string
+    text: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isRead?: boolean
+    isStarred?: boolean
+    isDeleted?: boolean
+    projectId: string
+    userId: string
+    ticketId?: string | null
+  }
+
+  export type MessageCreateOrConnectWithoutDiscussionGroupInput = {
+    where: MessageWhereUniqueInput
+    create: XOR<MessageCreateWithoutDiscussionGroupInput, MessageUncheckedCreateWithoutDiscussionGroupInput>
+  }
+
+  export type MessageCreateManyDiscussionGroupInputEnvelope = {
+    data: MessageCreateManyDiscussionGroupInput | MessageCreateManyDiscussionGroupInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ProjectCreateWithoutDiscussionGroupsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    status?: $Enums.ProjectStatus
+    imageUrl?: string | null
+    isActive?: boolean
+    completedDate?: Date | string | null
+    targetDate?: Date | string | null
+    startDate?: Date | string | null
+    phase?: $Enums.ProjectPhase
+    category?: $Enums.ProjectCategory
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: userCreateNestedManyWithoutProjectsInput
+    admins?: userCreateNestedManyWithoutAdminProjectsInput
+    company: CompanyCreateNestedOneWithoutProjectsInput
+    messages?: MessageCreateNestedManyWithoutProjectInput
+    timeLogs?: timeLogCreateNestedManyWithoutProjectInput
+    groups?: ProjectGroupCreateNestedManyWithoutProjectInput
+    tickets?: TicketCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectUncheckedCreateWithoutDiscussionGroupsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    status?: $Enums.ProjectStatus
+    imageUrl?: string | null
+    isActive?: boolean
+    completedDate?: Date | string | null
+    targetDate?: Date | string | null
+    startDate?: Date | string | null
+    phase?: $Enums.ProjectPhase
+    category?: $Enums.ProjectCategory
+    companyId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: userUncheckedCreateNestedManyWithoutProjectsInput
+    admins?: userUncheckedCreateNestedManyWithoutAdminProjectsInput
+    messages?: MessageUncheckedCreateNestedManyWithoutProjectInput
+    timeLogs?: timeLogUncheckedCreateNestedManyWithoutProjectInput
+    groups?: ProjectGroupUncheckedCreateNestedManyWithoutProjectInput
+    tickets?: TicketUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectCreateOrConnectWithoutDiscussionGroupsInput = {
+    where: ProjectWhereUniqueInput
+    create: XOR<ProjectCreateWithoutDiscussionGroupsInput, ProjectUncheckedCreateWithoutDiscussionGroupsInput>
+  }
+
+  export type userCreateWithoutProjectDiscussionGroupsInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    role?: $Enums.Role
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    imageUrl?: string | null
+    isActive?: boolean
+    lastActive?: Date | string | null
+    designation?: string | null
+    isPending?: boolean
+    forgotPasswordToken?: string | null
+    forgotPasswordTokenExpiry?: Date | string | null
+    isVerified?: boolean
+    verifyToken?: string | null
+    verifyTokenExpiry?: Date | string | null
+    company?: CompanyCreateNestedOneWithoutUserInput
+    timeLogs?: timeLogCreateNestedManyWithoutUserInput
+    projects?: ProjectCreateNestedManyWithoutMembersInput
+    adminProjects?: ProjectCreateNestedManyWithoutAdminsInput
+    messages?: MessageCreateNestedManyWithoutUserInput
+    assignedTickets?: TicketCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonCreateNestedManyWithoutUserInput
+    notes?: NoteCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
+    targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutMembersInput
+  }
+
+  export type userUncheckedCreateWithoutProjectDiscussionGroupsInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    role?: $Enums.Role
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    imageUrl?: string | null
+    isActive?: boolean
+    lastActive?: Date | string | null
+    designation?: string | null
+    isPending?: boolean
+    forgotPasswordToken?: string | null
+    forgotPasswordTokenExpiry?: Date | string | null
+    isVerified?: boolean
+    verifyToken?: string | null
+    verifyTokenExpiry?: Date | string | null
+    companyId?: string | null
+    timeLogs?: timeLogUncheckedCreateNestedManyWithoutUserInput
+    projects?: ProjectUncheckedCreateNestedManyWithoutMembersInput
+    adminProjects?: ProjectUncheckedCreateNestedManyWithoutAdminsInput
+    messages?: MessageUncheckedCreateNestedManyWithoutUserInput
+    assignedTickets?: TicketUncheckedCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketUncheckedCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonUncheckedCreateNestedManyWithoutUserInput
+    notes?: NoteUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
+    targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutMembersInput
+  }
+
+  export type userCreateOrConnectWithoutProjectDiscussionGroupsInput = {
+    where: userWhereUniqueInput
+    create: XOR<userCreateWithoutProjectDiscussionGroupsInput, userUncheckedCreateWithoutProjectDiscussionGroupsInput>
+  }
+
+  export type TicketUpsertWithWhereUniqueWithoutDiscussionGroupsInput = {
+    where: TicketWhereUniqueInput
+    update: XOR<TicketUpdateWithoutDiscussionGroupsInput, TicketUncheckedUpdateWithoutDiscussionGroupsInput>
+    create: XOR<TicketCreateWithoutDiscussionGroupsInput, TicketUncheckedCreateWithoutDiscussionGroupsInput>
+  }
+
+  export type TicketUpdateWithWhereUniqueWithoutDiscussionGroupsInput = {
+    where: TicketWhereUniqueInput
+    data: XOR<TicketUpdateWithoutDiscussionGroupsInput, TicketUncheckedUpdateWithoutDiscussionGroupsInput>
+  }
+
+  export type TicketUpdateManyWithWhereWithoutDiscussionGroupsInput = {
+    where: TicketScalarWhereInput
+    data: XOR<TicketUpdateManyMutationInput, TicketUncheckedUpdateManyWithoutDiscussionGroupsInput>
+  }
+
+  export type userUpsertWithWhereUniqueWithoutJoinedDiscussionGroupsInput = {
+    where: userWhereUniqueInput
+    update: XOR<userUpdateWithoutJoinedDiscussionGroupsInput, userUncheckedUpdateWithoutJoinedDiscussionGroupsInput>
+    create: XOR<userCreateWithoutJoinedDiscussionGroupsInput, userUncheckedCreateWithoutJoinedDiscussionGroupsInput>
+  }
+
+  export type userUpdateWithWhereUniqueWithoutJoinedDiscussionGroupsInput = {
+    where: userWhereUniqueInput
+    data: XOR<userUpdateWithoutJoinedDiscussionGroupsInput, userUncheckedUpdateWithoutJoinedDiscussionGroupsInput>
+  }
+
+  export type userUpdateManyWithWhereWithoutJoinedDiscussionGroupsInput = {
+    where: userScalarWhereInput
+    data: XOR<userUpdateManyMutationInput, userUncheckedUpdateManyWithoutJoinedDiscussionGroupsInput>
+  }
+
+  export type MessageUpsertWithWhereUniqueWithoutDiscussionGroupInput = {
+    where: MessageWhereUniqueInput
+    update: XOR<MessageUpdateWithoutDiscussionGroupInput, MessageUncheckedUpdateWithoutDiscussionGroupInput>
+    create: XOR<MessageCreateWithoutDiscussionGroupInput, MessageUncheckedCreateWithoutDiscussionGroupInput>
+  }
+
+  export type MessageUpdateWithWhereUniqueWithoutDiscussionGroupInput = {
+    where: MessageWhereUniqueInput
+    data: XOR<MessageUpdateWithoutDiscussionGroupInput, MessageUncheckedUpdateWithoutDiscussionGroupInput>
+  }
+
+  export type MessageUpdateManyWithWhereWithoutDiscussionGroupInput = {
+    where: MessageScalarWhereInput
+    data: XOR<MessageUpdateManyMutationInput, MessageUncheckedUpdateManyWithoutDiscussionGroupInput>
+  }
+
+  export type ProjectUpsertWithoutDiscussionGroupsInput = {
+    update: XOR<ProjectUpdateWithoutDiscussionGroupsInput, ProjectUncheckedUpdateWithoutDiscussionGroupsInput>
+    create: XOR<ProjectCreateWithoutDiscussionGroupsInput, ProjectUncheckedCreateWithoutDiscussionGroupsInput>
+    where?: ProjectWhereInput
+  }
+
+  export type ProjectUpdateToOneWithWhereWithoutDiscussionGroupsInput = {
+    where?: ProjectWhereInput
+    data: XOR<ProjectUpdateWithoutDiscussionGroupsInput, ProjectUncheckedUpdateWithoutDiscussionGroupsInput>
+  }
+
+  export type ProjectUpdateWithoutDiscussionGroupsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    completedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    targetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phase?: EnumProjectPhaseFieldUpdateOperationsInput | $Enums.ProjectPhase
+    category?: EnumProjectCategoryFieldUpdateOperationsInput | $Enums.ProjectCategory
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: userUpdateManyWithoutProjectsNestedInput
+    admins?: userUpdateManyWithoutAdminProjectsNestedInput
+    company?: CompanyUpdateOneRequiredWithoutProjectsNestedInput
+    messages?: MessageUpdateManyWithoutProjectNestedInput
+    timeLogs?: timeLogUpdateManyWithoutProjectNestedInput
+    groups?: ProjectGroupUpdateManyWithoutProjectNestedInput
+    tickets?: TicketUpdateManyWithoutProjectNestedInput
+  }
+
+  export type ProjectUncheckedUpdateWithoutDiscussionGroupsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    completedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    targetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phase?: EnumProjectPhaseFieldUpdateOperationsInput | $Enums.ProjectPhase
+    category?: EnumProjectCategoryFieldUpdateOperationsInput | $Enums.ProjectCategory
+    companyId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: userUncheckedUpdateManyWithoutProjectsNestedInput
+    admins?: userUncheckedUpdateManyWithoutAdminProjectsNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutProjectNestedInput
+    timeLogs?: timeLogUncheckedUpdateManyWithoutProjectNestedInput
+    groups?: ProjectGroupUncheckedUpdateManyWithoutProjectNestedInput
+    tickets?: TicketUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
+  export type userUpsertWithoutProjectDiscussionGroupsInput = {
+    update: XOR<userUpdateWithoutProjectDiscussionGroupsInput, userUncheckedUpdateWithoutProjectDiscussionGroupsInput>
+    create: XOR<userCreateWithoutProjectDiscussionGroupsInput, userUncheckedCreateWithoutProjectDiscussionGroupsInput>
+    where?: userWhereInput
+  }
+
+  export type userUpdateToOneWithWhereWithoutProjectDiscussionGroupsInput = {
+    where?: userWhereInput
+    data: XOR<userUpdateWithoutProjectDiscussionGroupsInput, userUncheckedUpdateWithoutProjectDiscussionGroupsInput>
+  }
+
+  export type userUpdateWithoutProjectDiscussionGroupsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
+    forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
+    forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifyTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: CompanyUpdateOneWithoutUserNestedInput
+    timeLogs?: timeLogUpdateManyWithoutUserNestedInput
+    projects?: ProjectUpdateManyWithoutMembersNestedInput
+    adminProjects?: ProjectUpdateManyWithoutAdminsNestedInput
+    messages?: MessageUpdateManyWithoutUserNestedInput
+    assignedTickets?: TicketUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUpdateManyWithoutUserNestedInput
+    notes?: NoteUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
+    targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutMembersNestedInput
+  }
+
+  export type userUncheckedUpdateWithoutProjectDiscussionGroupsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
+    forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
+    forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifyTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    timeLogs?: timeLogUncheckedUpdateManyWithoutUserNestedInput
+    projects?: ProjectUncheckedUpdateManyWithoutMembersNestedInput
+    adminProjects?: ProjectUncheckedUpdateManyWithoutAdminsNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
+    assignedTickets?: TicketUncheckedUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUncheckedUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUncheckedUpdateManyWithoutUserNestedInput
+    notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+    targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutMembersNestedInput
   }
 
   export type ProjectCreateWithoutTicketsInput = {
@@ -21301,6 +26334,7 @@ export namespace Prisma {
     members?: userCreateNestedManyWithoutProjectsInput
     admins?: userCreateNestedManyWithoutAdminProjectsInput
     company: CompanyCreateNestedOneWithoutProjectsInput
+    discussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutProjectInput
     messages?: MessageCreateNestedManyWithoutProjectInput
     timeLogs?: timeLogCreateNestedManyWithoutProjectInput
     groups?: ProjectGroupCreateNestedManyWithoutProjectInput
@@ -21323,6 +26357,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: userUncheckedCreateNestedManyWithoutProjectsInput
     admins?: userUncheckedCreateNestedManyWithoutAdminProjectsInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutProjectInput
     messages?: MessageUncheckedCreateNestedManyWithoutProjectInput
     timeLogs?: timeLogUncheckedCreateNestedManyWithoutProjectInput
     groups?: ProjectGroupUncheckedCreateNestedManyWithoutProjectInput
@@ -21382,6 +26417,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -21392,10 +26428,14 @@ export namespace Prisma {
     projects?: ProjectCreateNestedManyWithoutMembersInput
     adminProjects?: ProjectCreateNestedManyWithoutAdminsInput
     messages?: MessageCreateNestedManyWithoutUserInput
+    assignedByTickets?: TicketCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonCreateNestedManyWithoutUserInput
     notes?: NoteCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutMembersInput
   }
 
   export type userUncheckedCreateWithoutAssignedTicketsInput = {
@@ -21410,6 +26450,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -21420,15 +26461,116 @@ export namespace Prisma {
     projects?: ProjectUncheckedCreateNestedManyWithoutMembersInput
     adminProjects?: ProjectUncheckedCreateNestedManyWithoutAdminsInput
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
+    assignedByTickets?: TicketUncheckedCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonUncheckedCreateNestedManyWithoutUserInput
     notes?: NoteUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutMembersInput
   }
 
   export type userCreateOrConnectWithoutAssignedTicketsInput = {
     where: userWhereUniqueInput
     create: XOR<userCreateWithoutAssignedTicketsInput, userUncheckedCreateWithoutAssignedTicketsInput>
+  }
+
+  export type userCreateWithoutAssignedByTicketsInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    role?: $Enums.Role
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    imageUrl?: string | null
+    isActive?: boolean
+    lastActive?: Date | string | null
+    designation?: string | null
+    isPending?: boolean
+    forgotPasswordToken?: string | null
+    forgotPasswordTokenExpiry?: Date | string | null
+    isVerified?: boolean
+    verifyToken?: string | null
+    verifyTokenExpiry?: Date | string | null
+    company?: CompanyCreateNestedOneWithoutUserInput
+    timeLogs?: timeLogCreateNestedManyWithoutUserInput
+    projects?: ProjectCreateNestedManyWithoutMembersInput
+    adminProjects?: ProjectCreateNestedManyWithoutAdminsInput
+    messages?: MessageCreateNestedManyWithoutUserInput
+    assignedTickets?: TicketCreateNestedManyWithoutAssignedUserInput
+    ticketReasons?: TicketReasonCreateNestedManyWithoutUserInput
+    notes?: NoteCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
+    targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutMembersInput
+  }
+
+  export type userUncheckedCreateWithoutAssignedByTicketsInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    role?: $Enums.Role
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    imageUrl?: string | null
+    isActive?: boolean
+    lastActive?: Date | string | null
+    designation?: string | null
+    isPending?: boolean
+    forgotPasswordToken?: string | null
+    forgotPasswordTokenExpiry?: Date | string | null
+    isVerified?: boolean
+    verifyToken?: string | null
+    verifyTokenExpiry?: Date | string | null
+    companyId?: string | null
+    timeLogs?: timeLogUncheckedCreateNestedManyWithoutUserInput
+    projects?: ProjectUncheckedCreateNestedManyWithoutMembersInput
+    adminProjects?: ProjectUncheckedCreateNestedManyWithoutAdminsInput
+    messages?: MessageUncheckedCreateNestedManyWithoutUserInput
+    assignedTickets?: TicketUncheckedCreateNestedManyWithoutAssignedUserInput
+    ticketReasons?: TicketReasonUncheckedCreateNestedManyWithoutUserInput
+    notes?: NoteUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
+    targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutMembersInput
+  }
+
+  export type userCreateOrConnectWithoutAssignedByTicketsInput = {
+    where: userWhereUniqueInput
+    create: XOR<userCreateWithoutAssignedByTicketsInput, userUncheckedCreateWithoutAssignedByTicketsInput>
+  }
+
+  export type TicketReasonCreateWithoutTicketInput = {
+    id?: string
+    type: $Enums.TicketReasonType
+    reason: string
+    createdAt?: Date | string
+    user: userCreateNestedOneWithoutTicketReasonsInput
+  }
+
+  export type TicketReasonUncheckedCreateWithoutTicketInput = {
+    id?: string
+    type: $Enums.TicketReasonType
+    reason: string
+    createdAt?: Date | string
+    userId: string
+  }
+
+  export type TicketReasonCreateOrConnectWithoutTicketInput = {
+    where: TicketReasonWhereUniqueInput
+    create: XOR<TicketReasonCreateWithoutTicketInput, TicketReasonUncheckedCreateWithoutTicketInput>
+  }
+
+  export type TicketReasonCreateManyTicketInputEnvelope = {
+    data: TicketReasonCreateManyTicketInput | TicketReasonCreateManyTicketInput[]
+    skipDuplicates?: boolean
   }
 
   export type timeLogCreateWithoutTicketInput = {
@@ -21463,6 +26605,41 @@ export namespace Prisma {
   export type timeLogCreateManyTicketInputEnvelope = {
     data: timeLogCreateManyTicketInput | timeLogCreateManyTicketInput[]
     skipDuplicates?: boolean
+  }
+
+  export type ProjectDiscussionGroupCreateWithoutTicketsInput = {
+    id?: string
+    title: string
+    type?: $Enums.ProjectDiscussionGroupType
+    content?: string | null
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: userCreateNestedManyWithoutJoinedDiscussionGroupsInput
+    messages?: MessageCreateNestedManyWithoutDiscussionGroupInput
+    project: ProjectCreateNestedOneWithoutDiscussionGroupsInput
+    user: userCreateNestedOneWithoutProjectDiscussionGroupsInput
+  }
+
+  export type ProjectDiscussionGroupUncheckedCreateWithoutTicketsInput = {
+    id?: string
+    title: string
+    type?: $Enums.ProjectDiscussionGroupType
+    content?: string | null
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    projectId: string
+    userId: string
+    members?: userUncheckedCreateNestedManyWithoutJoinedDiscussionGroupsInput
+    messages?: MessageUncheckedCreateNestedManyWithoutDiscussionGroupInput
+  }
+
+  export type ProjectDiscussionGroupCreateOrConnectWithoutTicketsInput = {
+    where: ProjectDiscussionGroupWhereUniqueInput
+    create: XOR<ProjectDiscussionGroupCreateWithoutTicketsInput, ProjectDiscussionGroupUncheckedCreateWithoutTicketsInput>
   }
 
   export type TicketAttachmentCreateWithoutTicketInput = {
@@ -21501,6 +26678,7 @@ export namespace Prisma {
     isDeleted?: boolean
     project: ProjectCreateNestedOneWithoutMessagesInput
     user: userCreateNestedOneWithoutMessagesInput
+    discussionGroup?: ProjectDiscussionGroupCreateNestedOneWithoutMessagesInput
   }
 
   export type MessageUncheckedCreateWithoutTicketInput = {
@@ -21513,6 +26691,7 @@ export namespace Prisma {
     isDeleted?: boolean
     projectId: string
     userId: string
+    discussionGroupId?: string | null
   }
 
   export type MessageCreateOrConnectWithoutTicketInput = {
@@ -21553,6 +26732,7 @@ export namespace Prisma {
     members?: userUpdateManyWithoutProjectsNestedInput
     admins?: userUpdateManyWithoutAdminProjectsNestedInput
     company?: CompanyUpdateOneRequiredWithoutProjectsNestedInput
+    discussionGroups?: ProjectDiscussionGroupUpdateManyWithoutProjectNestedInput
     messages?: MessageUpdateManyWithoutProjectNestedInput
     timeLogs?: timeLogUpdateManyWithoutProjectNestedInput
     groups?: ProjectGroupUpdateManyWithoutProjectNestedInput
@@ -21575,6 +26755,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: userUncheckedUpdateManyWithoutProjectsNestedInput
     admins?: userUncheckedUpdateManyWithoutAdminProjectsNestedInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutProjectNestedInput
     messages?: MessageUncheckedUpdateManyWithoutProjectNestedInput
     timeLogs?: timeLogUncheckedUpdateManyWithoutProjectNestedInput
     groups?: ProjectGroupUncheckedUpdateManyWithoutProjectNestedInput
@@ -21646,6 +26827,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -21656,10 +26838,14 @@ export namespace Prisma {
     projects?: ProjectUpdateManyWithoutMembersNestedInput
     adminProjects?: ProjectUpdateManyWithoutAdminsNestedInput
     messages?: MessageUpdateManyWithoutUserNestedInput
+    assignedByTickets?: TicketUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUpdateManyWithoutUserNestedInput
     notes?: NoteUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutMembersNestedInput
   }
 
   export type userUncheckedUpdateWithoutAssignedTicketsInput = {
@@ -21674,6 +26860,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -21684,10 +26871,107 @@ export namespace Prisma {
     projects?: ProjectUncheckedUpdateManyWithoutMembersNestedInput
     adminProjects?: ProjectUncheckedUpdateManyWithoutAdminsNestedInput
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
+    assignedByTickets?: TicketUncheckedUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUncheckedUpdateManyWithoutUserNestedInput
     notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutMembersNestedInput
+  }
+
+  export type userUpsertWithoutAssignedByTicketsInput = {
+    update: XOR<userUpdateWithoutAssignedByTicketsInput, userUncheckedUpdateWithoutAssignedByTicketsInput>
+    create: XOR<userCreateWithoutAssignedByTicketsInput, userUncheckedCreateWithoutAssignedByTicketsInput>
+    where?: userWhereInput
+  }
+
+  export type userUpdateToOneWithWhereWithoutAssignedByTicketsInput = {
+    where?: userWhereInput
+    data: XOR<userUpdateWithoutAssignedByTicketsInput, userUncheckedUpdateWithoutAssignedByTicketsInput>
+  }
+
+  export type userUpdateWithoutAssignedByTicketsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
+    forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
+    forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifyTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: CompanyUpdateOneWithoutUserNestedInput
+    timeLogs?: timeLogUpdateManyWithoutUserNestedInput
+    projects?: ProjectUpdateManyWithoutMembersNestedInput
+    adminProjects?: ProjectUpdateManyWithoutAdminsNestedInput
+    messages?: MessageUpdateManyWithoutUserNestedInput
+    assignedTickets?: TicketUpdateManyWithoutAssignedUserNestedInput
+    ticketReasons?: TicketReasonUpdateManyWithoutUserNestedInput
+    notes?: NoteUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
+    targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutMembersNestedInput
+  }
+
+  export type userUncheckedUpdateWithoutAssignedByTicketsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
+    forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
+    forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifyTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    timeLogs?: timeLogUncheckedUpdateManyWithoutUserNestedInput
+    projects?: ProjectUncheckedUpdateManyWithoutMembersNestedInput
+    adminProjects?: ProjectUncheckedUpdateManyWithoutAdminsNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
+    assignedTickets?: TicketUncheckedUpdateManyWithoutAssignedUserNestedInput
+    ticketReasons?: TicketReasonUncheckedUpdateManyWithoutUserNestedInput
+    notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+    targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutMembersNestedInput
+  }
+
+  export type TicketReasonUpsertWithWhereUniqueWithoutTicketInput = {
+    where: TicketReasonWhereUniqueInput
+    update: XOR<TicketReasonUpdateWithoutTicketInput, TicketReasonUncheckedUpdateWithoutTicketInput>
+    create: XOR<TicketReasonCreateWithoutTicketInput, TicketReasonUncheckedCreateWithoutTicketInput>
+  }
+
+  export type TicketReasonUpdateWithWhereUniqueWithoutTicketInput = {
+    where: TicketReasonWhereUniqueInput
+    data: XOR<TicketReasonUpdateWithoutTicketInput, TicketReasonUncheckedUpdateWithoutTicketInput>
+  }
+
+  export type TicketReasonUpdateManyWithWhereWithoutTicketInput = {
+    where: TicketReasonScalarWhereInput
+    data: XOR<TicketReasonUpdateManyMutationInput, TicketReasonUncheckedUpdateManyWithoutTicketInput>
   }
 
   export type timeLogUpsertWithWhereUniqueWithoutTicketInput = {
@@ -21704,6 +26988,22 @@ export namespace Prisma {
   export type timeLogUpdateManyWithWhereWithoutTicketInput = {
     where: timeLogScalarWhereInput
     data: XOR<timeLogUpdateManyMutationInput, timeLogUncheckedUpdateManyWithoutTicketInput>
+  }
+
+  export type ProjectDiscussionGroupUpsertWithWhereUniqueWithoutTicketsInput = {
+    where: ProjectDiscussionGroupWhereUniqueInput
+    update: XOR<ProjectDiscussionGroupUpdateWithoutTicketsInput, ProjectDiscussionGroupUncheckedUpdateWithoutTicketsInput>
+    create: XOR<ProjectDiscussionGroupCreateWithoutTicketsInput, ProjectDiscussionGroupUncheckedCreateWithoutTicketsInput>
+  }
+
+  export type ProjectDiscussionGroupUpdateWithWhereUniqueWithoutTicketsInput = {
+    where: ProjectDiscussionGroupWhereUniqueInput
+    data: XOR<ProjectDiscussionGroupUpdateWithoutTicketsInput, ProjectDiscussionGroupUncheckedUpdateWithoutTicketsInput>
+  }
+
+  export type ProjectDiscussionGroupUpdateManyWithWhereWithoutTicketsInput = {
+    where: ProjectDiscussionGroupScalarWhereInput
+    data: XOR<ProjectDiscussionGroupUpdateManyMutationInput, ProjectDiscussionGroupUncheckedUpdateManyWithoutTicketsInput>
   }
 
   export type TicketAttachmentUpsertWithWhereUniqueWithoutTicketInput = {
@@ -21754,10 +27054,14 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     project: ProjectCreateNestedOneWithoutTicketsInput
     group?: ProjectGroupCreateNestedOneWithoutTicketsInput
     assignedUser?: userCreateNestedOneWithoutAssignedTicketsInput
+    assignedBy?: userCreateNestedOneWithoutAssignedByTicketsInput
+    reasons?: TicketReasonCreateNestedManyWithoutTicketInput
     timeLogs?: timeLogCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutTicketsInput
     messages?: MessageCreateNestedManyWithoutTicketInput
   }
 
@@ -21777,10 +27081,14 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     projectId: string
     groupId?: string | null
     assignedUserId?: string | null
+    assignedById?: string | null
+    reasons?: TicketReasonUncheckedCreateNestedManyWithoutTicketInput
     timeLogs?: timeLogUncheckedCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutTicketsInput
     messages?: MessageUncheckedCreateNestedManyWithoutTicketInput
   }
 
@@ -21801,6 +27109,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -21812,9 +27121,13 @@ export namespace Prisma {
     adminProjects?: ProjectCreateNestedManyWithoutAdminsInput
     messages?: MessageCreateNestedManyWithoutUserInput
     assignedTickets?: TicketCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonCreateNestedManyWithoutUserInput
     notes?: NoteCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
+    projectDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutMembersInput
   }
 
   export type userUncheckedCreateWithoutUploadedAttachmentsInput = {
@@ -21829,6 +27142,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -21840,9 +27154,13 @@ export namespace Prisma {
     adminProjects?: ProjectUncheckedCreateNestedManyWithoutAdminsInput
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     assignedTickets?: TicketUncheckedCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketUncheckedCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonUncheckedCreateNestedManyWithoutUserInput
     notes?: NoteUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutMembersInput
   }
 
   export type userCreateOrConnectWithoutUploadedAttachmentsInput = {
@@ -21877,10 +27195,14 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     project?: ProjectUpdateOneRequiredWithoutTicketsNestedInput
     group?: ProjectGroupUpdateOneWithoutTicketsNestedInput
     assignedUser?: userUpdateOneWithoutAssignedTicketsNestedInput
+    assignedBy?: userUpdateOneWithoutAssignedByTicketsNestedInput
+    reasons?: TicketReasonUpdateManyWithoutTicketNestedInput
     timeLogs?: timeLogUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUpdateManyWithoutTicketsNestedInput
     messages?: MessageUpdateManyWithoutTicketNestedInput
   }
 
@@ -21900,10 +27222,14 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     projectId?: StringFieldUpdateOperationsInput | string
     groupId?: NullableStringFieldUpdateOperationsInput | string | null
     assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reasons?: TicketReasonUncheckedUpdateManyWithoutTicketNestedInput
     timeLogs?: timeLogUncheckedUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutTicketsNestedInput
     messages?: MessageUncheckedUpdateManyWithoutTicketNestedInput
   }
 
@@ -21930,6 +27256,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -21941,9 +27268,13 @@ export namespace Prisma {
     adminProjects?: ProjectUpdateManyWithoutAdminsNestedInput
     messages?: MessageUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUpdateManyWithoutUserNestedInput
     notes?: NoteUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutMembersNestedInput
   }
 
   export type userUncheckedUpdateWithoutUploadedAttachmentsInput = {
@@ -21958,6 +27289,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -21969,9 +27301,13 @@ export namespace Prisma {
     adminProjects?: ProjectUncheckedUpdateManyWithoutAdminsNestedInput
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUncheckedUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUncheckedUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUncheckedUpdateManyWithoutUserNestedInput
     notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutMembersNestedInput
   }
 
   export type ProjectCreateWithoutMessagesInput = {
@@ -21991,6 +27327,7 @@ export namespace Prisma {
     members?: userCreateNestedManyWithoutProjectsInput
     admins?: userCreateNestedManyWithoutAdminProjectsInput
     company: CompanyCreateNestedOneWithoutProjectsInput
+    discussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutProjectInput
     timeLogs?: timeLogCreateNestedManyWithoutProjectInput
     groups?: ProjectGroupCreateNestedManyWithoutProjectInput
     tickets?: TicketCreateNestedManyWithoutProjectInput
@@ -22013,6 +27350,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: userUncheckedCreateNestedManyWithoutProjectsInput
     admins?: userUncheckedCreateNestedManyWithoutAdminProjectsInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutProjectInput
     timeLogs?: timeLogUncheckedCreateNestedManyWithoutProjectInput
     groups?: ProjectGroupUncheckedCreateNestedManyWithoutProjectInput
     tickets?: TicketUncheckedCreateNestedManyWithoutProjectInput
@@ -22035,6 +27373,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -22045,10 +27384,14 @@ export namespace Prisma {
     projects?: ProjectCreateNestedManyWithoutMembersInput
     adminProjects?: ProjectCreateNestedManyWithoutAdminsInput
     assignedTickets?: TicketCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonCreateNestedManyWithoutUserInput
     notes?: NoteCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutMembersInput
   }
 
   export type userUncheckedCreateWithoutMessagesInput = {
@@ -22063,6 +27406,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -22073,10 +27417,14 @@ export namespace Prisma {
     projects?: ProjectUncheckedCreateNestedManyWithoutMembersInput
     adminProjects?: ProjectUncheckedCreateNestedManyWithoutAdminsInput
     assignedTickets?: TicketUncheckedCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketUncheckedCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonUncheckedCreateNestedManyWithoutUserInput
     notes?: NoteUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutMembersInput
   }
 
   export type userCreateOrConnectWithoutMessagesInput = {
@@ -22100,10 +27448,14 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     project: ProjectCreateNestedOneWithoutTicketsInput
     group?: ProjectGroupCreateNestedOneWithoutTicketsInput
     assignedUser?: userCreateNestedOneWithoutAssignedTicketsInput
+    assignedBy?: userCreateNestedOneWithoutAssignedByTicketsInput
+    reasons?: TicketReasonCreateNestedManyWithoutTicketInput
     timeLogs?: timeLogCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutTicketsInput
     attachments?: TicketAttachmentCreateNestedManyWithoutTicketInput
   }
 
@@ -22123,16 +27475,55 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     projectId: string
     groupId?: string | null
     assignedUserId?: string | null
+    assignedById?: string | null
+    reasons?: TicketReasonUncheckedCreateNestedManyWithoutTicketInput
     timeLogs?: timeLogUncheckedCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutTicketsInput
     attachments?: TicketAttachmentUncheckedCreateNestedManyWithoutTicketInput
   }
 
   export type TicketCreateOrConnectWithoutMessagesInput = {
     where: TicketWhereUniqueInput
     create: XOR<TicketCreateWithoutMessagesInput, TicketUncheckedCreateWithoutMessagesInput>
+  }
+
+  export type ProjectDiscussionGroupCreateWithoutMessagesInput = {
+    id?: string
+    title: string
+    type?: $Enums.ProjectDiscussionGroupType
+    content?: string | null
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tickets?: TicketCreateNestedManyWithoutDiscussionGroupsInput
+    members?: userCreateNestedManyWithoutJoinedDiscussionGroupsInput
+    project: ProjectCreateNestedOneWithoutDiscussionGroupsInput
+    user: userCreateNestedOneWithoutProjectDiscussionGroupsInput
+  }
+
+  export type ProjectDiscussionGroupUncheckedCreateWithoutMessagesInput = {
+    id?: string
+    title: string
+    type?: $Enums.ProjectDiscussionGroupType
+    content?: string | null
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    projectId: string
+    userId: string
+    tickets?: TicketUncheckedCreateNestedManyWithoutDiscussionGroupsInput
+    members?: userUncheckedCreateNestedManyWithoutJoinedDiscussionGroupsInput
+  }
+
+  export type ProjectDiscussionGroupCreateOrConnectWithoutMessagesInput = {
+    where: ProjectDiscussionGroupWhereUniqueInput
+    create: XOR<ProjectDiscussionGroupCreateWithoutMessagesInput, ProjectDiscussionGroupUncheckedCreateWithoutMessagesInput>
   }
 
   export type ProjectUpsertWithoutMessagesInput = {
@@ -22163,6 +27554,7 @@ export namespace Prisma {
     members?: userUpdateManyWithoutProjectsNestedInput
     admins?: userUpdateManyWithoutAdminProjectsNestedInput
     company?: CompanyUpdateOneRequiredWithoutProjectsNestedInput
+    discussionGroups?: ProjectDiscussionGroupUpdateManyWithoutProjectNestedInput
     timeLogs?: timeLogUpdateManyWithoutProjectNestedInput
     groups?: ProjectGroupUpdateManyWithoutProjectNestedInput
     tickets?: TicketUpdateManyWithoutProjectNestedInput
@@ -22185,6 +27577,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: userUncheckedUpdateManyWithoutProjectsNestedInput
     admins?: userUncheckedUpdateManyWithoutAdminProjectsNestedInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutProjectNestedInput
     timeLogs?: timeLogUncheckedUpdateManyWithoutProjectNestedInput
     groups?: ProjectGroupUncheckedUpdateManyWithoutProjectNestedInput
     tickets?: TicketUncheckedUpdateManyWithoutProjectNestedInput
@@ -22213,6 +27606,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -22223,10 +27617,14 @@ export namespace Prisma {
     projects?: ProjectUpdateManyWithoutMembersNestedInput
     adminProjects?: ProjectUpdateManyWithoutAdminsNestedInput
     assignedTickets?: TicketUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUpdateManyWithoutUserNestedInput
     notes?: NoteUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutMembersNestedInput
   }
 
   export type userUncheckedUpdateWithoutMessagesInput = {
@@ -22241,6 +27639,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -22251,10 +27650,14 @@ export namespace Prisma {
     projects?: ProjectUncheckedUpdateManyWithoutMembersNestedInput
     adminProjects?: ProjectUncheckedUpdateManyWithoutAdminsNestedInput
     assignedTickets?: TicketUncheckedUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUncheckedUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUncheckedUpdateManyWithoutUserNestedInput
     notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutMembersNestedInput
   }
 
   export type TicketUpsertWithoutMessagesInput = {
@@ -22284,10 +27687,14 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     project?: ProjectUpdateOneRequiredWithoutTicketsNestedInput
     group?: ProjectGroupUpdateOneWithoutTicketsNestedInput
     assignedUser?: userUpdateOneWithoutAssignedTicketsNestedInput
+    assignedBy?: userUpdateOneWithoutAssignedByTicketsNestedInput
+    reasons?: TicketReasonUpdateManyWithoutTicketNestedInput
     timeLogs?: timeLogUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUpdateManyWithoutTicketsNestedInput
     attachments?: TicketAttachmentUpdateManyWithoutTicketNestedInput
   }
 
@@ -22307,11 +27714,56 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     projectId?: StringFieldUpdateOperationsInput | string
     groupId?: NullableStringFieldUpdateOperationsInput | string | null
     assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reasons?: TicketReasonUncheckedUpdateManyWithoutTicketNestedInput
     timeLogs?: timeLogUncheckedUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutTicketsNestedInput
     attachments?: TicketAttachmentUncheckedUpdateManyWithoutTicketNestedInput
+  }
+
+  export type ProjectDiscussionGroupUpsertWithoutMessagesInput = {
+    update: XOR<ProjectDiscussionGroupUpdateWithoutMessagesInput, ProjectDiscussionGroupUncheckedUpdateWithoutMessagesInput>
+    create: XOR<ProjectDiscussionGroupCreateWithoutMessagesInput, ProjectDiscussionGroupUncheckedCreateWithoutMessagesInput>
+    where?: ProjectDiscussionGroupWhereInput
+  }
+
+  export type ProjectDiscussionGroupUpdateToOneWithWhereWithoutMessagesInput = {
+    where?: ProjectDiscussionGroupWhereInput
+    data: XOR<ProjectDiscussionGroupUpdateWithoutMessagesInput, ProjectDiscussionGroupUncheckedUpdateWithoutMessagesInput>
+  }
+
+  export type ProjectDiscussionGroupUpdateWithoutMessagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tickets?: TicketUpdateManyWithoutDiscussionGroupsNestedInput
+    members?: userUpdateManyWithoutJoinedDiscussionGroupsNestedInput
+    project?: ProjectUpdateOneRequiredWithoutDiscussionGroupsNestedInput
+    user?: userUpdateOneRequiredWithoutProjectDiscussionGroupsNestedInput
+  }
+
+  export type ProjectDiscussionGroupUncheckedUpdateWithoutMessagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    tickets?: TicketUncheckedUpdateManyWithoutDiscussionGroupsNestedInput
+    members?: userUncheckedUpdateManyWithoutJoinedDiscussionGroupsNestedInput
   }
 
   export type userCreateWithoutTimeLogsInput = {
@@ -22326,6 +27778,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -22336,10 +27789,14 @@ export namespace Prisma {
     adminProjects?: ProjectCreateNestedManyWithoutAdminsInput
     messages?: MessageCreateNestedManyWithoutUserInput
     assignedTickets?: TicketCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonCreateNestedManyWithoutUserInput
     notes?: NoteCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutMembersInput
   }
 
   export type userUncheckedCreateWithoutTimeLogsInput = {
@@ -22354,6 +27811,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -22364,10 +27822,14 @@ export namespace Prisma {
     adminProjects?: ProjectUncheckedCreateNestedManyWithoutAdminsInput
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     assignedTickets?: TicketUncheckedCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketUncheckedCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonUncheckedCreateNestedManyWithoutUserInput
     notes?: NoteUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutMembersInput
   }
 
   export type userCreateOrConnectWithoutTimeLogsInput = {
@@ -22391,9 +27853,13 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     project: ProjectCreateNestedOneWithoutTicketsInput
     group?: ProjectGroupCreateNestedOneWithoutTicketsInput
     assignedUser?: userCreateNestedOneWithoutAssignedTicketsInput
+    assignedBy?: userCreateNestedOneWithoutAssignedByTicketsInput
+    reasons?: TicketReasonCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutTicketsInput
     attachments?: TicketAttachmentCreateNestedManyWithoutTicketInput
     messages?: MessageCreateNestedManyWithoutTicketInput
   }
@@ -22414,9 +27880,13 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     projectId: string
     groupId?: string | null
     assignedUserId?: string | null
+    assignedById?: string | null
+    reasons?: TicketReasonUncheckedCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutTicketsInput
     attachments?: TicketAttachmentUncheckedCreateNestedManyWithoutTicketInput
     messages?: MessageUncheckedCreateNestedManyWithoutTicketInput
   }
@@ -22443,6 +27913,7 @@ export namespace Prisma {
     members?: userCreateNestedManyWithoutProjectsInput
     admins?: userCreateNestedManyWithoutAdminProjectsInput
     company: CompanyCreateNestedOneWithoutProjectsInput
+    discussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutProjectInput
     messages?: MessageCreateNestedManyWithoutProjectInput
     groups?: ProjectGroupCreateNestedManyWithoutProjectInput
     tickets?: TicketCreateNestedManyWithoutProjectInput
@@ -22465,6 +27936,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: userUncheckedCreateNestedManyWithoutProjectsInput
     admins?: userUncheckedCreateNestedManyWithoutAdminProjectsInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutProjectInput
     messages?: MessageUncheckedCreateNestedManyWithoutProjectInput
     groups?: ProjectGroupUncheckedCreateNestedManyWithoutProjectInput
     tickets?: TicketUncheckedCreateNestedManyWithoutProjectInput
@@ -22498,6 +27970,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -22508,10 +27981,14 @@ export namespace Prisma {
     adminProjects?: ProjectUpdateManyWithoutAdminsNestedInput
     messages?: MessageUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUpdateManyWithoutUserNestedInput
     notes?: NoteUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutMembersNestedInput
   }
 
   export type userUncheckedUpdateWithoutTimeLogsInput = {
@@ -22526,6 +28003,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -22536,10 +28014,14 @@ export namespace Prisma {
     adminProjects?: ProjectUncheckedUpdateManyWithoutAdminsNestedInput
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUncheckedUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUncheckedUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUncheckedUpdateManyWithoutUserNestedInput
     notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutMembersNestedInput
   }
 
   export type TicketUpsertWithoutTimeLogsInput = {
@@ -22569,9 +28051,13 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     project?: ProjectUpdateOneRequiredWithoutTicketsNestedInput
     group?: ProjectGroupUpdateOneWithoutTicketsNestedInput
     assignedUser?: userUpdateOneWithoutAssignedTicketsNestedInput
+    assignedBy?: userUpdateOneWithoutAssignedByTicketsNestedInput
+    reasons?: TicketReasonUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUpdateManyWithoutTicketsNestedInput
     attachments?: TicketAttachmentUpdateManyWithoutTicketNestedInput
     messages?: MessageUpdateManyWithoutTicketNestedInput
   }
@@ -22592,9 +28078,13 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     projectId?: StringFieldUpdateOperationsInput | string
     groupId?: NullableStringFieldUpdateOperationsInput | string | null
     assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reasons?: TicketReasonUncheckedUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutTicketsNestedInput
     attachments?: TicketAttachmentUncheckedUpdateManyWithoutTicketNestedInput
     messages?: MessageUncheckedUpdateManyWithoutTicketNestedInput
   }
@@ -22627,6 +28117,7 @@ export namespace Prisma {
     members?: userUpdateManyWithoutProjectsNestedInput
     admins?: userUpdateManyWithoutAdminProjectsNestedInput
     company?: CompanyUpdateOneRequiredWithoutProjectsNestedInput
+    discussionGroups?: ProjectDiscussionGroupUpdateManyWithoutProjectNestedInput
     messages?: MessageUpdateManyWithoutProjectNestedInput
     groups?: ProjectGroupUpdateManyWithoutProjectNestedInput
     tickets?: TicketUpdateManyWithoutProjectNestedInput
@@ -22649,6 +28140,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: userUncheckedUpdateManyWithoutProjectsNestedInput
     admins?: userUncheckedUpdateManyWithoutAdminProjectsNestedInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutProjectNestedInput
     messages?: MessageUncheckedUpdateManyWithoutProjectNestedInput
     groups?: ProjectGroupUncheckedUpdateManyWithoutProjectNestedInput
     tickets?: TicketUncheckedUpdateManyWithoutProjectNestedInput
@@ -22666,6 +28158,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -22677,9 +28170,13 @@ export namespace Prisma {
     adminProjects?: ProjectCreateNestedManyWithoutAdminsInput
     messages?: MessageCreateNestedManyWithoutUserInput
     assignedTickets?: TicketCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutMembersInput
   }
 
   export type userUncheckedCreateWithoutNotesInput = {
@@ -22694,6 +28191,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -22705,9 +28203,13 @@ export namespace Prisma {
     adminProjects?: ProjectUncheckedCreateNestedManyWithoutAdminsInput
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     assignedTickets?: TicketUncheckedCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketUncheckedCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutMembersInput
   }
 
   export type userCreateOrConnectWithoutNotesInput = {
@@ -22765,6 +28267,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -22776,9 +28279,13 @@ export namespace Prisma {
     adminProjects?: ProjectUpdateManyWithoutAdminsNestedInput
     messages?: MessageUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutMembersNestedInput
   }
 
   export type userUncheckedUpdateWithoutNotesInput = {
@@ -22793,6 +28300,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -22804,9 +28312,13 @@ export namespace Prisma {
     adminProjects?: ProjectUncheckedUpdateManyWithoutAdminsNestedInput
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUncheckedUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUncheckedUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutMembersNestedInput
   }
 
   export type CompanyUpsertWithoutNotesInput = {
@@ -22854,6 +28366,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -22865,9 +28378,13 @@ export namespace Prisma {
     adminProjects?: ProjectCreateNestedManyWithoutAdminsInput
     messages?: MessageCreateNestedManyWithoutUserInput
     assignedTickets?: TicketCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonCreateNestedManyWithoutUserInput
     notes?: NoteCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutMembersInput
   }
 
   export type userUncheckedCreateWithoutActivityLogsInput = {
@@ -22882,6 +28399,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -22893,9 +28411,13 @@ export namespace Prisma {
     adminProjects?: ProjectUncheckedCreateNestedManyWithoutAdminsInput
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     assignedTickets?: TicketUncheckedCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketUncheckedCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonUncheckedCreateNestedManyWithoutUserInput
     notes?: NoteUncheckedCreateNestedManyWithoutUserInput
     targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
     uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutMembersInput
   }
 
   export type userCreateOrConnectWithoutActivityLogsInput = {
@@ -22915,6 +28437,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -22926,9 +28449,13 @@ export namespace Prisma {
     adminProjects?: ProjectCreateNestedManyWithoutAdminsInput
     messages?: MessageCreateNestedManyWithoutUserInput
     assignedTickets?: TicketCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonCreateNestedManyWithoutUserInput
     notes?: NoteCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutMembersInput
   }
 
   export type userUncheckedCreateWithoutTargetActivityLogsInput = {
@@ -22943,6 +28470,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -22954,9 +28482,13 @@ export namespace Prisma {
     adminProjects?: ProjectUncheckedCreateNestedManyWithoutAdminsInput
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     assignedTickets?: TicketUncheckedCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketUncheckedCreateNestedManyWithoutAssignedByInput
+    ticketReasons?: TicketReasonUncheckedCreateNestedManyWithoutUserInput
     notes?: NoteUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutMembersInput
   }
 
   export type userCreateOrConnectWithoutTargetActivityLogsInput = {
@@ -22987,6 +28519,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -22998,9 +28531,13 @@ export namespace Prisma {
     adminProjects?: ProjectUpdateManyWithoutAdminsNestedInput
     messages?: MessageUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUpdateManyWithoutUserNestedInput
     notes?: NoteUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutMembersNestedInput
   }
 
   export type userUncheckedUpdateWithoutActivityLogsInput = {
@@ -23015,6 +28552,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -23026,9 +28564,13 @@ export namespace Prisma {
     adminProjects?: ProjectUncheckedUpdateManyWithoutAdminsNestedInput
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUncheckedUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUncheckedUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUncheckedUpdateManyWithoutUserNestedInput
     notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutMembersNestedInput
   }
 
   export type userUpsertWithoutTargetActivityLogsInput = {
@@ -23054,6 +28596,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -23065,9 +28608,13 @@ export namespace Prisma {
     adminProjects?: ProjectUpdateManyWithoutAdminsNestedInput
     messages?: MessageUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUpdateManyWithoutUserNestedInput
     notes?: NoteUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutMembersNestedInput
   }
 
   export type userUncheckedUpdateWithoutTargetActivityLogsInput = {
@@ -23082,6 +28629,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -23093,9 +28641,285 @@ export namespace Prisma {
     adminProjects?: ProjectUncheckedUpdateManyWithoutAdminsNestedInput
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUncheckedUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUncheckedUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUncheckedUpdateManyWithoutUserNestedInput
     notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutMembersNestedInput
+  }
+
+  export type TicketCreateWithoutReasonsInput = {
+    id?: string
+    title: string
+    description: string
+    status?: $Enums.TicketStatus
+    priority?: $Enums.Priority
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dueDate?: Date | string | null
+    isCompleted?: boolean
+    completedAt?: Date | string | null
+    isDeleted?: boolean
+    deletedAt?: Date | string | null
+    reasonBlocked?: string | null
+    reasonReopen?: string | null
+    type?: $Enums.TicketType
+    estimatedHours?: number | null
+    project: ProjectCreateNestedOneWithoutTicketsInput
+    group?: ProjectGroupCreateNestedOneWithoutTicketsInput
+    assignedUser?: userCreateNestedOneWithoutAssignedTicketsInput
+    assignedBy?: userCreateNestedOneWithoutAssignedByTicketsInput
+    timeLogs?: timeLogCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutTicketsInput
+    attachments?: TicketAttachmentCreateNestedManyWithoutTicketInput
+    messages?: MessageCreateNestedManyWithoutTicketInput
+  }
+
+  export type TicketUncheckedCreateWithoutReasonsInput = {
+    id?: string
+    title: string
+    description: string
+    status?: $Enums.TicketStatus
+    priority?: $Enums.Priority
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dueDate?: Date | string | null
+    isCompleted?: boolean
+    completedAt?: Date | string | null
+    isDeleted?: boolean
+    deletedAt?: Date | string | null
+    reasonBlocked?: string | null
+    reasonReopen?: string | null
+    type?: $Enums.TicketType
+    estimatedHours?: number | null
+    projectId: string
+    groupId?: string | null
+    assignedUserId?: string | null
+    assignedById?: string | null
+    timeLogs?: timeLogUncheckedCreateNestedManyWithoutTicketInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutTicketsInput
+    attachments?: TicketAttachmentUncheckedCreateNestedManyWithoutTicketInput
+    messages?: MessageUncheckedCreateNestedManyWithoutTicketInput
+  }
+
+  export type TicketCreateOrConnectWithoutReasonsInput = {
+    where: TicketWhereUniqueInput
+    create: XOR<TicketCreateWithoutReasonsInput, TicketUncheckedCreateWithoutReasonsInput>
+  }
+
+  export type userCreateWithoutTicketReasonsInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    role?: $Enums.Role
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    imageUrl?: string | null
+    isActive?: boolean
+    lastActive?: Date | string | null
+    designation?: string | null
+    isPending?: boolean
+    forgotPasswordToken?: string | null
+    forgotPasswordTokenExpiry?: Date | string | null
+    isVerified?: boolean
+    verifyToken?: string | null
+    verifyTokenExpiry?: Date | string | null
+    company?: CompanyCreateNestedOneWithoutUserInput
+    timeLogs?: timeLogCreateNestedManyWithoutUserInput
+    projects?: ProjectCreateNestedManyWithoutMembersInput
+    adminProjects?: ProjectCreateNestedManyWithoutAdminsInput
+    messages?: MessageCreateNestedManyWithoutUserInput
+    assignedTickets?: TicketCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketCreateNestedManyWithoutAssignedByInput
+    notes?: NoteCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
+    targetActivityLogs?: ActivityLogCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupCreateNestedManyWithoutMembersInput
+  }
+
+  export type userUncheckedCreateWithoutTicketReasonsInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    role?: $Enums.Role
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    imageUrl?: string | null
+    isActive?: boolean
+    lastActive?: Date | string | null
+    designation?: string | null
+    isPending?: boolean
+    forgotPasswordToken?: string | null
+    forgotPasswordTokenExpiry?: Date | string | null
+    isVerified?: boolean
+    verifyToken?: string | null
+    verifyTokenExpiry?: Date | string | null
+    companyId?: string | null
+    timeLogs?: timeLogUncheckedCreateNestedManyWithoutUserInput
+    projects?: ProjectUncheckedCreateNestedManyWithoutMembersInput
+    adminProjects?: ProjectUncheckedCreateNestedManyWithoutAdminsInput
+    messages?: MessageUncheckedCreateNestedManyWithoutUserInput
+    assignedTickets?: TicketUncheckedCreateNestedManyWithoutAssignedUserInput
+    assignedByTickets?: TicketUncheckedCreateNestedManyWithoutAssignedByInput
+    notes?: NoteUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
+    targetActivityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTargetUserInput
+    uploadedAttachments?: TicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutUserInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedCreateNestedManyWithoutMembersInput
+  }
+
+  export type userCreateOrConnectWithoutTicketReasonsInput = {
+    where: userWhereUniqueInput
+    create: XOR<userCreateWithoutTicketReasonsInput, userUncheckedCreateWithoutTicketReasonsInput>
+  }
+
+  export type TicketUpsertWithoutReasonsInput = {
+    update: XOR<TicketUpdateWithoutReasonsInput, TicketUncheckedUpdateWithoutReasonsInput>
+    create: XOR<TicketCreateWithoutReasonsInput, TicketUncheckedCreateWithoutReasonsInput>
+    where?: TicketWhereInput
+  }
+
+  export type TicketUpdateToOneWithWhereWithoutReasonsInput = {
+    where?: TicketWhereInput
+    data: XOR<TicketUpdateWithoutReasonsInput, TicketUncheckedUpdateWithoutReasonsInput>
+  }
+
+  export type TicketUpdateWithoutReasonsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
+    priority?: EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
+    reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
+    project?: ProjectUpdateOneRequiredWithoutTicketsNestedInput
+    group?: ProjectGroupUpdateOneWithoutTicketsNestedInput
+    assignedUser?: userUpdateOneWithoutAssignedTicketsNestedInput
+    assignedBy?: userUpdateOneWithoutAssignedByTicketsNestedInput
+    timeLogs?: timeLogUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUpdateManyWithoutTicketsNestedInput
+    attachments?: TicketAttachmentUpdateManyWithoutTicketNestedInput
+    messages?: MessageUpdateManyWithoutTicketNestedInput
+  }
+
+  export type TicketUncheckedUpdateWithoutReasonsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
+    priority?: EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
+    reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
+    projectId?: StringFieldUpdateOperationsInput | string
+    groupId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+    timeLogs?: timeLogUncheckedUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutTicketsNestedInput
+    attachments?: TicketAttachmentUncheckedUpdateManyWithoutTicketNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutTicketNestedInput
+  }
+
+  export type userUpsertWithoutTicketReasonsInput = {
+    update: XOR<userUpdateWithoutTicketReasonsInput, userUncheckedUpdateWithoutTicketReasonsInput>
+    create: XOR<userCreateWithoutTicketReasonsInput, userUncheckedCreateWithoutTicketReasonsInput>
+    where?: userWhereInput
+  }
+
+  export type userUpdateToOneWithWhereWithoutTicketReasonsInput = {
+    where?: userWhereInput
+    data: XOR<userUpdateWithoutTicketReasonsInput, userUncheckedUpdateWithoutTicketReasonsInput>
+  }
+
+  export type userUpdateWithoutTicketReasonsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
+    forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
+    forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifyTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: CompanyUpdateOneWithoutUserNestedInput
+    timeLogs?: timeLogUpdateManyWithoutUserNestedInput
+    projects?: ProjectUpdateManyWithoutMembersNestedInput
+    adminProjects?: ProjectUpdateManyWithoutAdminsNestedInput
+    messages?: MessageUpdateManyWithoutUserNestedInput
+    assignedTickets?: TicketUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUpdateManyWithoutAssignedByNestedInput
+    notes?: NoteUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
+    targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutMembersNestedInput
+  }
+
+  export type userUncheckedUpdateWithoutTicketReasonsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
+    forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
+    forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifyTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    timeLogs?: timeLogUncheckedUpdateManyWithoutUserNestedInput
+    projects?: ProjectUncheckedUpdateManyWithoutMembersNestedInput
+    adminProjects?: ProjectUncheckedUpdateManyWithoutAdminsNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
+    assignedTickets?: TicketUncheckedUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUncheckedUpdateManyWithoutAssignedByNestedInput
+    notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+    targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutMembersNestedInput
   }
 
   export type ProjectCreateManyCompanyInput = {
@@ -23126,6 +28950,7 @@ export namespace Prisma {
     isActive?: boolean
     lastActive?: Date | string | null
     designation?: string | null
+    isPending?: boolean
     forgotPasswordToken?: string | null
     forgotPasswordTokenExpiry?: Date | string | null
     isVerified?: boolean
@@ -23174,6 +28999,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: userUpdateManyWithoutProjectsNestedInput
     admins?: userUpdateManyWithoutAdminProjectsNestedInput
+    discussionGroups?: ProjectDiscussionGroupUpdateManyWithoutProjectNestedInput
     messages?: MessageUpdateManyWithoutProjectNestedInput
     timeLogs?: timeLogUpdateManyWithoutProjectNestedInput
     groups?: ProjectGroupUpdateManyWithoutProjectNestedInput
@@ -23196,6 +29022,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: userUncheckedUpdateManyWithoutProjectsNestedInput
     admins?: userUncheckedUpdateManyWithoutAdminProjectsNestedInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutProjectNestedInput
     messages?: MessageUncheckedUpdateManyWithoutProjectNestedInput
     timeLogs?: timeLogUncheckedUpdateManyWithoutProjectNestedInput
     groups?: ProjectGroupUncheckedUpdateManyWithoutProjectNestedInput
@@ -23230,6 +29057,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -23240,10 +29068,14 @@ export namespace Prisma {
     adminProjects?: ProjectUpdateManyWithoutAdminsNestedInput
     messages?: MessageUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUpdateManyWithoutUserNestedInput
     notes?: NoteUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutMembersNestedInput
   }
 
   export type userUncheckedUpdateWithoutCompanyInput = {
@@ -23258,6 +29090,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -23268,10 +29101,14 @@ export namespace Prisma {
     adminProjects?: ProjectUncheckedUpdateManyWithoutAdminsNestedInput
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUncheckedUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUncheckedUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUncheckedUpdateManyWithoutUserNestedInput
     notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutMembersNestedInput
   }
 
   export type userUncheckedUpdateManyWithoutCompanyInput = {
@@ -23286,6 +29123,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -23392,6 +29230,7 @@ export namespace Prisma {
     isDeleted?: boolean
     projectId: string
     ticketId?: string | null
+    discussionGroupId?: string | null
   }
 
   export type TicketCreateManyAssignedUserInput = {
@@ -23410,8 +29249,40 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     projectId: string
     groupId?: string | null
+    assignedById?: string | null
+  }
+
+  export type TicketCreateManyAssignedByInput = {
+    id?: string
+    title: string
+    description: string
+    status?: $Enums.TicketStatus
+    priority?: $Enums.Priority
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dueDate?: Date | string | null
+    isCompleted?: boolean
+    completedAt?: Date | string | null
+    isDeleted?: boolean
+    deletedAt?: Date | string | null
+    reasonBlocked?: string | null
+    reasonReopen?: string | null
+    type?: $Enums.TicketType
+    estimatedHours?: number | null
+    projectId: string
+    groupId?: string | null
+    assignedUserId?: string | null
+  }
+
+  export type TicketReasonCreateManyUserInput = {
+    id?: string
+    type: $Enums.TicketReasonType
+    reason: string
+    createdAt?: Date | string
+    ticketId: string
   }
 
   export type NoteCreateManyUserInput = {
@@ -23454,6 +29325,18 @@ export namespace Prisma {
     fileName: string
     fileUrl: string
     createdAt?: Date | string
+  }
+
+  export type ProjectDiscussionGroupCreateManyUserInput = {
+    id?: string
+    title: string
+    type?: $Enums.ProjectDiscussionGroupType
+    content?: string | null
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    projectId: string
   }
 
   export type timeLogUpdateWithoutUserInput = {
@@ -23508,6 +29391,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     admins?: userUpdateManyWithoutAdminProjectsNestedInput
     company?: CompanyUpdateOneRequiredWithoutProjectsNestedInput
+    discussionGroups?: ProjectDiscussionGroupUpdateManyWithoutProjectNestedInput
     messages?: MessageUpdateManyWithoutProjectNestedInput
     timeLogs?: timeLogUpdateManyWithoutProjectNestedInput
     groups?: ProjectGroupUpdateManyWithoutProjectNestedInput
@@ -23530,6 +29414,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     admins?: userUncheckedUpdateManyWithoutAdminProjectsNestedInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutProjectNestedInput
     messages?: MessageUncheckedUpdateManyWithoutProjectNestedInput
     timeLogs?: timeLogUncheckedUpdateManyWithoutProjectNestedInput
     groups?: ProjectGroupUncheckedUpdateManyWithoutProjectNestedInput
@@ -23569,6 +29454,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: userUpdateManyWithoutProjectsNestedInput
     company?: CompanyUpdateOneRequiredWithoutProjectsNestedInput
+    discussionGroups?: ProjectDiscussionGroupUpdateManyWithoutProjectNestedInput
     messages?: MessageUpdateManyWithoutProjectNestedInput
     timeLogs?: timeLogUpdateManyWithoutProjectNestedInput
     groups?: ProjectGroupUpdateManyWithoutProjectNestedInput
@@ -23591,6 +29477,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: userUncheckedUpdateManyWithoutProjectsNestedInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutProjectNestedInput
     messages?: MessageUncheckedUpdateManyWithoutProjectNestedInput
     timeLogs?: timeLogUncheckedUpdateManyWithoutProjectNestedInput
     groups?: ProjectGroupUncheckedUpdateManyWithoutProjectNestedInput
@@ -23624,6 +29511,7 @@ export namespace Prisma {
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     project?: ProjectUpdateOneRequiredWithoutMessagesNestedInput
     ticket?: TicketUpdateOneWithoutMessagesNestedInput
+    discussionGroup?: ProjectDiscussionGroupUpdateOneWithoutMessagesNestedInput
   }
 
   export type MessageUncheckedUpdateWithoutUserInput = {
@@ -23636,6 +29524,7 @@ export namespace Prisma {
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     projectId?: StringFieldUpdateOperationsInput | string
     ticketId?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionGroupId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MessageUncheckedUpdateManyWithoutUserInput = {
@@ -23648,6 +29537,7 @@ export namespace Prisma {
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     projectId?: StringFieldUpdateOperationsInput | string
     ticketId?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionGroupId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TicketUpdateWithoutAssignedUserInput = {
@@ -23666,9 +29556,13 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     project?: ProjectUpdateOneRequiredWithoutTicketsNestedInput
     group?: ProjectGroupUpdateOneWithoutTicketsNestedInput
+    assignedBy?: userUpdateOneWithoutAssignedByTicketsNestedInput
+    reasons?: TicketReasonUpdateManyWithoutTicketNestedInput
     timeLogs?: timeLogUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUpdateManyWithoutTicketsNestedInput
     attachments?: TicketAttachmentUpdateManyWithoutTicketNestedInput
     messages?: MessageUpdateManyWithoutTicketNestedInput
   }
@@ -23689,9 +29583,13 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     projectId?: StringFieldUpdateOperationsInput | string
     groupId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reasons?: TicketReasonUncheckedUpdateManyWithoutTicketNestedInput
     timeLogs?: timeLogUncheckedUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutTicketsNestedInput
     attachments?: TicketAttachmentUncheckedUpdateManyWithoutTicketNestedInput
     messages?: MessageUncheckedUpdateManyWithoutTicketNestedInput
   }
@@ -23712,8 +29610,110 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     projectId?: StringFieldUpdateOperationsInput | string
     groupId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TicketUpdateWithoutAssignedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
+    priority?: EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
+    reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
+    project?: ProjectUpdateOneRequiredWithoutTicketsNestedInput
+    group?: ProjectGroupUpdateOneWithoutTicketsNestedInput
+    assignedUser?: userUpdateOneWithoutAssignedTicketsNestedInput
+    reasons?: TicketReasonUpdateManyWithoutTicketNestedInput
+    timeLogs?: timeLogUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUpdateManyWithoutTicketsNestedInput
+    attachments?: TicketAttachmentUpdateManyWithoutTicketNestedInput
+    messages?: MessageUpdateManyWithoutTicketNestedInput
+  }
+
+  export type TicketUncheckedUpdateWithoutAssignedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
+    priority?: EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
+    reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
+    projectId?: StringFieldUpdateOperationsInput | string
+    groupId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    reasons?: TicketReasonUncheckedUpdateManyWithoutTicketNestedInput
+    timeLogs?: timeLogUncheckedUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutTicketsNestedInput
+    attachments?: TicketAttachmentUncheckedUpdateManyWithoutTicketNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutTicketNestedInput
+  }
+
+  export type TicketUncheckedUpdateManyWithoutAssignedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
+    priority?: EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
+    reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
+    projectId?: StringFieldUpdateOperationsInput | string
+    groupId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TicketReasonUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTicketReasonTypeFieldUpdateOperationsInput | $Enums.TicketReasonType
+    reason?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ticket?: TicketUpdateOneRequiredWithoutReasonsNestedInput
+  }
+
+  export type TicketReasonUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTicketReasonTypeFieldUpdateOperationsInput | $Enums.TicketReasonType
+    reason?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ticketId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type TicketReasonUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTicketReasonTypeFieldUpdateOperationsInput | $Enums.TicketReasonType
+    reason?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ticketId?: StringFieldUpdateOperationsInput | string
   }
 
   export type NoteUpdateWithoutUserInput = {
@@ -23842,6 +29842,103 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ProjectDiscussionGroupUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tickets?: TicketUpdateManyWithoutDiscussionGroupsNestedInput
+    members?: userUpdateManyWithoutJoinedDiscussionGroupsNestedInput
+    messages?: MessageUpdateManyWithoutDiscussionGroupNestedInput
+    project?: ProjectUpdateOneRequiredWithoutDiscussionGroupsNestedInput
+  }
+
+  export type ProjectDiscussionGroupUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    tickets?: TicketUncheckedUpdateManyWithoutDiscussionGroupsNestedInput
+    members?: userUncheckedUpdateManyWithoutJoinedDiscussionGroupsNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutDiscussionGroupNestedInput
+  }
+
+  export type ProjectDiscussionGroupUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    projectId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ProjectDiscussionGroupUpdateWithoutMembersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tickets?: TicketUpdateManyWithoutDiscussionGroupsNestedInput
+    messages?: MessageUpdateManyWithoutDiscussionGroupNestedInput
+    project?: ProjectUpdateOneRequiredWithoutDiscussionGroupsNestedInput
+    user?: userUpdateOneRequiredWithoutProjectDiscussionGroupsNestedInput
+  }
+
+  export type ProjectDiscussionGroupUncheckedUpdateWithoutMembersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    tickets?: TicketUncheckedUpdateManyWithoutDiscussionGroupsNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutDiscussionGroupNestedInput
+  }
+
+  export type ProjectDiscussionGroupUncheckedUpdateManyWithoutMembersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ProjectDiscussionGroupCreateManyProjectInput = {
+    id?: string
+    title: string
+    type?: $Enums.ProjectDiscussionGroupType
+    content?: string | null
+    isPinned?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    userId: string
+  }
+
   export type MessageCreateManyProjectInput = {
     id?: string
     text: string
@@ -23852,6 +29949,7 @@ export namespace Prisma {
     isDeleted?: boolean
     userId: string
     ticketId?: string | null
+    discussionGroupId?: string | null
   }
 
   export type timeLogCreateManyProjectInput = {
@@ -23897,8 +29995,10 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     groupId?: string | null
     assignedUserId?: string | null
+    assignedById?: string | null
   }
 
   export type userUpdateWithoutProjectsInput = {
@@ -23913,6 +30013,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -23923,10 +30024,14 @@ export namespace Prisma {
     adminProjects?: ProjectUpdateManyWithoutAdminsNestedInput
     messages?: MessageUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUpdateManyWithoutUserNestedInput
     notes?: NoteUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutMembersNestedInput
   }
 
   export type userUncheckedUpdateWithoutProjectsInput = {
@@ -23941,6 +30046,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -23951,10 +30057,14 @@ export namespace Prisma {
     adminProjects?: ProjectUncheckedUpdateManyWithoutAdminsNestedInput
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUncheckedUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUncheckedUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUncheckedUpdateManyWithoutUserNestedInput
     notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutMembersNestedInput
   }
 
   export type userUncheckedUpdateManyWithoutProjectsInput = {
@@ -23969,6 +30079,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -23989,6 +30100,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -23999,10 +30111,14 @@ export namespace Prisma {
     projects?: ProjectUpdateManyWithoutMembersNestedInput
     messages?: MessageUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUpdateManyWithoutUserNestedInput
     notes?: NoteUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutMembersNestedInput
   }
 
   export type userUncheckedUpdateWithoutAdminProjectsInput = {
@@ -24017,6 +30133,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
@@ -24027,10 +30144,14 @@ export namespace Prisma {
     projects?: ProjectUncheckedUpdateManyWithoutMembersNestedInput
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     assignedTickets?: TicketUncheckedUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUncheckedUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUncheckedUpdateManyWithoutUserNestedInput
     notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
     uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutUserNestedInput
+    joinedDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutMembersNestedInput
   }
 
   export type userUncheckedUpdateManyWithoutAdminProjectsInput = {
@@ -24045,12 +30166,55 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
     forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
     forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isVerified?: BoolFieldUpdateOperationsInput | boolean
     verifyToken?: NullableStringFieldUpdateOperationsInput | string | null
     verifyTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ProjectDiscussionGroupUpdateWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tickets?: TicketUpdateManyWithoutDiscussionGroupsNestedInput
+    members?: userUpdateManyWithoutJoinedDiscussionGroupsNestedInput
+    messages?: MessageUpdateManyWithoutDiscussionGroupNestedInput
+    user?: userUpdateOneRequiredWithoutProjectDiscussionGroupsNestedInput
+  }
+
+  export type ProjectDiscussionGroupUncheckedUpdateWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
+    tickets?: TicketUncheckedUpdateManyWithoutDiscussionGroupsNestedInput
+    members?: userUncheckedUpdateManyWithoutJoinedDiscussionGroupsNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutDiscussionGroupNestedInput
+  }
+
+  export type ProjectDiscussionGroupUncheckedUpdateManyWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
   }
 
   export type MessageUpdateWithoutProjectInput = {
@@ -24063,6 +30227,7 @@ export namespace Prisma {
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     user?: userUpdateOneRequiredWithoutMessagesNestedInput
     ticket?: TicketUpdateOneWithoutMessagesNestedInput
+    discussionGroup?: ProjectDiscussionGroupUpdateOneWithoutMessagesNestedInput
   }
 
   export type MessageUncheckedUpdateWithoutProjectInput = {
@@ -24075,6 +30240,7 @@ export namespace Prisma {
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     userId?: StringFieldUpdateOperationsInput | string
     ticketId?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionGroupId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MessageUncheckedUpdateManyWithoutProjectInput = {
@@ -24087,6 +30253,7 @@ export namespace Prisma {
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     userId?: StringFieldUpdateOperationsInput | string
     ticketId?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionGroupId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type timeLogUpdateWithoutProjectInput = {
@@ -24188,9 +30355,13 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     group?: ProjectGroupUpdateOneWithoutTicketsNestedInput
     assignedUser?: userUpdateOneWithoutAssignedTicketsNestedInput
+    assignedBy?: userUpdateOneWithoutAssignedByTicketsNestedInput
+    reasons?: TicketReasonUpdateManyWithoutTicketNestedInput
     timeLogs?: timeLogUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUpdateManyWithoutTicketsNestedInput
     attachments?: TicketAttachmentUpdateManyWithoutTicketNestedInput
     messages?: MessageUpdateManyWithoutTicketNestedInput
   }
@@ -24211,9 +30382,13 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     groupId?: NullableStringFieldUpdateOperationsInput | string | null
     assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reasons?: TicketReasonUncheckedUpdateManyWithoutTicketNestedInput
     timeLogs?: timeLogUncheckedUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutTicketsNestedInput
     attachments?: TicketAttachmentUncheckedUpdateManyWithoutTicketNestedInput
     messages?: MessageUncheckedUpdateManyWithoutTicketNestedInput
   }
@@ -24234,8 +30409,10 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     groupId?: NullableStringFieldUpdateOperationsInput | string | null
     assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TicketCreateManyGroupInput = {
@@ -24254,8 +30431,10 @@ export namespace Prisma {
     reasonBlocked?: string | null
     reasonReopen?: string | null
     type?: $Enums.TicketType
+    estimatedHours?: number | null
     projectId: string
     assignedUserId?: string | null
+    assignedById?: string | null
   }
 
   export type TicketUpdateWithoutGroupInput = {
@@ -24274,9 +30453,13 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     project?: ProjectUpdateOneRequiredWithoutTicketsNestedInput
     assignedUser?: userUpdateOneWithoutAssignedTicketsNestedInput
+    assignedBy?: userUpdateOneWithoutAssignedByTicketsNestedInput
+    reasons?: TicketReasonUpdateManyWithoutTicketNestedInput
     timeLogs?: timeLogUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUpdateManyWithoutTicketsNestedInput
     attachments?: TicketAttachmentUpdateManyWithoutTicketNestedInput
     messages?: MessageUpdateManyWithoutTicketNestedInput
   }
@@ -24297,9 +30480,13 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     projectId?: StringFieldUpdateOperationsInput | string
     assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reasons?: TicketReasonUncheckedUpdateManyWithoutTicketNestedInput
     timeLogs?: timeLogUncheckedUpdateManyWithoutTicketNestedInput
+    discussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutTicketsNestedInput
     attachments?: TicketAttachmentUncheckedUpdateManyWithoutTicketNestedInput
     messages?: MessageUncheckedUpdateManyWithoutTicketNestedInput
   }
@@ -24320,8 +30507,234 @@ export namespace Prisma {
     reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
     reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
     projectId?: StringFieldUpdateOperationsInput | string
     assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type MessageCreateManyDiscussionGroupInput = {
+    id?: string
+    text: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isRead?: boolean
+    isStarred?: boolean
+    isDeleted?: boolean
+    projectId: string
+    userId: string
+    ticketId?: string | null
+  }
+
+  export type TicketUpdateWithoutDiscussionGroupsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
+    priority?: EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
+    reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
+    project?: ProjectUpdateOneRequiredWithoutTicketsNestedInput
+    group?: ProjectGroupUpdateOneWithoutTicketsNestedInput
+    assignedUser?: userUpdateOneWithoutAssignedTicketsNestedInput
+    assignedBy?: userUpdateOneWithoutAssignedByTicketsNestedInput
+    reasons?: TicketReasonUpdateManyWithoutTicketNestedInput
+    timeLogs?: timeLogUpdateManyWithoutTicketNestedInput
+    attachments?: TicketAttachmentUpdateManyWithoutTicketNestedInput
+    messages?: MessageUpdateManyWithoutTicketNestedInput
+  }
+
+  export type TicketUncheckedUpdateWithoutDiscussionGroupsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
+    priority?: EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
+    reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
+    projectId?: StringFieldUpdateOperationsInput | string
+    groupId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reasons?: TicketReasonUncheckedUpdateManyWithoutTicketNestedInput
+    timeLogs?: timeLogUncheckedUpdateManyWithoutTicketNestedInput
+    attachments?: TicketAttachmentUncheckedUpdateManyWithoutTicketNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutTicketNestedInput
+  }
+
+  export type TicketUncheckedUpdateManyWithoutDiscussionGroupsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
+    priority?: EnumPriorityFieldUpdateOperationsInput | $Enums.Priority
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reasonBlocked?: NullableStringFieldUpdateOperationsInput | string | null
+    reasonReopen?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumTicketTypeFieldUpdateOperationsInput | $Enums.TicketType
+    estimatedHours?: NullableFloatFieldUpdateOperationsInput | number | null
+    projectId?: StringFieldUpdateOperationsInput | string
+    groupId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type userUpdateWithoutJoinedDiscussionGroupsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
+    forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
+    forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifyTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: CompanyUpdateOneWithoutUserNestedInput
+    timeLogs?: timeLogUpdateManyWithoutUserNestedInput
+    projects?: ProjectUpdateManyWithoutMembersNestedInput
+    adminProjects?: ProjectUpdateManyWithoutAdminsNestedInput
+    messages?: MessageUpdateManyWithoutUserNestedInput
+    assignedTickets?: TicketUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUpdateManyWithoutUserNestedInput
+    notes?: NoteUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
+    targetActivityLogs?: ActivityLogUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUpdateManyWithoutUserNestedInput
+  }
+
+  export type userUncheckedUpdateWithoutJoinedDiscussionGroupsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
+    forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
+    forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifyTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    timeLogs?: timeLogUncheckedUpdateManyWithoutUserNestedInput
+    projects?: ProjectUncheckedUpdateManyWithoutMembersNestedInput
+    adminProjects?: ProjectUncheckedUpdateManyWithoutAdminsNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
+    assignedTickets?: TicketUncheckedUpdateManyWithoutAssignedUserNestedInput
+    assignedByTickets?: TicketUncheckedUpdateManyWithoutAssignedByNestedInput
+    ticketReasons?: TicketReasonUncheckedUpdateManyWithoutUserNestedInput
+    notes?: NoteUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+    targetActivityLogs?: ActivityLogUncheckedUpdateManyWithoutTargetUserNestedInput
+    uploadedAttachments?: TicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+    projectDiscussionGroups?: ProjectDiscussionGroupUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type userUncheckedUpdateManyWithoutJoinedDiscussionGroupsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    isPending?: BoolFieldUpdateOperationsInput | boolean
+    forgotPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
+    forgotPasswordTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifyTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type MessageUpdateWithoutDiscussionGroupInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    text?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    isStarred?: BoolFieldUpdateOperationsInput | boolean
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    project?: ProjectUpdateOneRequiredWithoutMessagesNestedInput
+    user?: userUpdateOneRequiredWithoutMessagesNestedInput
+    ticket?: TicketUpdateOneWithoutMessagesNestedInput
+  }
+
+  export type MessageUncheckedUpdateWithoutDiscussionGroupInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    text?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    isStarred?: BoolFieldUpdateOperationsInput | boolean
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    projectId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    ticketId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type MessageUncheckedUpdateManyWithoutDiscussionGroupInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    text?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    isStarred?: BoolFieldUpdateOperationsInput | boolean
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    projectId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    ticketId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TicketReasonCreateManyTicketInput = {
+    id?: string
+    type: $Enums.TicketReasonType
+    reason: string
+    createdAt?: Date | string
+    userId: string
   }
 
   export type timeLogCreateManyTicketInput = {
@@ -24354,6 +30767,31 @@ export namespace Prisma {
     isDeleted?: boolean
     projectId: string
     userId: string
+    discussionGroupId?: string | null
+  }
+
+  export type TicketReasonUpdateWithoutTicketInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTicketReasonTypeFieldUpdateOperationsInput | $Enums.TicketReasonType
+    reason?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: userUpdateOneRequiredWithoutTicketReasonsNestedInput
+  }
+
+  export type TicketReasonUncheckedUpdateWithoutTicketInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTicketReasonTypeFieldUpdateOperationsInput | $Enums.TicketReasonType
+    reason?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type TicketReasonUncheckedUpdateManyWithoutTicketInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTicketReasonTypeFieldUpdateOperationsInput | $Enums.TicketReasonType
+    reason?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
   }
 
   export type timeLogUpdateWithoutTicketInput = {
@@ -24392,6 +30830,49 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ProjectDiscussionGroupUpdateWithoutTicketsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: userUpdateManyWithoutJoinedDiscussionGroupsNestedInput
+    messages?: MessageUpdateManyWithoutDiscussionGroupNestedInput
+    project?: ProjectUpdateOneRequiredWithoutDiscussionGroupsNestedInput
+    user?: userUpdateOneRequiredWithoutProjectDiscussionGroupsNestedInput
+  }
+
+  export type ProjectDiscussionGroupUncheckedUpdateWithoutTicketsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    members?: userUncheckedUpdateManyWithoutJoinedDiscussionGroupsNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutDiscussionGroupNestedInput
+  }
+
+  export type ProjectDiscussionGroupUncheckedUpdateManyWithoutTicketsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumProjectDiscussionGroupTypeFieldUpdateOperationsInput | $Enums.ProjectDiscussionGroupType
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+  }
+
   export type TicketAttachmentUpdateWithoutTicketInput = {
     id?: StringFieldUpdateOperationsInput | string
     fileName?: StringFieldUpdateOperationsInput | string
@@ -24426,6 +30907,7 @@ export namespace Prisma {
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     project?: ProjectUpdateOneRequiredWithoutMessagesNestedInput
     user?: userUpdateOneRequiredWithoutMessagesNestedInput
+    discussionGroup?: ProjectDiscussionGroupUpdateOneWithoutMessagesNestedInput
   }
 
   export type MessageUncheckedUpdateWithoutTicketInput = {
@@ -24438,6 +30920,7 @@ export namespace Prisma {
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     projectId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    discussionGroupId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MessageUncheckedUpdateManyWithoutTicketInput = {
@@ -24450,6 +30933,7 @@ export namespace Prisma {
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     projectId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    discussionGroupId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
 

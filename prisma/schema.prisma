@@ -97,6 +97,19 @@ enum GroupStatus {
   on_hold
 }
 
+enum ProjectDiscussionGroupType {
+  general
+  discussion
+  suggestion
+  complaint
+  decision
+  question
+  announcement
+  feedback
+  improvement
+  other
+}
+
 enum ActivityAction {
   PROJECT_CREATED
   PROJECT_UPDATED
@@ -141,6 +154,7 @@ model Company {
   projectGroups ProjectGroup[]
 }
 
+
 model user {
   id          String    @id @default(cuid())
   name        String
@@ -153,6 +167,7 @@ model user {
   isActive    Boolean   @default(true)
   lastActive  DateTime?
   designation String?
+  isPending   Boolean   @default(true)
 
   //auth
   forgotPasswordToken       String?
@@ -173,6 +188,8 @@ model user {
   messages Message[]
 
   assignedTickets Ticket[] @relation("assignedTickets")
+  assignedByTickets Ticket[] @relation("assignedByTickets")
+  ticketReasons   TicketReason[]
 
   notes Note[]
 
@@ -180,7 +197,12 @@ model user {
   activityLogs       ActivityLog[]
   targetActivityLogs ActivityLog[] @relation("ActivityTargetUser")
   uploadedAttachments TicketAttachment[] @relation("UploadedAttachments")
+  projectDiscussionGroups ProjectDiscussionGroup[]
+  joinedDiscussionGroups  ProjectDiscussionGroup[] @relation("DiscussionGroupMembers")
+
+  @@index([companyId, email])
 }
+
 
 model Project {
   id            String          @id @default(cuid())
@@ -200,6 +222,7 @@ model Project {
 
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
+  discussionGroups ProjectDiscussionGroup[]
 
   messages Message[]
 
@@ -234,6 +257,29 @@ model ProjectGroup {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+}
+
+model ProjectDiscussionGroup {
+  id        String   @id @default(cuid())
+  title     String
+  type      ProjectDiscussionGroupType @default(discussion)
+  content   String?
+  isPinned  Boolean   @default(false)
+  isArchived Boolean @default(false)
+
+  tickets   Ticket[]
+  members   user[]   @relation("DiscussionGroupMembers")
+  messages  Message[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
+
+  userId String
+  user   user   @relation(fields: [userId], references: [id])
 }
 
 model Ticket {
@@ -252,6 +298,7 @@ model Ticket {
   reasonBlocked String?
   reasonReopen  String?
   type          TicketType   @default(task)
+  estimatedHours Float?
 
   projectId String
   project   Project @relation(fields: [projectId], references: [id])
@@ -262,11 +309,23 @@ model Ticket {
   assignedUserId String?
   assignedUser   user?   @relation("assignedTickets", fields: [assignedUserId], references: [id])
 
+  assignedById   String?
+  assignedBy     user?   @relation("assignedByTickets", fields: [assignedById], references: [id])
+
+  reasons TicketReason[]
+
   timeLogs timeLog[]
+
+  discussionGroups ProjectDiscussionGroup[]
 
   attachments TicketAttachment[]
 
   messages Message[]
+
+  @@index([projectId])
+  @@index([groupId])
+  @@index([assignedUserId])
+  @@index([assignedById])
 }
 
 model TicketAttachment {
@@ -299,6 +358,9 @@ model Message {
 
   ticketId String?
   ticket   Ticket? @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  discussionGroupId String?
+  discussionGroup   ProjectDiscussionGroup? @relation(fields: [discussionGroupId], references: [id], onDelete: Cascade)
 }
 
 model timeLog {
@@ -370,3 +432,25 @@ model ActivityLog {
   @@index([groupId])
   @@index([createdAt])
 }
+
+model TicketReason {
+  id        String           @id @default(cuid())
+  type      TicketReasonType
+  reason    String
+  createdAt DateTime         @default(now())
+
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   user   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@index([userId])
+}
+
+enum TicketReasonType {
+  BLOCKED
+  REOPENED
+}
+

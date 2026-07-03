@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/helpers/permission";
+import { ablyRest } from "@/lib/ably";
 
 export async function GET(
     req: NextRequest,
@@ -196,6 +197,16 @@ export async function POST(
                 groupId: ticket.groupId || null,
             }
         });
+
+        // Publish to Ably
+        if (ablyRest) {
+            try {
+                const channel = ablyRest.channels.get(`ticket:${ticketId}`);
+                await channel.publish("comment:created", message);
+            } catch (ablyError) {
+                console.error("Failed to publish ticket comment to Ably:", ablyError);
+            }
+        }
 
         return NextResponse.json({ message }, { status: 201 });
     } catch (error) {

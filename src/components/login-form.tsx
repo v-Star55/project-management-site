@@ -69,7 +69,11 @@ export function LoginForm({
         email: "",
         password: "",
       });
-      router.push(`/dashboard/${response.user.id}`);
+      if (response.user.isPending) {
+        router.push("/change-password");
+      } else {
+        router.push(`/dashboard/${response.user.id}`);
+      }
     },
     onError: (error: any) => {
       const errorMsg = error.response?.data?.error || error.message || "Something went wrong during login";

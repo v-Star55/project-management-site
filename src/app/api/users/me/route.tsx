@@ -27,6 +27,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             email: user.email,
             role: user.role,
             imageUrl: user.imageUrl,
+            isPending: user.isPending,
             company: user.company
                 ? {
                       id: user.company.id,

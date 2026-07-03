@@ -62,6 +62,21 @@ export interface TimeLog {
   createdAt: string
 }
 
+export interface TicketReason {
+  id: string
+  type: "BLOCKED" | "REOPENED"
+  reason: string
+  createdAt: string
+  ticketId: string
+  userId: string
+  user: {
+    id: string
+    name: string
+    email: string
+    imageUrl: string | null
+  }
+}
+
 export interface Ticket {
   id: string
   title: string
@@ -84,10 +99,18 @@ export interface Ticket {
     email: string
     imageUrl: string | null
   }
+  assignedBy?: {
+    id: string
+    name: string
+    email: string
+    imageUrl: string | null
+  } | null
   attachments?: TicketAttachment[]
   timeLogs?: TimeLog[]
   reasonBlocked?: string | null
   reasonReopen?: string | null
+  reasons?: TicketReason[]
+  estimatedHours?: number | null
   group?: {
     id: string
     name: string

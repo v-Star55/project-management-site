@@ -167,6 +167,14 @@ const formatTotalTime = (minutes: number) => {
   return `${hrs}h ${mins}m`
 }
 
+const formatSummaryTime = (minutes: number): string => {
+  const isNegative = minutes < 0
+  const absMins = Math.abs(minutes)
+  const hrs = Math.floor(absMins / 60)
+  const mins = absMins % 60
+  return `${isNegative ? "-" : ""}${hrs}h ${String(mins).padStart(2, "0")}m`
+}
+
 const getInitials = (name: string): string => {
   return name
     .split(" ")
@@ -183,7 +191,6 @@ export default function TicketTimeLogs({ ticket }: TicketTimeLogsProps) {
   const now = new Date()
   const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000)
 
-  const [showTimeForm, setShowTimeForm] = useState(false)
   const [startTime, setStartTime] = useState<Date | undefined>(oneHourAgo)
   const [endTime, setEndTime] = useState<Date | undefined>(now)
   const [logDesc, setLogDesc] = useState("")
@@ -208,6 +215,14 @@ export default function TicketTimeLogs({ ticket }: TicketTimeLogsProps) {
 
   const totalMinutes = getDuration()
 
+  const handleReset = () => {
+    const freshNow = new Date()
+    const freshOneHourAgo = new Date(freshNow.getTime() - 60 * 60 * 1000)
+    setStartTime(freshOneHourAgo)
+    setEndTime(freshNow)
+    setLogDesc("")
+  }
+
   const handleLogTimeSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const computedMinutes = getDuration()
@@ -228,12 +243,7 @@ export default function TicketTimeLogs({ ticket }: TicketTimeLogsProps) {
       })
       if (response.status === 201) {
         toast.success("Time logged successfully")
-        const freshNow = new Date()
-        const freshOneHourAgo = new Date(freshNow.getTime() - 60 * 60 * 1000)
-        setStartTime(freshOneHourAgo)
-        setEndTime(freshNow)
-        setLogDesc("")
-        setShowTimeForm(false)
+        handleReset()
         queryClient.invalidateQueries({ queryKey: ["tickets"] })
       }
     } catch (err: any) {
@@ -261,104 +271,135 @@ export default function TicketTimeLogs({ ticket }: TicketTimeLogsProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="size-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
-            <ClockIcon className="size-3.5 text-blue-500" />
-          </div>
-          <h3 className="text-xs font-bold uppercase text-foreground tracking-widest">Time Logs</h3>
-        </div>
-        <span className="text-[10px] px-2 py-0.5 font-bold bg-primary/10 text-primary border border-primary/20 rounded-full">
-          Total: {formatTotalTime(totalLogMinutes)}
-        </span>
-      </div>
-
-      {/* Log time form */}
+    <div className="flex flex-col gap-5">
+      {/* 1. Log Hours Form by Default */}
       {canLogHours ? (
-        showTimeForm ? (
-          <form onSubmit={handleLogTimeSubmit} className="p-3.5 bg-card/60 border border-border/30 rounded-xl flex flex-col gap-3 animate-in fade-in duration-200">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <DateTimePicker
-                date={startTime}
-                setDate={setStartTime}
-                label="Start Date & Time"
-              />
-              <DateTimePicker
-                date={endTime}
-                setDate={setEndTime}
-                label="End Date & Time"
-              />
+        <form onSubmit={handleLogTimeSubmit} className="p-4 bg-muted/15 border border-border/40 rounded-2xl flex flex-col gap-3">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="size-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
+              <PlusIcon className="size-3.5 text-blue-500" />
             </div>
+            <h3 className="text-xs font-bold uppercase text-foreground tracking-widest">Log Hours</h3>
+          </div>
 
-            {/* Calculated Duration */}
-            <div className="flex items-center justify-between px-3 py-2 bg-primary/5 border border-primary/10 rounded-lg">
-              <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Calculated Duration</span>
-              <span className="text-xs font-bold text-primary">
-                {totalMinutes > 0 ? formatTotalTime(totalMinutes) : "Invalid time range"}
-              </span>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <DateTimePicker
+              date={startTime}
+              setDate={setStartTime}
+              label="Start Date & Time"
+            />
+            <DateTimePicker
+              date={endTime}
+              setDate={setEndTime}
+              label="End Date & Time"
+            />
+          </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-[9px] font-bold uppercase text-muted-foreground tracking-wider">Work Description</label>
-              <input
-                type="text"
-                placeholder="Briefly describe what you accomplished"
-                value={logDesc}
-                onChange={(e) => setLogDesc(e.target.value)}
-                className="w-full px-3 py-1.5 bg-muted/30 border border-border/40 rounded-lg text-xs outline-none focus:border-primary/50 transition-all text-foreground"
-              />
-            </div>
+          {/* Calculated Duration */}
+          <div className="flex items-center justify-between px-3 py-2 bg-primary/5 border border-primary/10 rounded-lg">
+            <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Calculated Duration</span>
+            <span className="text-xs font-bold text-primary">
+              {totalMinutes > 0 ? formatTotalTime(totalMinutes) : "Invalid time range"}
+            </span>
+          </div>
 
-            <div className="flex justify-end gap-2 border-t border-border/20 pt-2.5 mt-1">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowTimeForm(false);
-                  const freshNow = new Date()
-                  const freshOneHourAgo = new Date(freshNow.getTime() - 60 * 60 * 1000)
-                  setStartTime(freshOneHourAgo)
-                  setEndTime(freshNow)
-                  setLogDesc("");
-                }}
-                className="px-3 py-1.5 border border-border/40 rounded-lg text-xs font-semibold text-muted-foreground hover:bg-muted/65 transition-all cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loggingTime || totalMinutes <= 0}
-                className="px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-semibold hover:bg-primary/95 transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50"
-              >
-                {loggingTime && <Loader2Icon className="size-3 animate-spin" />}
-                Log Hours
-              </button>
-            </div>
-          </form>
-        ) : (
-          <button
-            onClick={() => setShowTimeForm(true)}
-            className="w-full flex items-center justify-center gap-1.5 py-2.5 border border-dashed border-border/50 hover:border-primary/40 text-muted-foreground hover:text-primary bg-muted/20 hover:bg-primary/5 text-xs font-semibold rounded-xl transition-all cursor-pointer"
-          >
-            <PlusIcon className="size-3.5" /> Log Hours
-          </button>
-        )
+          <div className="flex flex-col gap-1">
+            <label className="text-[9px] font-bold uppercase text-muted-foreground tracking-wider">Work Description</label>
+            <input
+              type="text"
+              placeholder="Briefly describe what you accomplished"
+              value={logDesc}
+              onChange={(e) => setLogDesc(e.target.value)}
+              className="w-full px-3 py-1.5 bg-muted/30 border border-border/40 rounded-lg text-xs outline-none focus:border-primary/50 transition-all text-foreground"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 border-t border-border/20 pt-2.5 mt-1 w-full">
+            <button
+              type="button"
+              onClick={handleReset}
+              className="px-3 py-1.5 border border-border/40 rounded-lg text-xs font-semibold text-muted-foreground hover:bg-muted/65 transition-all cursor-pointer w-full text-center"
+            >
+              Reset
+            </button>
+            <button
+              type="submit"
+              disabled={loggingTime || totalMinutes <= 0}
+              className="px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-semibold hover:bg-primary/95 transition-all flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50 w-full"
+            >
+              {loggingTime && <Loader2Icon className="size-3 animate-spin" />}
+              Log Hours
+            </button>
+          </div>
+        </form>
       ) : (
         <div className="p-3 bg-red-500/5 border border-red-500/10 rounded-xl text-center">
           <p className="text-[10.5px] font-medium text-red-500/80">Only project members, admins, or owners can log hours on this ticket.</p>
         </div>
       )}
 
-      {/* Logged List */}
-      <div className="flex flex-col gap-1.5">
-        {ticket.timeLogs && ticket.timeLogs.length > 0 ? (
-          ticket.timeLogs.map((log) => (
-            <div
-              key={log.id}
-              className="flex flex-col gap-2 p-3.5 bg-muted/20 border border-border/30 rounded-xl group/log hover:border-border/50 transition-all"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-center gap-2.5 min-w-0">
+      {/* 2. Time Summary Section */}
+      {(() => {
+        const estMins = ticket.estimatedHours ? Math.round(ticket.estimatedHours * 60) : 0
+        const loggedMins = totalLogMinutes
+        const remainingMins = estMins - loggedMins
+        const percentage = estMins > 0 ? Math.round((loggedMins / estMins) * 100) : 0
+
+        return (
+          <div className="p-4 bg-muted/15 border border-border/40 rounded-2xl flex flex-col gap-3.5">
+            <h4 className="text-xs font-extrabold text-foreground tracking-wide">Time Summary</h4>
+            
+            <div className="grid grid-cols-3 gap-4 text-left">
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Estimated</span>
+                <span className="text-xs font-bold text-foreground">{formatSummaryTime(estMins)}</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Logged</span>
+                <span className="text-xs font-bold text-emerald-500 dark:text-emerald-400">{formatSummaryTime(loggedMins)}</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Remaining</span>
+                <span className={`text-xs font-bold ${remainingMins < 0 ? "text-red-500" : "text-emerald-500 dark:text-emerald-400"}`}>
+                  {formatSummaryTime(remainingMins)}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 mt-1.5">
+              <div className="flex-1 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-emerald-500 rounded-full transition-all duration-300" 
+                  style={{ width: `${Math.min(percentage, 100)}%` }}
+                />
+              </div>
+              <span className={`text-[10.5px] font-black shrink-0 ${percentage > 100 ? "text-red-500" : "text-emerald-500"}`}>
+                {percentage}%
+              </span>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* 3. Time Logs Section */}
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-2">
+          <div className="size-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
+            <ClockIcon className="size-3.5 text-blue-500" />
+          </div>
+          <h3 className="text-xs font-bold uppercase text-foreground tracking-widest">Time Logs</h3>
+        </div>
+
+        {/* Logged List */}
+        <div className="flex flex-col gap-2 h-[340px] overflow-y-auto pr-1">
+          {ticket.timeLogs && ticket.timeLogs.length > 0 ? (
+            ticket.timeLogs.map((log) => (
+              <div
+                key={log.id}
+                className="flex flex-col gap-2 p-3.5 bg-muted/20 border border-border/30 rounded-xl group/log hover:border-border/50 transition-all"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     <Image
                       src={log.user.imageUrl || "https://github.com/shadcn.png"}
                       alt={log.user.name}
@@ -367,51 +408,52 @@ export default function TicketTimeLogs({ ticket }: TicketTimeLogsProps) {
                       className="size-7 rounded-full object-cover border border-border"
                       unoptimized
                     />
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-xs font-bold text-foreground truncate">
-                      {log.user.name}
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs font-bold text-foreground truncate">
+                        {log.user.name}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground mt-0.5">
+                        {formatTimeRange(log.startTime, log.endTime)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-foreground bg-muted border border-border/40 px-2 py-0.5 rounded-md whitespace-nowrap">
+                      {formatTotalTime(log.duration)}
                     </span>
-                    <span className="text-[10px] text-muted-foreground mt-0.5">
-                      {formatTimeRange(log.startTime, log.endTime)}
-                    </span>
+                    
+                    {/* Only show delete if user matches log owner, or is owner/admin */}
+                    {user && (log.userId === user.id || user.role === "owner" || user.role === "admin") && (
+                      <button
+                        onClick={() => handleDeleteTimeLog(log.id)}
+                        disabled={deletingTimeLogId === log.id}
+                        className="opacity-0 group-hover/log:opacity-100 p-1.5 hover:text-red-500 rounded-lg hover:bg-red-500/5 transition-all text-muted-foreground cursor-pointer disabled:opacity-50"
+                      >
+                        {deletingTimeLogId === log.id ? (
+                          <Loader2Icon className="size-3.5 animate-spin" />
+                        ) : (
+                          <Trash2Icon className="size-3.5" />
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-foreground bg-muted border border-border/40 px-2 py-0.5 rounded-md whitespace-nowrap">
-                    {formatTotalTime(log.duration)}
-                  </span>
-                  
-                  {/* Only show delete if user matches log owner, or is owner/admin */}
-                  {user && (log.userId === user.id || user.role === "owner" || user.role === "admin") && (
-                    <button
-                      onClick={() => handleDeleteTimeLog(log.id)}
-                      disabled={deletingTimeLogId === log.id}
-                      className="opacity-0 group-hover/log:opacity-100 p-1.5 hover:text-red-500 rounded-lg hover:bg-red-500/5 transition-all text-muted-foreground cursor-pointer disabled:opacity-50"
-                    >
-                      {deletingTimeLogId === log.id ? (
-                        <Loader2Icon className="size-3.5 animate-spin" />
-                      ) : (
-                        <Trash2Icon className="size-3.5" />
-                      )}
-                    </button>
-                  )}
-                </div>
+                {log.description && (
+                  <p className="text-xs text-muted-foreground pl-9.5 leading-relaxed break-words border-l border-border/40 mt-0.5">
+                    {log.description}
+                  </p>
+                )}
               </div>
-
-              {log.description && (
-                <p className="text-xs text-muted-foreground pl-9.5 leading-relaxed break-words border-l border-border/40 mt-0.5">
-                  {log.description}
-                </p>
-              )}
+            ))
+          ) : (
+            <div className="py-6 text-center border border-dashed border-border/30 rounded-xl bg-muted/10">
+              <ClockIcon className="size-5 text-muted-foreground/40 mx-auto mb-1.5" />
+              <p className="text-xs text-muted-foreground italic">No hours logged yet</p>
             </div>
-          ))
-        ) : (
-          <div className="py-6 text-center border border-dashed border-border/30 rounded-xl bg-muted/10">
-            <ClockIcon className="size-5 text-muted-foreground/40 mx-auto mb-1.5" />
-            <p className="text-xs text-muted-foreground italic">No hours logged yet</p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )

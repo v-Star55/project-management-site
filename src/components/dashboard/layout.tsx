@@ -78,8 +78,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (userData) {
       dispatch(setUser(userData))
+      if (userData.isPending) {
+        router.push("/change-password")
+      }
     }
-  }, [userData, dispatch])
+  }, [userData, dispatch, router])
 
   // Redirect to login if user is unauthenticated (401 status)
   useEffect(() => {

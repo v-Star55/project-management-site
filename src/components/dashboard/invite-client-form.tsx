@@ -3,40 +3,44 @@
 import React, { useState } from "react"
 import axios from "axios"
 import { toast } from "sonner"
-import { EyeIcon, EyeOffIcon, Loader2Icon, UserPlusIcon } from "lucide-react"
+import { EyeIcon, EyeOffIcon, Loader2Icon, UserPlusIcon, FolderOpenIcon } from "lucide-react"
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
+import { useQuery } from "@tanstack/react-query"
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-
-interface InviteMemberFormProps {
+interface InviteClientFormProps {
   companyId: string
   onSuccess: () => void
 }
 
-export default function InviteMemberForm({ companyId, onSuccess }: InviteMemberFormProps) {
+export default function InviteClientForm({ companyId, onSuccess }: InviteClientFormProps) {
   const { user } = useSelector((state: RootState) => state.user)
-  const isSystemAdmin = user?.role === "admin"
 
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [designation, setDesignation] = useState("")
-  const [role, setRole] = useState("member")
+  const [designation, setDesignation] = useState("Client Representative")
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([])
+
+  // Fetch projects to allow direct assignment
+  const { data: projectsData, isLoading: isLoadingProjects } = useQuery({
+    queryKey: ["projects", user?.id],
+    queryFn: async () => {
+      const response = await axios.get("/api/projects")
+      return response.data.projects
+    },
+    enabled: !!user?.id,
+  })
+
+  const projectsList = projectsData || []
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!name.trim()) {
-      toast.error("Please enter a name")
+      toast.error("Please enter a name or company name")
       return
     }
     if (!email.trim()) {
@@ -50,44 +54,62 @@ export default function InviteMemberForm({ companyId, onSuccess }: InviteMemberF
 
     setIsSubmitting(true)
     try {
+      // 1. Create client user
       const response = await axios.post(`/api/teams/${companyId}`, {
         name,
         email,
         password,
-        role,
-        designation: designation.trim() || null,
+        role: "client",
+        designation: designation.trim() || "Client Representative",
       })
 
-      toast.success(response.data.message || "Team member invited successfully!")
+      const clientUser = response.data.user
+
+      // 2. Assign selected projects if any
+      if (clientUser && selectedProjectIds.length > 0) {
+        await axios.patch(`/api/teams/${companyId}`, {
+          memberId: clientUser.id,
+          projectIds: selectedProjectIds,
+        })
+      }
+
+      toast.success("Client invited successfully!")
       
       // Reset form fields
       setName("")
       setEmail("")
       setPassword("")
-      setDesignation("")
-      setRole("member")
+      setDesignation("Client Representative")
+      setSelectedProjectIds([])
       
-      // Trigger callback
       onSuccess()
     } catch (error: any) {
       console.error("Invite error:", error)
-      const errorMsg = error.response?.data?.error || error.response?.data?.message || "Failed to invite member"
+      const errorMsg = error.response?.data?.error || error.response?.data?.message || "Failed to invite client"
       toast.error(errorMsg)
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  const toggleProject = (projectId: string) => {
+    if (selectedProjectIds.includes(projectId)) {
+      setSelectedProjectIds(selectedProjectIds.filter(id => id !== projectId))
+    } else {
+      setSelectedProjectIds([...selectedProjectIds, projectId])
+    }
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5 py-4 w-full">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5 py-2 w-full text-foreground">
       {/* Name */}
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          Full Name
+          Client / Company Name
         </label>
         <input
           type="text"
-          placeholder="e.g. Jane Doe"
+          placeholder="e.g. Acme Corporation"
           value={name}
           onChange={(e) => setName(e.target.value)}
           disabled={isSubmitting}
@@ -102,7 +124,7 @@ export default function InviteMemberForm({ companyId, onSuccess }: InviteMemberF
         </label>
         <input
           type="email"
-          placeholder="e.g. jane.doe@company.com"
+          placeholder="e.g. contact@acme.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={isSubmitting}
@@ -141,11 +163,11 @@ export default function InviteMemberForm({ companyId, onSuccess }: InviteMemberF
       {/* Designation */}
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          Designation
+          Designation / Role Description
         </label>
         <input
           type="text"
-          placeholder="e.g. Frontend Developer (Optional)"
+          placeholder="e.g. CEO or Client Representative"
           value={designation}
           onChange={(e) => setDesignation(e.target.value)}
           disabled={isSubmitting}
@@ -153,26 +175,40 @@ export default function InviteMemberForm({ companyId, onSuccess }: InviteMemberF
         />
       </div>
 
-      {/* Role Selector */}
+      {/* Projects Assignment */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          Role
+        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+          <FolderOpenIcon className="size-3.5 text-primary" />
+          Assign to Projects
         </label>
-        <Select
-          value={role}
-          onValueChange={setRole}
-          disabled={isSubmitting}
-        >
-          <SelectTrigger className="w-full px-3 py-2.5 bg-muted/50 rounded-xl border border-border/40 text-sm cursor-pointer text-foreground font-medium flex items-center justify-between">
-            <SelectValue placeholder="Select a role" />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl border border-border bg-popover text-popover-foreground">
-            <SelectItem value="member">Member</SelectItem>
-            {!isSystemAdmin && <SelectItem value="admin">Admin</SelectItem>}
-            {!isSystemAdmin && <SelectItem value="owner">Owner</SelectItem>}
-            <SelectItem value="qa">QA</SelectItem>
-          </SelectContent>
-        </Select>
+        {isLoadingProjects ? (
+          <div className="text-xs text-muted-foreground py-2 flex items-center gap-2">
+            <Loader2Icon className="size-3 animate-spin text-primary" />
+            Loading projects...
+          </div>
+        ) : projectsList.length === 0 ? (
+          <p className="text-xs text-muted-foreground italic py-1">No projects available</p>
+        ) : (
+          <div className="max-h-[140px] overflow-y-auto border border-border/40 rounded-xl p-2.5 space-y-1.5 bg-muted/20">
+            {projectsList.map((project: any) => {
+              const isChecked = selectedProjectIds.includes(project.id)
+              return (
+                <label
+                  key={project.id}
+                  className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-muted/60 cursor-pointer transition-colors text-xs"
+                >
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    className="size-3.5 rounded border-border/60 text-primary focus:ring-primary accent-primary"
+                    onChange={() => toggleProject(project.id)}
+                  />
+                  <span className="font-semibold truncate">{project.title}</span>
+                </label>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* Submit Button */}
@@ -184,12 +220,12 @@ export default function InviteMemberForm({ companyId, onSuccess }: InviteMemberF
         {isSubmitting ? (
           <>
             <Loader2Icon className="size-4 animate-spin" />
-            Inviting...
+            Inviting Client...
           </>
         ) : (
           <>
             <UserPlusIcon className="size-4" />
-            Add Team Member
+            Add Client
           </>
         )}
       </button>

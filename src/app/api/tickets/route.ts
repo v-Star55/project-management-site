@@ -29,12 +29,22 @@ export async function GET(req: NextRequest) {
             );
         }
 
+        const { searchParams } = new URL(req.url);
+        const scope = searchParams.get("scope");
+
         let tickets;
 
         const ticketInclude = {
             project: { select: { id: true, title: true } },
             group: { select: { id: true, name: true, type: true } },
             assignedUser: { select: { id: true, name: true, email: true, imageUrl: true } },
+            assignedBy: { select: { id: true, name: true, email: true, imageUrl: true } },
+            reasons: {
+                include: {
+                    user: { select: { id: true, name: true, email: true, imageUrl: true } }
+                },
+                orderBy: { createdAt: "desc" as const }
+            },
             attachments: {
                 orderBy: { createdAt: "desc" as const }
             },
@@ -46,54 +56,101 @@ export async function GET(req: NextRequest) {
             }
         };
 
-        if (dbUser.role === "owner") {
-            // All tickets across every project in the company.
-            tickets = await prisma.ticket.findMany({
-                where: {
-                    project: { companyId: dbUser.companyId },
-                    isDeleted: false,
-                },
-                include: ticketInclude,
-                orderBy: { createdAt: "desc" },
-            });
-        } else if (dbUser.role === "admin") {
-            // admin can only see tickets of projects they are admins of.
-            tickets = await prisma.ticket.findMany({
-                where: {
-                    project: {
-                        companyId: dbUser.companyId,
-                        isActive: true,
-                        admins: { some: { id: dbUser.id } },
+        if (scope === "time-logs") {
+            if (dbUser.role === "owner") {
+                // Owner can see all tickets across every project in the company.
+                tickets = await prisma.ticket.findMany({
+                    where: {
+                        project: { companyId: dbUser.companyId },
+                        isDeleted: false,
                     },
-                    isDeleted: false,
-                },
-                include: ticketInclude,
-                orderBy: { createdAt: "desc" },
-            });
-        } else {
-            // member: only tickets they are assigned to, or tickets of projects they are member or admin of.
-            tickets = await prisma.ticket.findMany({
-                where: {
-                    project: {
-                        companyId: dbUser.companyId,
-                        isActive: true,
-                    },
-                    isDeleted: false,
-                    OR: [
-                        { assignedUserId: dbUser.id },
-                        {
-                            project: {
-                                OR: [
-                                    { members: { some: { id: dbUser.id } } },
-                                    { admins: { some: { id: dbUser.id } } }
-                                ]
+                    include: ticketInclude,
+                    orderBy: { createdAt: "desc" },
+                });
+            } else {
+                // non-owner (admin, member, qa) in time-logs scope:
+                // - Admin (global admin or project admin): see all tickets in project
+                // - Project member: only see assigned tickets in project
+                tickets = await prisma.ticket.findMany({
+                    where: {
+                        project: {
+                            companyId: dbUser.companyId,
+                            isActive: true,
+                        },
+                        isDeleted: false,
+                        OR: [
+                            // Project Admin (or global admin): sees all tickets of the project
+                            {
+                                project: {
+                                    OR: [
+                                        ...(dbUser.role === "admin" ? [{ companyId: dbUser.companyId }] : []),
+                                        { admins: { some: { id: dbUser.id } } }
+                                    ]
+                                }
+                            },
+                            // Project Member: sees only tickets assigned to them in that project
+                            {
+                                project: {
+                                    members: { some: { id: dbUser.id } }
+                                },
+                                assignedUserId: dbUser.id
                             }
-                        }
-                    ]
-                },
-                include: ticketInclude,
-                orderBy: { createdAt: "desc" },
-            });
+                        ]
+                    },
+                    include: ticketInclude,
+                    orderBy: { createdAt: "desc" },
+                });
+            }
+        } else {
+            if (dbUser.role === "owner") {
+                // All tickets across every project in the company.
+                tickets = await prisma.ticket.findMany({
+                    where: {
+                        project: { companyId: dbUser.companyId },
+                        isDeleted: false,
+                    },
+                    include: ticketInclude,
+                    orderBy: { createdAt: "desc" },
+                });
+            } else if (dbUser.role === "admin") {
+                // admin can only see tickets of projects they are admins of.
+                tickets = await prisma.ticket.findMany({
+                    where: {
+                        project: {
+                            companyId: dbUser.companyId,
+                            isActive: true,
+                            admins: { some: { id: dbUser.id } },
+                        },
+                        isDeleted: false,
+                    },
+                    include: ticketInclude,
+                    orderBy: { createdAt: "desc" },
+                });
+            } else {
+                // member: only tickets they are assigned to, or tickets of projects they are member or admin of.
+                tickets = await prisma.ticket.findMany({
+                    where: {
+                        project: {
+                            companyId: dbUser.companyId,
+                            isActive: true,
+                        },
+                        isDeleted: false,
+                        OR: [
+                            { assignedUserId: dbUser.id },
+                            {
+                                project: {
+                                    OR: [
+                                        { members: { some: { id: dbUser.id } } },
+                                        { admins: { some: { id: dbUser.id } } }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    include: ticketInclude,
+                    orderBy: { createdAt: "desc" },
+                });
+            }
         }
 
         return NextResponse.json({ tickets });
@@ -112,7 +169,7 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { title, description, projectId, status, assignedUserId, priority, groupId, dueDate, type } = body;
+        const { title, description, projectId, status, assignedUserId, priority, groupId, dueDate, type, estimatedHours } = body;
 
         if (!title || !description || !projectId) {
             return NextResponse.json(
@@ -169,9 +226,10 @@ export async function POST(req: NextRequest) {
                 status: (status as $Enums.TicketStatus) ?? "pending",
                 priority: (priority as $Enums.Priority) ?? "low",
                 type: (type as $Enums.TicketType) ?? "task",
-                ...(assignedUserId ? { assignedUserId } : {}),
+                ...(assignedUserId ? { assignedUserId, assignedById: dbUser.id } : {}),
                 ...(groupId && groupId !== "none" ? { groupId } : {}),
                 ...(dueDate ? { dueDate: new Date(dueDate) } : {}),
+                estimatedHours: estimatedHours !== undefined && estimatedHours !== null && estimatedHours !== "" ? parseFloat(estimatedHours) : null,
             },
         });
 
@@ -214,7 +272,8 @@ export async function PATCH(req: NextRequest) {
             assignedUserId,
             groupId,
             dueDate,
-            type
+            type,
+            estimatedHours
         } = body;
 
         if (!id) {
@@ -230,7 +289,8 @@ export async function PATCH(req: NextRequest) {
             assignedUserId !== undefined ||
             groupId !== undefined ||
             dueDate !== undefined ||
-            type !== undefined
+            type !== undefined ||
+            estimatedHours !== undefined
         );
 
         if (
@@ -317,6 +377,7 @@ export async function PATCH(req: NextRequest) {
         if (description !== undefined) updateData.description = description;
         if (assignedUserId !== undefined) {
             updateData.assignedUserId = assignedUserId === "unassigned" ? null : assignedUserId;
+            updateData.assignedById = assignedUserId === "unassigned" ? null : dbUser.id;
         }
         if (groupId !== undefined) {
             updateData.groupId = groupId === "none" ? null : groupId;
@@ -326,6 +387,9 @@ export async function PATCH(req: NextRequest) {
         }
         if (type !== undefined) {
             updateData.type = type as $Enums.TicketType;
+        }
+        if (estimatedHours !== undefined) {
+            updateData.estimatedHours = estimatedHours !== null && estimatedHours !== "" ? parseFloat(estimatedHours) : null;
         }
 
         if (status !== undefined) {
@@ -347,6 +411,27 @@ export async function PATCH(req: NextRequest) {
             where: { id },
             data: updateData,
         });
+
+        // Create TicketReason history entry if blocked/reopened
+        if (status === "blocked" && reasonBlocked) {
+            await prisma.ticketReason.create({
+                data: {
+                    ticketId: id,
+                    type: "BLOCKED",
+                    reason: reasonBlocked,
+                    userId: dbUser.id
+                }
+            });
+        } else if (status === "reopen" && reasonReopen) {
+            await prisma.ticketReason.create({
+                data: {
+                    ticketId: id,
+                    type: "REOPENED",
+                    reason: reasonReopen,
+                    userId: dbUser.id
+                }
+            });
+        }
 
         // Log activity if status, priority, or assignee changed
         const formatStatus = (s: string) => {

@@ -140,6 +140,7 @@ exports.Prisma.UserScalarFieldEnum = {
   isActive: 'isActive',
   lastActive: 'lastActive',
   designation: 'designation',
+  isPending: 'isPending',
   forgotPasswordToken: 'forgotPasswordToken',
   forgotPasswordTokenExpiry: 'forgotPasswordTokenExpiry',
   isVerified: 'isVerified',
@@ -181,6 +182,19 @@ exports.Prisma.ProjectGroupScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ProjectDiscussionGroupScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  type: 'type',
+  content: 'content',
+  isPinned: 'isPinned',
+  isArchived: 'isArchived',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  projectId: 'projectId',
+  userId: 'userId'
+};
+
 exports.Prisma.TicketScalarFieldEnum = {
   id: 'id',
   title: 'title',
@@ -197,9 +211,11 @@ exports.Prisma.TicketScalarFieldEnum = {
   reasonBlocked: 'reasonBlocked',
   reasonReopen: 'reasonReopen',
   type: 'type',
+  estimatedHours: 'estimatedHours',
   projectId: 'projectId',
   groupId: 'groupId',
-  assignedUserId: 'assignedUserId'
+  assignedUserId: 'assignedUserId',
+  assignedById: 'assignedById'
 };
 
 exports.Prisma.TicketAttachmentScalarFieldEnum = {
@@ -221,7 +237,8 @@ exports.Prisma.MessageScalarFieldEnum = {
   isDeleted: 'isDeleted',
   projectId: 'projectId',
   userId: 'userId',
-  ticketId: 'ticketId'
+  ticketId: 'ticketId',
+  discussionGroupId: 'discussionGroupId'
 };
 
 exports.Prisma.TimeLogScalarFieldEnum = {
@@ -259,6 +276,15 @@ exports.Prisma.ActivityLogScalarFieldEnum = {
   ticketId: 'ticketId',
   groupId: 'groupId',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.TicketReasonScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  reason: 'reason',
+  createdAt: 'createdAt',
+  ticketId: 'ticketId',
+  userId: 'userId'
 };
 
 exports.Prisma.SortOrder = {
@@ -345,6 +371,19 @@ exports.GroupStatus = exports.$Enums.GroupStatus = {
   on_hold: 'on_hold'
 };
 
+exports.ProjectDiscussionGroupType = exports.$Enums.ProjectDiscussionGroupType = {
+  general: 'general',
+  discussion: 'discussion',
+  suggestion: 'suggestion',
+  complaint: 'complaint',
+  decision: 'decision',
+  question: 'question',
+  announcement: 'announcement',
+  feedback: 'feedback',
+  improvement: 'improvement',
+  other: 'other'
+};
+
 exports.TicketStatus = exports.$Enums.TicketStatus = {
   pending: 'pending',
   in_progress: 'in_progress',
@@ -393,17 +432,24 @@ exports.ActivityAction = exports.$Enums.ActivityAction = {
   ROLE_CHANGED: 'ROLE_CHANGED'
 };
 
+exports.TicketReasonType = exports.$Enums.TicketReasonType = {
+  BLOCKED: 'BLOCKED',
+  REOPENED: 'REOPENED'
+};
+
 exports.Prisma.ModelName = {
   Company: 'Company',
   user: 'user',
   Project: 'Project',
   ProjectGroup: 'ProjectGroup',
+  ProjectDiscussionGroup: 'ProjectDiscussionGroup',
   Ticket: 'Ticket',
   TicketAttachment: 'TicketAttachment',
   Message: 'Message',
   timeLog: 'timeLog',
   Note: 'Note',
-  ActivityLog: 'ActivityLog'
+  ActivityLog: 'ActivityLog',
+  TicketReason: 'TicketReason'
 };
 
 /**
