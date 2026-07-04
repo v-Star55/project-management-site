@@ -90,6 +90,19 @@ export async function GET(
                                 }
                             },
                             orderBy: { createdAt: "desc" }
+                        },
+                        timeLogs: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        email: true,
+                                        imageUrl: true,
+                                    }
+                                }
+                            },
+                            orderBy: { createdAt: "desc" }
                         }
                     },
                 },

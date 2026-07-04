@@ -1,18 +1,25 @@
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
-import { 
-  UsersIcon, 
-  Trash2Icon, 
-  Search, 
-  Mail, 
-  Briefcase, 
-  X, 
+import {
+  UsersIcon,
+  Trash2Icon,
+  Search,
+  Mail,
+  Briefcase,
+  X,
   ChevronRight,
   UserPlusIcon,
   CheckIcon,
   ShieldAlertIcon,
   Loader2Icon,
-  FilterIcon
+  FilterIcon,
+  Trophy,
+  Crown,
+  Sparkles,
+  Clock,
+  TrendingUp,
+  ThumbsUp,
+  Award
 } from "lucide-react"
 import { ProjectDetail, getInitials } from "./utils"
 import { useSelector } from "react-redux"
@@ -30,18 +37,26 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@/components/ui/select"
-import { 
-  Avatar, 
-  AvatarImage, 
-  AvatarFallback 
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback
 } from "@/components/ui/avatar"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table"
 import {
   Dialog,
   DialogContent,
@@ -50,6 +65,14 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from "@/components/ui/sheet"
 import {
   Tabs,
   TabsContent,
@@ -86,8 +109,8 @@ function AdminRowCard({
   const router = useRouter()
 
   const completedTicketsCount = totalTicketsCount - activeTicketsCount
-  const completionRate = totalTicketsCount > 0 
-    ? Math.round((completedTicketsCount / totalTicketsCount) * 100) 
+  const completionRate = totalTicketsCount > 0
+    ? Math.round((completedTicketsCount / totalTicketsCount) * 100)
     : 0
 
   // Determine workload status
@@ -112,7 +135,7 @@ function AdminRowCard({
   }
 
   return (
-    <div 
+    <div
       className="bg-card/45 backdrop-blur-md border border-border/50 hover:border-rose-500/40 p-4.5 hover:bg-card/90 rounded-2xl transition-all duration-300 hover:shadow-md cursor-pointer group flex flex-col md:flex-row items-center justify-between gap-4 relative w-full hover:-translate-y-0.5"
       onClick={() => router.push(`/dashboard/${userId}/profile?targetUserId=${member.id}`)}
     >
@@ -120,8 +143,8 @@ function AdminRowCard({
       <div className="flex items-center gap-4 min-w-0 self-start md:self-auto">
         <div className="relative shrink-0">
           <Avatar className="size-12 rounded-full border-2 border-rose-500/30 group-hover:border-rose-500/60 group-hover:scale-105 transition-all duration-300 shadow-sm">
-            <AvatarImage 
-              src={member.imageUrl || undefined} 
+            <AvatarImage
+              src={member.imageUrl || undefined}
               alt={member.name}
               className="object-cover"
             />
@@ -151,7 +174,7 @@ function AdminRowCard({
         <span className="text-xs text-muted-foreground/85 truncate max-w-[200px] font-medium">
           {member.email}
         </span>
-        <a 
+        <a
           href={`mailto:${member.email}`}
           onClick={(e) => e.stopPropagation()}
           className="p-1 rounded-md text-muted-foreground/60 hover:text-primary hover:bg-primary/10 transition-colors shrink-0"
@@ -177,7 +200,7 @@ function AdminRowCard({
               <span>{completedTicketsCount}/{totalTicketsCount} ({completionRate}%)</span>
             </div>
             <div className="w-full h-1.5 bg-muted/50 rounded-full overflow-hidden border border-border/20">
-              <div 
+              <div
                 className="h-full rounded-full bg-primary transition-all duration-500"
                 style={{ width: `${completionRate}%` }}
               />
@@ -220,8 +243,8 @@ function MemberCard({
   const router = useRouter()
 
   const completedTicketsCount = totalTicketsCount - activeTicketsCount
-  const completionRate = totalTicketsCount > 0 
-    ? Math.round((completedTicketsCount / totalTicketsCount) * 100) 
+  const completionRate = totalTicketsCount > 0
+    ? Math.round((completedTicketsCount / totalTicketsCount) * 100)
     : 0
 
   // Determine workload status
@@ -246,7 +269,7 @@ function MemberCard({
   }
 
   return (
-    <div 
+    <div
       className="bg-card/45 backdrop-blur-md border border-border/50 hover:border-primary/45 p-5 hover:bg-card/90 rounded-3xl transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 cursor-pointer group flex flex-col items-center text-center gap-4 relative hover:-translate-y-1 hover:scale-[1.01]"
       onClick={() => router.push(`/dashboard/${userId}/profile?targetUserId=${member.id}`)}
     >
@@ -266,31 +289,28 @@ function MemberCard({
 
       {/* Avatar Container using Shadcn Avatar with Glow & Role Indicator */}
       <div className="relative">
-        <Avatar className={`size-16 rounded-full border-2 ${
-          role === "admin" 
-            ? "border-rose-500/30 group-hover:border-rose-500/60" 
+        <Avatar className={`size-16 rounded-full border-2 ${role === "admin"
+            ? "border-rose-500/30 group-hover:border-rose-500/60"
             : "border-blue-500/30 group-hover:border-blue-500/60"
-        } group-hover:scale-105 transition-all duration-300 shadow-sm`}>
-          <AvatarImage 
-            src={member.imageUrl || undefined} 
+          } group-hover:scale-105 transition-all duration-300 shadow-sm`}>
+          <AvatarImage
+            src={member.imageUrl || undefined}
             alt={member.name}
             className="object-cover"
           />
-          <AvatarFallback className={`size-full flex items-center justify-center text-lg font-black tracking-wider rounded-full bg-gradient-to-br ${
-            role === "admin" 
-              ? "from-rose-500/20 to-amber-500/20 text-rose-500" 
+          <AvatarFallback className={`size-full flex items-center justify-center text-lg font-black tracking-wider rounded-full bg-gradient-to-br ${role === "admin"
+              ? "from-rose-500/20 to-amber-500/20 text-rose-500"
               : "from-blue-500/20 to-primary/20 text-blue-500"
-          }`}>
+            }`}>
             {getInitials(member.name)}
           </AvatarFallback>
         </Avatar>
-        
+
         {/* Glowing aura inside card on hover */}
-        <div className={`absolute -inset-1 rounded-full blur-xs opacity-0 group-hover:opacity-20 transition-opacity duration-300 -z-10 ${
-          role === "admin" ? "bg-rose-500" : "bg-blue-500"
-        }`} />
+        <div className={`absolute -inset-1 rounded-full blur-xs opacity-0 group-hover:opacity-20 transition-opacity duration-300 -z-10 ${role === "admin" ? "bg-rose-500" : "bg-blue-500"
+          }`} />
       </div>
-      
+
       {/* Information */}
       <div className="flex flex-col min-w-0 items-center w-full">
         <span className="text-sm font-extrabold text-foreground group-hover:text-primary transition-colors truncate w-full max-w-[200px]">
@@ -299,13 +319,13 @@ function MemberCard({
         <span className="text-xs text-muted-foreground truncate w-full max-w-[200px] mt-0.5 font-semibold">
           {member.designation || (role === "admin" ? "Project Admin" : "Project Collaborator")}
         </span>
-        
+
         {/* Email link / copy action */}
         <div className="flex items-center justify-center gap-1.5 mt-1.5 w-full">
           <span className="text-[10px] text-muted-foreground/85 truncate max-w-[160px] block">
             {member.email}
           </span>
-          <a 
+          <a
             href={`mailto:${member.email}`}
             onClick={(e) => e.stopPropagation()}
             className="p-1 rounded-md text-muted-foreground/60 hover:text-primary hover:bg-primary/10 transition-colors shrink-0"
@@ -317,11 +337,10 @@ function MemberCard({
       </div>
 
       {/* Role Badge */}
-      <span className={`px-2.5 py-0.5 text-[9px] font-black rounded-full border capitalize tracking-wider ${
-        role === "admin" 
-          ? "bg-rose-500/10 text-rose-500 border-rose-500/20" 
+      <span className={`px-2.5 py-0.5 text-[9px] font-black rounded-full border capitalize tracking-wider ${role === "admin"
+          ? "bg-rose-500/10 text-rose-500 border-rose-500/20"
           : "bg-blue-500/10 text-blue-500 border-blue-500/20"
-      }`}>
+        }`}>
         {role === "admin" ? "Admin" : "Member"}
       </span>
 
@@ -342,10 +361,9 @@ function MemberCard({
               <span>{completedTicketsCount}/{totalTicketsCount} tasks ({completionRate}%)</span>
             </div>
             <div className="w-full h-1.5 bg-muted/50 rounded-full overflow-hidden border border-border/20">
-              <div 
-                className={`h-full rounded-full transition-all duration-500 ${
-                  activeTicketsCount >= 5 ? "bg-red-500" : "bg-primary"
-                }`}
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${activeTicketsCount >= 5 ? "bg-red-500" : "bg-primary"
+                  }`}
                 style={{ width: `${completionRate}%` }}
               />
             </div>
@@ -382,6 +400,15 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
   const [roleFilter, setRoleFilter] = useState<"all" | "admin" | "member">("all")
   const [workloadFilter, setWorkloadFilter] = useState<"all" | "none" | "under-2" | "under-5" | "over-5">("all")
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
+
+  // Reset pagination to page 1 when search or filters change
+  React.useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery, roleFilter, workloadFilter])
+
   // Dialog Specific State
   const [dialogSearch, setDialogSearch] = useState("")
   const [selectedAdminIds, setSelectedAdminIds] = useState<string[]>([])
@@ -400,8 +427,8 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
   }).filter((u): u is NonNullable<typeof u> => !!u)
 
   const totalTeamSize = uniqueCollaborators.length
-  
-  const activeTickets = projectData.tickets?.filter(t => 
+
+  const activeTickets = projectData.tickets?.filter(t =>
     t.status.toLowerCase() !== "completed"
   ) || []
   const activeTicketsCount = activeTickets.length
@@ -419,9 +446,33 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
 
   const companyUsers = companyUsersData?.teams || []
 
-  // Filter company users by role
-  const adminUsers = companyUsers.filter((u: any) => u.role === "Admin" || u.role === "Owner")
-  const memberUsers = companyUsers.filter((u: any) => u.role === "Member" || u.role === "Qa")
+  // Helper to check if a user is selected in the project
+  const getIsSelected = (userId: string, role: string) => {
+    if (role === "Admin" || role === "Owner") {
+      return selectedAdminIds.includes(userId)
+    }
+    return selectedMemberIds.includes(userId)
+  }
+
+  // Helper to toggle selection
+  const toggleSelection = (userId: string, role: string) => {
+    if (role === "Admin" || role === "Owner") {
+      toggleAdminSelection(userId)
+    } else {
+      toggleMemberSelection(userId)
+    }
+  }
+
+  // Filter company users into project members and rest of company
+  const currentProjectUsers = companyUsers.filter((u: any) => {
+    if (u.role === "Client") return false
+    return getIsSelected(u.id, u.role)
+  })
+
+  const otherCompanyUsers = companyUsers.filter((u: any) => {
+    if (u.role === "Client") return false
+    return !getIsSelected(u.id, u.role)
+  })
 
   // Ticket counters for users
   const getUserTotalTicketsCount = (memberId: string) => {
@@ -429,7 +480,7 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
   }
 
   const getUserActiveTicketsCount = (memberId: string) => {
-    return projectData.tickets?.filter(t => 
+    return projectData.tickets?.filter(t =>
       t.assignedUserId === memberId && t.status.toLowerCase() !== "completed"
     ).length || 0
   }
@@ -492,13 +543,13 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
   }
 
   const toggleAdminSelection = (adminId: string) => {
-    setSelectedAdminIds(prev => 
+    setSelectedAdminIds(prev =>
       prev.includes(adminId) ? prev.filter(id => id !== adminId) : [...prev, adminId]
     )
   }
 
   const toggleMemberSelection = (memberId: string) => {
-    setSelectedMemberIds(prev => 
+    setSelectedMemberIds(prev =>
       prev.includes(memberId) ? prev.filter(id => id !== memberId) : [...prev, memberId]
     )
   }
@@ -508,7 +559,7 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
     return list.filter(m => {
       // 1. Search Query
       const query = searchQuery.toLowerCase().trim()
-      const matchesSearch = !query || 
+      const matchesSearch = !query ||
         m.name.toLowerCase().includes(query) ||
         m.email.toLowerCase().includes(query) ||
         (m.designation && m.designation.toLowerCase().includes(query))
@@ -526,89 +577,365 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
     })
   }
 
-  const filteredAdmins = roleFilter === "member" ? [] : filterMembersList(admins)
+  const filteredAdmins = roleFilter === "member" ? [] : admins
   const filteredMembers = roleFilter === "admin" ? [] : filterMembersList(members)
+
+  const totalPages = Math.ceil(filteredMembers.length / itemsPerPage)
+  const paginatedMembers = filteredMembers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  )
 
   // Dialog Search filtering
   const searchLower = dialogSearch.toLowerCase().trim()
-  const filteredAdminUsers = adminUsers.filter((u: any) => 
+  const filteredCurrentUsers = currentProjectUsers.filter((u: any) =>
     !searchLower ||
     u.name.toLowerCase().includes(searchLower) ||
     u.email.toLowerCase().includes(searchLower) ||
     (u.designation && u.designation.toLowerCase().includes(searchLower))
   )
 
-  const filteredMemberUsers = memberUsers.filter((u: any) => 
+  const filteredOtherUsers = otherCompanyUsers.filter((u: any) =>
     !searchLower ||
     u.name.toLowerCase().includes(searchLower) ||
     u.email.toLowerCase().includes(searchLower) ||
     (u.designation && u.designation.toLowerCase().includes(searchLower))
   )
+
+  // Top Performers calculation
+  const performers = React.useMemo(() => {
+    return uniqueCollaborators
+      .map(c => {
+        const total = projectData.tickets?.filter(t => t.assignedUserId === c.id).length || 0
+        const active = projectData.tickets?.filter(t => t.assignedUserId === c.id && t.status.toLowerCase() !== "completed").length || 0
+        const completed = total - active
+        const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0
+        return {
+          ...c,
+          completedTicketsCount: completed,
+          totalTicketsCount: total,
+          completionRate
+        }
+      })
+      .filter(p => p.completedTicketsCount > 0)
+      .sort((a, b) => {
+        if (b.completedTicketsCount !== a.completedTicketsCount) {
+          return b.completedTicketsCount - a.completedTicketsCount
+        }
+        return b.completionRate - a.completionRate
+      })
+      .slice(0, 5)
+  }, [uniqueCollaborators, projectData.tickets])
+
+  // Team workload distribution stats
+  const workloadStats = React.useMemo(() => {
+    let highLoad = 0
+    let onTrack = 0
+    let lightLoad = 0
+    let available = 0
+
+    const roster = uniqueCollaborators.map(c => {
+      const active = projectData.tickets?.filter(t => t.assignedUserId === c.id && t.status.toLowerCase() !== "completed").length || 0
+      const total = projectData.tickets?.filter(t => t.assignedUserId === c.id).length || 0
+
+      let label = "Available"
+      if (active > 0) {
+        if (active < 2) {
+          label = "Light Load"
+          lightLoad++
+        } else if (active < 5) {
+          label = "On Track"
+          onTrack++
+        } else {
+          label = "High Workload"
+          highLoad++
+        }
+      } else {
+        available++
+      }
+
+      return {
+        ...c,
+        activeTicketsCount: active,
+        totalTicketsCount: total,
+        workloadLabel: label
+      }
+    }).sort((a, b) => b.activeTicketsCount - a.activeTicketsCount)
+
+    return {
+      highLoad,
+      onTrack,
+      lightLoad,
+      available,
+      roster
+    }
+  }, [uniqueCollaborators, projectData.tickets])
 
   return (
     <div className="flex flex-col gap-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-300">
-      {/* Top Heading / Project Name Row */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/30 pb-5">
-        <div>
-          <h2 className="text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
-            <UsersIcon className="size-6 text-primary" />
-            Project Team
-          </h2>
-          {admins.length > 0 ? (
-            <p className="text-xs text-muted-foreground mt-0.5 font-medium">
-              Admin{admins.length > 1 ? "s" : ""}: <span className="text-foreground font-bold">{admins.map(a => a.name).join(", ")}</span>
+      {/* Premium Header Banner */}
+      <div className="relative overflow-hidden rounded-3xl border border-border/50 bg-gradient-to-br from-card via-card to-primary/[0.03] p-6 md:p-8 shadow-sm">
+        <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-blue-500/5 blur-2xl pointer-events-none" />
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
+              <UsersIcon className="size-6 text-primary" />
+              Project Team Workspace
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1 max-w-xl">
+              Manage collaborators, monitor workloads, and celebrate performance achievements for <span className="font-extrabold text-foreground">{projectData.title}</span>.
             </p>
-          ) : (
-            <p className="text-xs text-muted-foreground mt-0.5">Admins and members collaborating on this project.</p>
-          )}
-        </div>
-
-        {/* Action button & KPIs */}
-        <div className="flex flex-wrap items-center gap-4 shrink-0">
+          </div>
           {canManageTeam && (
             <button
               onClick={handleOpenManage}
-              className="inline-flex items-center gap-2 px-4.5 py-2.5 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/95 hover:to-primary/75 text-primary-foreground font-extrabold rounded-xl shadow-xs hover:shadow transition-all duration-300 cursor-pointer text-xs"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer text-sm"
             >
               <UserPlusIcon className="size-4" />
               Manage Team Members
             </button>
           )}
+        </div>
 
-          {/* KPI 1: Collaborators */}
-          <div className="bg-card/45 backdrop-blur-md border border-border/50 rounded-xl px-4 py-2 hover:border-primary/25 transition-all flex items-center gap-3">
-            <div className="p-1.5 rounded-lg bg-primary/10 text-primary border border-primary/15 shrink-0">
-              <UsersIcon className="size-4" />
+        {/* Inline Stats Row */}
+        <div className={`relative z-10 mt-6 grid ${
+          (activeUserRole === "owner" || activeUserRole === "admin") 
+            ? "grid-cols-2 sm:grid-cols-4" 
+            : "grid-cols-2"
+        } gap-3`}>
+          {[
+            { label: "Total Team", value: totalTeamSize, icon: UsersIcon, color: "text-primary", bg: "bg-primary/10" },
+            { label: "Active Tasks", value: activeTicketsCount, icon: Briefcase, color: "text-blue-500", bg: "bg-blue-500/10" },
+            ...((activeUserRole === "owner" || activeUserRole === "admin") ? [
+              { label: "High Workload", value: workloadStats.highLoad, icon: ShieldAlertIcon, color: "text-red-500", bg: "bg-red-500/10", className: workloadStats.highLoad > 0 ? "animate-pulse border-red-500/30" : "" },
+              { 
+                label: "MVP Performer", 
+                value: performers[0]?.name ? `${performers[0].name.split(" ")[0]}` : "None Yet", 
+                icon: Trophy, 
+                color: "text-amber-500", 
+                bg: "bg-amber-500/10",
+                title: performers[0]?.name ? `MVP: ${performers[0].name} (${performers[0].completedTicketsCount} tasks completed)` : "No completed tasks yet"
+              }
+            ] : [])
+          ].map((stat, idx) => (
+            <div 
+              key={idx} 
+              className={`flex items-center gap-3 p-3 rounded-xl bg-background/60 backdrop-blur border border-border/40 ${stat.className || ""}`}
+              title={stat.title}
+            >
+              <div className={`p-2 rounded-lg ${stat.bg} ${stat.color} shrink-0`}>
+                <stat.icon className="size-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-lg font-black text-foreground leading-none truncate">{stat.value}</p>
+                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mt-0.5 truncate">{stat.label}</p>
+              </div>
             </div>
-            <div className="leading-tight">
-              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block">Collaborators</span>
-              <p className="text-sm font-black text-foreground">{totalTeamSize}</p>
-            </div>
-          </div>
-
-          {/* KPI 2: Active Tasks */}
-          <div className="bg-card/45 backdrop-blur-md border border-border/50 rounded-xl px-4 py-2 hover:border-primary/25 transition-all flex items-center gap-3">
-            <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500 border border-blue-500/15 shrink-0">
-              <Briefcase className="size-4" />
-            </div>
-            <div className="leading-tight">
-              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block">Active Tasks</span>
-              <p className="text-sm font-black text-foreground">{activeTicketsCount}</p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
+      {/* Dashboard Section: Top Performers & Team Workload */}
+      {(activeUserRole === "owner" || activeUserRole === "admin") && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+
+        {/* Card A: Top Performers */}
+        <div className="bg-card/45 backdrop-blur-md border border-border/50 rounded-3xl p-6 shadow-sm flex flex-col gap-4 relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-amber-500/[0.02] blur-2xl pointer-events-none" />
+          <div className="flex justify-between items-center pb-2 border-b border-border/40">
+            <div>
+              <h3 className="text-base font-extrabold text-foreground flex items-center gap-2">
+                <Trophy className="size-4 text-amber-500" />
+                Top Performers
+              </h3>
+              <p className="text-xs text-muted-foreground">Most completed tasks in this project</p>
+            </div>
+            {performers.length > 0 && (
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center gap-1">
+                <Crown className="size-3" />
+                MVP Active
+              </span>
+            )}
+          </div>
+
+          <div className="flex-1 overflow-y-auto max-h-[300px] pr-1 space-y-3.5">
+            {performers.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center gap-3 bg-muted/10 border border-dashed border-border/40 rounded-2xl">
+                <div className="p-3 rounded-full bg-amber-500/5 text-amber-500 border border-amber-500/10">
+                  <Sparkles className="size-6 text-amber-500/60 animate-pulse" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-foreground">No Performance Data Yet</p>
+                  <p className="text-[11px] text-muted-foreground mt-1 max-w-[240px]">
+                    Complete tasks in this project to see the performance leaderboard shine!
+                  </p>
+                </div>
+              </div>
+            ) : (
+              performers.map((performer, idx) => {
+                let rankBadge = "bg-stone-100 text-stone-500 border-stone-200 dark:bg-stone-850 dark:text-stone-400 dark:border-stone-800"
+                let rankIcon = null
+                if (idx === 0) {
+                  rankBadge = "bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30 font-black scale-105"
+                  rankIcon = <Crown className="size-3.5 text-amber-500 animate-bounce" />
+                } else if (idx === 1) {
+                  rankBadge = "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 border-slate-300/40 font-bold"
+                  rankIcon = <Award className="size-3.5 text-slate-400" />
+                } else if (idx === 2) {
+                  rankBadge = "bg-orange-100 text-orange-700 dark:bg-orange-950/20 dark:text-orange-400 border-orange-200/40 font-bold"
+                  rankIcon = <Award className="size-3.5 text-orange-600" />
+                }
+
+                return (
+                  <div
+                    key={performer.id}
+                    className="flex items-center justify-between p-3 rounded-2xl border border-border/40 bg-muted/10 hover:bg-muted/20 hover:border-primary/20 transition-all duration-300 gap-3 group"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`size-6 rounded-full border flex items-center justify-center text-[10px] shrink-0 ${rankBadge}`}>
+                        {rankIcon ? rankIcon : idx + 1}
+                      </div>
+
+                      <Avatar className="size-9 border border-border/60 shrink-0">
+                        <AvatarImage src={performer.imageUrl || undefined} />
+                        <AvatarFallback className="text-xs font-black bg-primary/5 text-primary">
+                          {getInitials(performer.name)}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      <div className="min-w-0 flex flex-col">
+                        <span className="text-xs font-black text-foreground group-hover:text-primary transition-colors truncate">
+                          {performer.name}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground truncate font-medium">
+                          {performer.designation || (performer.role === "admin" ? "Project Admin" : "Project Collaborator")}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-end shrink-0">
+                      <span className="text-xs font-extrabold text-emerald-600 dark:text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md flex items-center gap-1">
+                        <CheckIcon className="size-3 stroke-[3]" />
+                        {performer.completedTicketsCount} Done
+                      </span>
+                      <span className="text-[9px] text-muted-foreground mt-1 font-semibold">
+                        {performer.completionRate}% completion
+                      </span>
+                    </div>
+                  </div>
+                )
+              })
+            )}
+          </div>
+        </div>
+
+        {/* Card B: Team Workload */}
+        <div className="bg-card/45 backdrop-blur-md border border-border/50 rounded-3xl p-6 shadow-sm flex flex-col gap-4 relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-blue-500/[0.02] blur-2xl pointer-events-none" />
+          <div className="flex justify-between items-center pb-2 border-b border-border/40">
+            <div>
+              <h3 className="text-base font-extrabold text-foreground flex items-center gap-2">
+                <Briefcase className="size-4 text-blue-500" />
+                Team Workload Allocation
+              </h3>
+              <p className="text-xs text-muted-foreground">Active task loads per team member</p>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="size-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-[9px] font-black uppercase text-muted-foreground">Live Load</span>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto max-h-[300px] pr-1 space-y-3">
+            {workloadStats.roster.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center gap-3 bg-muted/10 border border-dashed border-border/40 rounded-2xl">
+                <div className="p-3 rounded-full bg-blue-500/5 text-blue-500 border border-blue-500/10">
+                  <Briefcase className="size-6 text-blue-500/60" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-foreground">No Collaborators Assigned</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    Add collaborators to this project to start tracking team workload distribution.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              workloadStats.roster.map((member) => {
+                let workloadColor = "bg-stone-500/10 text-stone-500 border-stone-500/20"
+                let workloadProgressBg = "bg-stone-500"
+                if (member.workloadLabel === "High Workload") {
+                  workloadColor = "bg-red-500/10 text-red-500 border-red-500/20 font-extrabold animate-pulse"
+                  workloadProgressBg = "bg-red-500"
+                } else if (member.workloadLabel === "On Track") {
+                  workloadColor = "bg-blue-500/10 text-blue-500 border-blue-500/20 font-bold"
+                  workloadProgressBg = "bg-primary"
+                } else if (member.workloadLabel === "Light Load") {
+                  workloadColor = "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 font-bold"
+                  workloadProgressBg = "bg-emerald-500"
+                } else if (member.workloadLabel === "Available") {
+                  workloadColor = "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 font-medium"
+                  workloadProgressBg = "bg-emerald-400"
+                }
+
+                return (
+                  <div
+                    key={member.id}
+                    className="flex items-center justify-between p-2.5 rounded-xl border border-border/40 bg-muted/10 hover:bg-muted/20 transition-all duration-300 gap-3"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <Avatar className="size-8 border border-border/60 shrink-0">
+                        <AvatarImage src={member.imageUrl || undefined} />
+                        <AvatarFallback className="text-xs font-extrabold">
+                          {getInitials(member.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex flex-col">
+                        <span className="text-xs font-bold text-foreground truncate">{member.name}</span>
+                        <span className="text-[9px] text-muted-foreground truncate capitalize">
+                          {member.designation || member.role}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 shrink-0">
+                      <div className="flex flex-col items-end">
+                        <span className={`px-2 py-0.5 rounded text-[9px] border ${workloadColor}`}>
+                          {member.activeTicketsCount} Active Tasks
+                        </span>
+                        {member.totalTicketsCount > 0 && (
+                          <div className="w-16 h-1 bg-muted/40 rounded-full overflow-hidden mt-1 border border-border/10">
+                            <div
+                              className={`h-full rounded-full ${workloadProgressBg}`}
+                              style={{ width: `${Math.round(((member.totalTicketsCount - member.activeTicketsCount) / member.totalTicketsCount) * 100)}%` }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })
+            )}
+          </div>
+        </div>
+
+      </div>
+      )}
+
       {/* Admins Row Section (Full width row above search/filters) */}
       {filteredAdmins.length > 0 && (
-        <div className="flex flex-col gap-3.5 w-full">
-          <h3 className="text-xs font-extrabold text-rose-500 uppercase tracking-widest flex items-center gap-2 pl-1">
-            <span className="size-1.5 rounded-full bg-rose-500 animate-pulse" />
-            Project Admins ({filteredAdmins.length})
-          </h3>
+        <div className="flex flex-col gap-4 w-full">
+          <div className="flex items-center gap-3 w-full">
+            <h3 className="text-xs font-bold text-rose-500 uppercase tracking-widest flex items-center gap-2">
+              <ShieldAlertIcon className="size-3.5 text-rose-500" />
+              Project Admins ({filteredAdmins.length})
+            </h3>
+            <div className="h-px flex-1 bg-gradient-to-r from-rose-500/20 to-transparent" />
+          </div>
           <div className="flex flex-col gap-3 w-full">
             {filteredAdmins.map((member) => (
-              <AdminRowCard 
+              <AdminRowCard
                 key={member.id}
                 member={member}
                 userId={userId}
@@ -626,19 +953,19 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
       )}
 
       {/* Control Bar (Search & Filter) */}
-      <div className="bg-card/35 backdrop-blur-md border border-border/50 rounded-2xl p-4.5 flex flex-col md:flex-row items-center gap-4 w-full">
+      <div className="bg-gradient-to-r from-card/30 to-card/15 backdrop-blur-md border border-border/40 rounded-2xl p-4.5 flex flex-col lg:flex-row items-center gap-4 w-full">
         {/* Search */}
-        <div className="relative w-full md:flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60" />
-          <input 
-            type="text" 
+        <div className="relative w-full lg:flex-1">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/50" />
+          <input
+            type="text"
             placeholder="Search team members by name, role, email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-background border border-border/60 rounded-xl py-2 pl-10 pr-4 text-xs font-semibold text-foreground placeholder-muted-foreground/60 focus:outline-hidden focus:ring-1 focus:ring-primary/45 focus:border-primary/45 transition-all"
+            className="w-full bg-background/50 border border-border/40 rounded-xl py-2.5 pl-10 pr-4 text-xs font-semibold text-foreground placeholder-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/40 transition-all"
           />
           {searchQuery && (
-            <button 
+            <button
               onClick={() => setSearchQuery("")}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
             >
@@ -648,12 +975,12 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
         </div>
 
         {/* Filters using Shadcn Select */}
-        <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+        <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
           {/* Role Filter */}
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Role:</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Role:</span>
             <Select value={roleFilter} onValueChange={(val: any) => setRoleFilter(val)}>
-              <SelectTrigger className="w-[140px] bg-background border border-border/60 rounded-xl text-xs font-semibold h-9 focus:ring-1 focus:ring-primary/45">
+              <SelectTrigger className="w-[140px] bg-background/50 border border-border/40 rounded-xl text-xs font-semibold h-9 focus:ring-1 focus:ring-primary/40 cursor-pointer">
                 <SelectValue placeholder="All Roles" />
               </SelectTrigger>
               <SelectContent className="bg-popover border border-border rounded-xl">
@@ -666,9 +993,9 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
 
           {/* Workload Filter */}
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Workload:</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Workload:</span>
             <Select value={workloadFilter} onValueChange={(val: any) => setWorkloadFilter(val)}>
-              <SelectTrigger className="w-[170px] bg-background border border-border/60 rounded-xl text-xs font-semibold h-9 focus:ring-1 focus:ring-primary/45">
+              <SelectTrigger className="w-[170px] bg-background/50 border border-border/40 rounded-xl text-xs font-semibold h-9 focus:ring-1 focus:ring-primary/40 cursor-pointer">
                 <SelectValue placeholder="All Workloads" />
               </SelectTrigger>
               <SelectContent className="bg-popover border border-border rounded-xl">
@@ -683,13 +1010,13 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
 
           {/* Reset Filters */}
           {(searchQuery || roleFilter !== "all" || workloadFilter !== "all") && (
-            <button 
+            <button
               onClick={() => {
                 setSearchQuery("")
                 setRoleFilter("all")
                 setWorkloadFilter("all")
               }}
-              className="px-3 py-2 border border-dashed border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted/10 font-bold rounded-xl text-xs transition-colors cursor-pointer h-9 flex items-center justify-center"
+              className="px-3 py-2 border border-dashed border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted/10 font-bold rounded-xl text-xs transition-colors cursor-pointer h-9 flex items-center justify-center animate-in fade-in"
             >
               Reset
             </button>
@@ -697,32 +1024,158 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
         </div>
       </div>
 
-      {/* Grid of Members */}
-      <div className="space-y-8 w-full">
+      {/* Table of Members */}
+      <div className="space-y-4 w-full">
         {/* Render filtered members */}
         {filteredMembers.length > 0 && (
           <div className="flex flex-col gap-4">
-            <h3 className="text-xs font-extrabold text-foreground/80 uppercase tracking-widest flex items-center gap-2 pl-1">
-              <span className="size-1.5 rounded-full bg-blue-500" />
-              Project Members ({filteredMembers.length})
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
-              {filteredMembers.map((member) => (
-                <MemberCard 
-                  key={member.id}
-                  member={member}
-                  role="member"
-                  userId={userId}
-                  canRemove={canRemoveMember(member)}
-                  onRemove={() => {
-                    setMemberToRemove(member)
-                    setIsAlertOpen(true)
-                  }}
-                  activeTicketsCount={getUserActiveTicketsCount(member.id)}
-                  totalTicketsCount={getUserTotalTicketsCount(member.id)}
-                />
-              ))}
+            <div className="flex items-center gap-3 w-full">
+              <h3 className="text-xs font-bold text-primary uppercase tracking-widest flex items-center gap-2">
+                <UsersIcon className="size-3.5 text-primary" />
+                Project Members ({filteredMembers.length})
+              </h3>
+              <div className="h-px flex-1 bg-gradient-to-r from-primary/20 to-transparent" />
             </div>
+
+            <div className="bg-card/45 backdrop-blur-md border border-border/50 rounded-2xl overflow-hidden shadow-sm">
+              <Table>
+                <TableHeader className="bg-muted/20">
+                  <TableRow className="border-border/40 hover:bg-transparent">
+                    <TableHead className="font-semibold text-muted-foreground py-3.5 pl-6 text-xs uppercase tracking-wider">Collaborator</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground py-3.5 text-xs uppercase tracking-wider">Designation</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground py-3.5 text-xs uppercase tracking-wider">Workload</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground py-3.5 text-xs uppercase tracking-wider">Task Progress</TableHead>
+                    {canManageTeam && <TableHead className="w-[80px] py-3.5 pr-6"></TableHead>}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedMembers.map((member) => {
+                    const activeTicketsCount = getUserActiveTicketsCount(member.id)
+                    const totalTicketsCount = getUserTotalTicketsCount(member.id)
+                    const completedTicketsCount = totalTicketsCount - activeTicketsCount
+                    const completionRate = totalTicketsCount > 0 
+                      ? Math.round((completedTicketsCount / totalTicketsCount) * 100) 
+                      : 0
+
+                    // Determine workload status
+                    let workloadLabel = "Available"
+                    let workloadColor = "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                    let workloadDot = "bg-emerald-500"
+
+                    if (activeTicketsCount > 0) {
+                      if (activeTicketsCount < 2) {
+                        workloadLabel = "Light Load"
+                        workloadColor = "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                        workloadDot = "bg-emerald-500"
+                      } else if (activeTicketsCount < 5) {
+                        workloadLabel = "On Track"
+                        workloadColor = "bg-blue-500/10 text-blue-500 border-blue-500/20"
+                        workloadDot = "bg-blue-500"
+                      } else {
+                        workloadLabel = "High Workload"
+                        workloadColor = "bg-red-500/10 text-red-500 border-red-500/20"
+                        workloadDot = "bg-red-500 animate-pulse"
+                      }
+                    }
+
+                    return (
+                      <TableRow
+                        key={member.id}
+                        onClick={() => router.push(`/dashboard/${userId}/profile?targetUserId=${member.id}`)}
+                        className="border-border/30 hover:bg-muted/10 cursor-pointer transition-colors duration-200 group"
+                      >
+                        <TableCell className="py-4 pl-6">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="size-9 border border-border/40 shrink-0">
+                              <AvatarImage src={member.imageUrl || undefined} alt={member.name} />
+                              <AvatarFallback className="font-bold text-xs bg-primary/5 text-primary rounded-full flex items-center justify-center size-full">
+                                {getInitials(member.name)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col min-w-0">
+                              <span className="font-bold text-xs text-foreground hover:text-primary transition-colors truncate">
+                                {member.name}
+                              </span>
+                              <span className="text-[10px] text-muted-foreground truncate">{member.email}</span>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-4 text-xs font-semibold text-muted-foreground">
+                          {member.designation || "Project Collaborator"}
+                        </TableCell>
+                        <TableCell className="py-4">
+                          <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold border flex items-center gap-1.5 w-fit ${workloadColor}`}>
+                            <span className={`size-1.5 rounded-full ${workloadDot}`} />
+                            {workloadLabel}
+                          </span>
+                        </TableCell>
+                        <TableCell className="py-4">
+                          {totalTicketsCount > 0 ? (
+                            <div className="flex flex-col gap-1 w-32 shrink-0">
+                              <div className="flex justify-between text-[9px] text-muted-foreground font-semibold">
+                                <span>{completedTicketsCount}/{totalTicketsCount} tasks</span>
+                                <span>{completionRate}%</span>
+                              </div>
+                              <div className="w-full h-1 bg-muted/50 rounded-full overflow-hidden border border-border/20">
+                                <div 
+                                  className="h-full rounded-full bg-gradient-to-r from-blue-500 to-primary transition-all duration-500"
+                                  style={{ width: `${completionRate}%` }}
+                                />
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-[9px] font-bold text-muted-foreground/75 bg-muted/30 border border-border/40 px-2 py-0.5 rounded-md">No tasks</span>
+                          )}
+                        </TableCell>
+                        {canManageTeam && (
+                          <TableCell className="py-4 pr-6 text-right" onClick={(e) => e.stopPropagation()}>
+                            {canRemoveMember(member) && (
+                              <button
+                                onClick={() => {
+                                  setMemberToRemove(member)
+                                  setIsAlertOpen(true)
+                                }}
+                                className="p-2 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 border border-transparent hover:border-destructive/20 opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer"
+                                title="Remove from project"
+                              >
+                                <Trash2Icon className="size-4" />
+                              </button>
+                            )}
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-2 px-2 bg-card/20 border border-border/40 rounded-xl p-3">
+                <span className="text-xs text-muted-foreground font-medium">
+                  Showing <span className="font-bold text-foreground">{(currentPage - 1) * itemsPerPage + 1}</span> to{" "}
+                  <span className="font-bold text-foreground">{Math.min(currentPage * itemsPerPage, filteredMembers.length)}</span> of{" "}
+                  <span className="font-bold text-foreground">{filteredMembers.length}</span> members
+                </span>
+                <div className="flex items-center gap-2">
+                  <button 
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    className="px-3 py-1.5 rounded-lg border border-border/60 bg-background/50 hover:bg-muted text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all text-foreground"
+                  >
+                    Previous
+                  </button>
+                  <button 
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    className="px-3 py-1.5 rounded-lg border border-border/60 bg-background/50 hover:bg-muted text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all text-foreground"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -752,21 +1205,21 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
         )}
       </div>
 
-      {/* Manage Team Members Dialog */}
-      <Dialog open={isManageOpen} onOpenChange={setIsManageOpen}>
-        <DialogContent className="bg-popover border border-border max-w-lg rounded-3xl p-6 md:p-8 flex flex-col gap-6">
-          <DialogHeader>
-            <DialogTitle className="text-foreground text-xl font-bold flex items-center gap-2">
+      {/* Manage Team Members Sheet */}
+      <Sheet open={isManageOpen} onOpenChange={setIsManageOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md p-6 overflow-y-auto flex flex-col gap-6">
+          <SheetHeader className="pb-4 border-b border-border/40">
+            <SheetTitle className="text-foreground text-xl font-bold flex items-center gap-2">
               <UserPlusIcon className="size-5 text-primary" />
               Manage Project Team
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground text-xs leading-relaxed">
+            </SheetTitle>
+            <SheetDescription className="text-muted-foreground text-xs leading-relaxed mt-1">
               Select members and administrators from the company to join this project.
-            </DialogDescription>
-          </DialogHeader>
+            </SheetDescription>
+          </SheetHeader>
 
           {/* Search and Content Container */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60" />
               <input
@@ -794,31 +1247,34 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
               <Tabs defaultValue="members" className="w-full">
                 <TabsList className="w-full bg-muted/60 p-1 rounded-xl grid grid-cols-2">
                   <TabsTrigger value="members" className="rounded-lg text-xs font-bold py-1.5">
-                    Project Members ({selectedMemberIds.length})
+                    Project Members ({currentProjectUsers.length})
                   </TabsTrigger>
-                  <TabsTrigger value="admins" className="rounded-lg text-xs font-bold py-1.5">
-                    Project Admins ({selectedAdminIds.length})
+                  <TabsTrigger value="rest-of-company" className="rounded-lg text-xs font-bold py-1.5">
+                    Rest of Company ({otherCompanyUsers.length})
                   </TabsTrigger>
                 </TabsList>
 
                 {/* Project Members Tab */}
                 <TabsContent value="members" className="mt-4">
-                  <div className="border border-border/60 rounded-xl overflow-hidden bg-muted/5 flex flex-col max-h-[250px]">
+                  <div className="border border-border/60 rounded-xl overflow-hidden bg-muted/5 flex flex-col max-h-[350px]">
                     <div className="overflow-y-auto p-2 flex flex-col gap-2">
-                      {filteredMemberUsers.map((item: any) => {
-                        const isSelected = selectedMemberIds.includes(item.id)
+                      {filteredCurrentUsers.map((item: any) => {
+                        const isSelected = getIsSelected(item.id, item.role)
                         return (
                           <div
                             key={item.id}
-                            onClick={() => toggleMemberSelection(item.id)}
-                            className={`flex items-center justify-between p-2 rounded-xl border cursor-pointer transition-all ${
-                              isSelected
+                            onClick={() => toggleSelection(item.id, item.role)}
+                            className={`flex items-center justify-between p-2 rounded-xl border cursor-pointer transition-all ${isSelected
                                 ? "bg-primary/5 border-primary/45 shadow-2xs"
                                 : "bg-card border-border/40 hover:bg-muted/30 hover:border-border/80"
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
-                              <div className="size-8 rounded-full bg-stone-200 dark:bg-stone-850 flex items-center justify-center text-xs font-bold text-stone-700 dark:text-stone-300 shrink-0">
+                              <div className={`size-8 rounded-full ${
+                                (item.role === "Admin" || item.role === "Owner")
+                                  ? "bg-primary/5 dark:bg-primary/10 text-primary"
+                                  : "bg-stone-200 dark:bg-stone-850 text-stone-700 dark:text-stone-300"
+                                } flex items-center justify-center text-xs font-bold shrink-0`}>
                                 {item.initials}
                               </div>
                               <div className="flex flex-col min-w-0">
@@ -828,41 +1284,43 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
                                 </span>
                               </div>
                             </div>
-                            <div className={`size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
-                              isSelected ? "bg-primary border-primary text-primary-foreground" : "border-border/80 bg-transparent"
-                            }`}>
+                            <div className={`size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 ${isSelected ? "bg-primary border-primary text-primary-foreground" : "border-border/80 bg-transparent"
+                              }`}>
                               {isSelected && <CheckIcon className="size-2.5 stroke-[3]" />}
                             </div>
                           </div>
                         )
                       })}
-                      {filteredMemberUsers.length === 0 && (
+                      {filteredCurrentUsers.length === 0 && (
                         <div className="text-center py-8 text-xs text-muted-foreground">
-                          No company members found matching your search.
+                          No project members found matching your search.
                         </div>
                       )}
                     </div>
                   </div>
                 </TabsContent>
 
-                {/* Project Admins Tab */}
-                <TabsContent value="admins" className="mt-4">
-                  <div className="border border-border/60 rounded-xl overflow-hidden bg-muted/5 flex flex-col max-h-[250px]">
+                {/* Rest of Company Tab */}
+                <TabsContent value="rest-of-company" className="mt-4">
+                  <div className="border border-border/60 rounded-xl overflow-hidden bg-muted/5 flex flex-col max-h-[350px]">
                     <div className="overflow-y-auto p-2 flex flex-col gap-2">
-                      {filteredAdminUsers.map((item: any) => {
-                        const isSelected = selectedAdminIds.includes(item.id)
+                      {filteredOtherUsers.map((item: any) => {
+                        const isSelected = getIsSelected(item.id, item.role)
                         return (
                           <div
                             key={item.id}
-                            onClick={() => toggleAdminSelection(item.id)}
-                            className={`flex items-center justify-between p-2 rounded-xl border cursor-pointer transition-all ${
-                              isSelected
+                            onClick={() => toggleSelection(item.id, item.role)}
+                            className={`flex items-center justify-between p-2 rounded-xl border cursor-pointer transition-all ${isSelected
                                 ? "bg-primary/5 border-primary/45 shadow-2xs"
                                 : "bg-card border-border/40 hover:bg-muted/30 hover:border-border/80"
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
-                              <div className="size-8 rounded-full bg-primary/5 dark:bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+                              <div className={`size-8 rounded-full ${
+                                (item.role === "Admin" || item.role === "Owner")
+                                  ? "bg-primary/5 dark:bg-primary/10 text-primary"
+                                  : "bg-stone-200 dark:bg-stone-850 text-stone-700 dark:text-stone-300"
+                                } flex items-center justify-center text-xs font-bold shrink-0`}>
                                 {item.initials}
                               </div>
                               <div className="flex flex-col min-w-0">
@@ -872,17 +1330,16 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
                                 </span>
                               </div>
                             </div>
-                            <div className={`size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
-                              isSelected ? "bg-primary border-primary text-primary-foreground" : "border-border/80 bg-transparent"
-                            }`}>
+                            <div className={`size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 ${isSelected ? "bg-primary border-primary text-primary-foreground" : "border-border/80 bg-transparent"
+                              }`}>
                               {isSelected && <CheckIcon className="size-2.5 stroke-[3]" />}
                             </div>
                           </div>
                         )
                       })}
-                      {filteredAdminUsers.length === 0 && (
+                      {filteredOtherUsers.length === 0 && (
                         <div className="text-center py-8 text-xs text-muted-foreground">
-                          No company admins/owners found matching your search.
+                          No company members found matching your search.
                         </div>
                       )}
                     </div>
@@ -892,17 +1349,17 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
             )}
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0 mt-2 border-t border-border/30 pt-4 flex flex-row justify-end">
+          <SheetFooter className="gap-3 mt-auto border-t border-border/30 pt-4 flex flex-row w-full justify-stretch">
             <button
               onClick={() => setIsManageOpen(false)}
-              className="px-4 py-2 border border-border bg-transparent hover:bg-muted text-foreground font-medium rounded-xl text-xs transition-colors cursor-pointer"
+              className="flex-1 py-2 border border-border bg-transparent hover:bg-muted text-foreground font-medium rounded-xl text-xs transition-colors cursor-pointer flex items-center justify-center"
             >
               Cancel
             </button>
             <button
               onClick={handleSaveMembership}
               disabled={updateMembershipMutation.isPending}
-              className="px-5 py-2 bg-primary text-primary-foreground hover:bg-primary/95 font-medium rounded-xl text-xs shadow-xs flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+              className="flex-1 py-2 bg-primary text-primary-foreground hover:bg-primary/95 font-medium rounded-xl text-xs shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
             >
               {updateMembershipMutation.isPending ? (
                 <>
@@ -913,9 +1370,9 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
                 "Save Changes"
               )}
             </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
       {/* Confirmation Modal for removing member */}
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>

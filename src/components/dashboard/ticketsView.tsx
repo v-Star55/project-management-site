@@ -291,9 +291,6 @@ export default function TicketsView() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [selectedProjectId, setSelectedProjectId] = useState<string>("all")
-  const [selectedMemberId, setSelectedMemberId] = useState<string>("all")
-  const [memberSearchQuery, setMemberSearchQuery] = useState<string>("")
-  const [assignmentFilter, setAssignmentFilter] = useState<"all" | "assigned" | "unassigned">("all")
   const [overrunFilter, setOverrunFilter] = useState<string>("all")
   const [pendingStatusChange, setPendingStatusChange] = useState<{
     ticketId: string
@@ -310,33 +307,6 @@ export default function TicketsView() {
     }
   })
   const projects = projectsData?.projects || []
-
-  // Fetch workspace members for filter dropdown
-  const companyId = user?.company?.id
-  const { data: teamData } = useQuery({
-    queryKey: ["teams", companyId],
-    queryFn: async () => {
-      if (!companyId) return { teams: [] }
-      const res = await fetch(`/api/teams/${companyId}`)
-      if (!res.ok) throw new Error("Failed to fetch team members")
-      return res.json()
-    },
-    enabled: !!companyId && user?.role !== "client",
-  })
-  const teamMembers = teamData?.teams || []
-  const activeMembers = teamMembers.filter((m: any) => m.role !== "Client")
-
-  // Filter members by the selected project
-  const filteredActiveMembers = activeMembers.filter((member: any) => {
-    if (selectedProjectId === "all") return true
-    return member.projects?.some((p: any) => p.id === selectedProjectId)
-  })
-
-  // Filter members by name/email search query
-  const searchedActiveMembers = filteredActiveMembers.filter((member: any) =>
-    member.name.toLowerCase().includes(memberSearchQuery.toLowerCase()) ||
-    member.email.toLowerCase().includes(memberSearchQuery.toLowerCase())
-  )
 
   const fetchTickets = async () => {
     const res = await fetch("/api/tickets")
@@ -425,18 +395,7 @@ export default function TicketsView() {
     const matchesStatus = filter === "All" || getDisplayStatus(ticket.status) === filter
     const matchesProject = selectedProjectId === "all" || ticket.projectId === selectedProjectId
 
-    const matchesMember =
-      selectedMemberId === "all" ||
-      (selectedMemberId === "me" ? ticket.assignedUserId === user?.id : ticket.assignedUserId === selectedMemberId)
-
-    let matchesAssignment = true
-    if (isOwnerOrAdmin) {
-      if (assignmentFilter === "assigned") {
-        matchesAssignment = !!ticket.assignedUserId
-      } else if (assignmentFilter === "unassigned") {
-        matchesAssignment = !ticket.assignedUserId
-      }
-    }
+    const matchesMember = ticket.assignedUserId === user?.id
 
     const matchesOverrun = (() => {
       if (overrunFilter === "all") return true
@@ -450,7 +409,7 @@ export default function TicketsView() {
       return true
     })()
 
-    return matchesSearch && matchesStatus && matchesProject && matchesMember && matchesAssignment && matchesOverrun
+    return matchesSearch && matchesStatus && matchesProject && matchesMember && matchesOverrun
   })
 
   // Sort tickets
@@ -618,104 +577,7 @@ export default function TicketsView() {
           </div>
 
           {/* Member Filter Selector with Search */}
-          {user?.role !== "client" && (
-            <div className="w-full sm:w-56">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button
-                    className="w-full flex items-center justify-between bg-muted/50 border border-border/40 hover:bg-muted/70 rounded-xl px-3 py-2 h-9 text-muted-foreground font-medium focus:ring-2 focus:ring-primary/20 transition-all text-sm outline-none cursor-pointer"
-                  >
-                    <span className="truncate">
-                      {selectedMemberId === "all"
-                        ? "All Members"
-                        : selectedMemberId === "me"
-                        ? "Assigned to Me"
-                        : activeMembers.find((m: any) => m.id === selectedMemberId)?.name || "All Members"}
-                    </span>
-                    <ChevronDown className="size-4 shrink-0 opacity-50" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[224px] p-2 rounded-xl border border-border/50 bg-popover shadow-xl z-[150]" align="start">
-                  <div className="relative mb-2 w-full">
-                    <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-                    <input
-                      type="text"
-                      placeholder="Search member..."
-                      value={memberSearchQuery}
-                      onChange={(e) => setMemberSearchQuery(e.target.value)}
-                      className="w-full pl-8 pr-3 py-1.5 bg-muted/30 hover:bg-muted/50 rounded-lg border border-border/30 focus:border-primary/50 text-xs outline-none transition-all h-8"
-                    />
-                  </div>
-                  <div className="max-h-60 overflow-y-auto flex flex-col gap-0.5">
-                    <button
-                      onClick={() => setSelectedMemberId("all")}
-                      className={cn(
-                        "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer",
-                        selectedMemberId === "all"
-                          ? "bg-primary/10 text-primary"
-                          : "hover:bg-muted text-foreground"
-                      )}
-                    >
-                      All Members
-                    </button>
-                    <button
-                      onClick={() => setSelectedMemberId("me")}
-                      className={cn(
-                        "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer",
-                        selectedMemberId === "me"
-                          ? "bg-primary/10 text-primary"
-                          : "hover:bg-muted text-foreground"
-                      )}
-                    >
-                      Assigned to Me
-                    </button>
-                    
-                    {searchedActiveMembers.length > 0 && (
-                      <div className="h-px bg-border/40 my-1" />
-                    )}
 
-                    {searchedActiveMembers.map((member: any) => (
-                      <button
-                        key={member.id}
-                        onClick={() => setSelectedMemberId(member.id)}
-                        className={cn(
-                          "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer truncate",
-                          selectedMemberId === member.id
-                            ? "bg-primary/10 text-primary"
-                            : "hover:bg-muted text-foreground"
-                        )}
-                      >
-                        {member.name}
-                      </button>
-                    ))}
-
-                    {searchedActiveMembers.length === 0 && memberSearchQuery && (
-                      <span className="text-[10px] text-muted-foreground text-center py-4 italic">No teammates found</span>
-                    )}
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-          )}
-
-          {/* Assignment Filter Selector */}
-          {(user?.role === "owner" || user?.role === "admin") && (
-            <div className="w-full sm:w-56">
-              <Select
-                value={assignmentFilter}
-                onValueChange={(value) => setAssignmentFilter(value as any)}
-              >
-                <SelectTrigger className="w-full bg-muted/50 border-border/40 rounded-xl py-2 h-9 text-muted-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
-                  <SelectValue placeholder="All Assignments" />
-                </SelectTrigger>
-                <SelectContent position="popper" className="rounded-xl border border-border/50">
-                  <SelectItem value="all" className="text-foreground">All Assignments</SelectItem>
-                  <SelectItem value="assigned" className="text-foreground">Assigned Tickets</SelectItem>
-                  <SelectItem value="unassigned" className="text-foreground">Unassigned Tickets</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
 
           {/* Overrun Filter Selector */}
           <div className="w-full sm:w-56">

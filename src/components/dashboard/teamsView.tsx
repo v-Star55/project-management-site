@@ -131,16 +131,15 @@ export default function TeamsView() {
 
   const adminManagedProjectIds = allowedProjects.map((p: any) => p.id)
 
-  // Filter teamList: for admin, only show members in their projects
+  // Filter teamList: for non-owners, only show members in their projects
   const rawTeamList: TeamMember[] = data?.teams || []
   const teamList = rawTeamList.filter((member: TeamMember) => {
     if (member.role === "Client") return false
     if (isOwner) return true
-    if (isSystemAdmin) {
-      if (member.id === user?.id) return true
-      return member.projects?.some((p: any) => adminManagedProjectIds.includes(p.id))
-    }
-    return true
+    
+    // For non-owners (Admin, Member, QA, etc.): only show members who share a project with them, plus themselves
+    if (member.id === user?.id) return true
+    return member.projects?.some((p: any) => adminManagedProjectIds.includes(p.id))
   })
 
   // Stats Calculations
@@ -157,6 +156,7 @@ export default function TeamsView() {
   // Unassigned members: not part of any project
   const unassignedMembers = rawTeamList.filter(member => {
     if (member.role === "Owner") return false
+    if (member.role === "Client") return false
     return !member.projects || member.projects.length === 0
   })
 

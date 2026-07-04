@@ -11,7 +11,11 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { ActivityIcon } from "lucide-react"
 
-export default function RecentActivityCard() {
+interface RecentActivityCardProps {
+  className?: string
+}
+
+export default function RecentActivityCard({ className }: RecentActivityCardProps) {
   const { user } = useSelector((state: RootState) => state.user)
   const userId = user?.id
 
@@ -40,24 +44,24 @@ export default function RecentActivityCard() {
   const defaultAvatar = "https://github.com/shadcn.png"
 
   return (
-    <Card className="border-border/50 shadow-xs rounded-3xl overflow-hidden">
-      <CardHeader className="border-b border-border/40 bg-muted/15 flex flex-row items-center py-4 px-6 justify-between">
+    <Card className={`border-border/50 shadow-xs rounded-3xl overflow-hidden flex flex-col ${className}`}>
+      <CardHeader className="border-b border-border/40 bg-muted/15 flex flex-row items-center py-4 px-6 justify-between shrink-0">
         <div className="flex items-center gap-2">
           <ActivityIcon className="size-4 text-primary" />
           <CardTitle className="text-sm font-bold tracking-wide uppercase text-foreground">Recent Activity Logs</CardTitle>
         </div>
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent className="p-6 flex-1 flex flex-col min-h-0">
         {allActivityLogs.length > 0 ? (
-          <div className="space-y-6">
-            <div className="space-y-6 max-h-[450px] overflow-y-auto pr-1">
+          <div className="flex-1 flex flex-col min-h-0 justify-between">
+            <div className="space-y-6 flex-1 overflow-y-auto pr-1 pb-4">
               {allActivityLogs.map((log: any, index: number) => (
                 <div key={log.id} className="flex gap-4 relative group">
                   <Avatar className="size-9 border border-border bg-background z-10 relative shrink-0">
                     <AvatarImage src={log.user.imageUrl || defaultAvatar} />
-                    <AvatarFallback className="text-xs font-bold">{log.user.name.slice(0,2).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback className="text-xs font-bold">{log.user.name.slice(0, 2).toUpperCase()}</AvatarFallback>
                   </Avatar>
-                  
+
                   {/* Vertical connecting line */}
                   {index < allActivityLogs.length - 1 && (
                     <div className="absolute left-[18px] top-9 bottom-[-24px] w-[1px] bg-border/60" />

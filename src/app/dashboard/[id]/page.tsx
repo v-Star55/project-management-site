@@ -9,7 +9,7 @@ import MemberDashboard from "@/components/dashboard/memberDashboard"
 export default function Page() {
   const user = useSelector((state: RootState) => state.user.user)
 
-  if (user?.role === "admin") {
+  if (user?.role === "admin" || user?.role === "owner") {
     return <AdminDashboard />
   } else if (user?.role === "member") {
     return <MemberDashboard />

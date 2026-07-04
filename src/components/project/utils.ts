@@ -58,6 +58,7 @@ export interface ProjectTicket {
     type: string
   } | null
   estimatedHours?: number | null
+  timeLogs?: any[] | null
 }
 
 export interface ProjectDetail {

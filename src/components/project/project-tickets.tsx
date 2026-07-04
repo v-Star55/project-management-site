@@ -205,6 +205,8 @@ export default function ProjectTickets({ projectData, userId }: ProjectTicketsPr
   const [priorityFilter, setPriorityFilter] = useState("all")
   const [groupFilter, setGroupFilter] = useState("all")
   const [assigneeFilter, setAssigneeFilter] = useState("all")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [overrunFilter, setOverrunFilter] = useState("all")
 
   // Fetch Project Groups/Sprints
   const { data: groupsData } = useQuery({
@@ -259,6 +261,22 @@ export default function ProjectTickets({ projectData, userId }: ProjectTicketsPr
         if (ticket.assignedUserId) return false
       } else if (ticket.assignedUserId !== assigneeFilter) {
         return false
+      }
+    }
+
+    // 5. Status Filter
+    if (statusFilter !== "all" && ticket.status?.toLowerCase() !== statusFilter.toLowerCase()) {
+      return false
+    }
+
+    // 6. Overrun Filter
+    if (overrunFilter !== "all") {
+      if (overrunFilter === "overrun") {
+        const est = ticket.estimatedHours
+        if (est === null || est === undefined || est <= 0) return false
+        const totalMinutes = ticket.timeLogs?.reduce((sum: number, tl: any) => sum + (tl.duration || 0), 0) || 0
+        const loggedHours = totalMinutes / 60
+        if (loggedHours <= est) return false
       }
     }
 
@@ -413,6 +431,13 @@ export default function ProjectTickets({ projectData, userId }: ProjectTicketsPr
     const ticket = tickets.find((t) => t.id === ticketId)
     if (!ticket) return
 
+    const isAssignee = ticket.assignedUserId === user?.id
+    const cardCanMove = isProjectAdminOrOwner || (isAssignee && (userRole === "member" || userRole === "qa"))
+    if (!cardCanMove) {
+      toast.error("You do not have permission to move this ticket")
+      return
+    }
+
     let targetStatus = ""
     if (targetColumnId === "todo") {
       targetStatus = ticket.status === "completed" ? "reopen" : "pending"
@@ -560,14 +585,49 @@ export default function ProjectTickets({ projectData, userId }: ProjectTicketsPr
             </Select>
           </div>
 
+          {/* Status Filter */}
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Status:</span>
+            <Select value={statusFilter} onValueChange={(val: any) => setStatusFilter(val)}>
+              <SelectTrigger className="w-[120px] bg-background border border-border/60 rounded-xl text-xs font-semibold h-9 focus:ring-1 focus:ring-primary/45">
+                <SelectValue placeholder="All Statuses" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border border-border rounded-xl">
+                <SelectItem value="all" className="text-xs font-medium cursor-pointer">All Statuses</SelectItem>
+                <SelectItem value="todo" className="text-xs font-medium cursor-pointer">Todo</SelectItem>
+                <SelectItem value="in_progress" className="text-xs font-medium cursor-pointer">In Progress</SelectItem>
+                <SelectItem value="in_review" className="text-xs font-medium cursor-pointer">In Review</SelectItem>
+                <SelectItem value="blocked" className="text-xs font-medium cursor-pointer">Blocked</SelectItem>
+                <SelectItem value="completed" className="text-xs font-medium cursor-pointer">Completed</SelectItem>
+                <SelectItem value="reopen" className="text-xs font-medium cursor-pointer">Reopen</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Overrun Filter */}
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Overrun:</span>
+            <Select value={overrunFilter} onValueChange={(val: any) => setOverrunFilter(val)}>
+              <SelectTrigger className="w-[140px] bg-background border border-border/60 rounded-xl text-xs font-semibold h-9 focus:ring-1 focus:ring-primary/45">
+                <SelectValue placeholder="All Tickets" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border border-border rounded-xl">
+                <SelectItem value="all" className="text-xs font-medium cursor-pointer">All Tickets</SelectItem>
+                <SelectItem value="overrun" className="text-xs font-medium cursor-pointer">Overrun Only</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Reset Filters */}
-          {(searchQuery || priorityFilter !== "all" || groupFilter !== "all" || assigneeFilter !== "all") && (
+          {(searchQuery || priorityFilter !== "all" || groupFilter !== "all" || assigneeFilter !== "all" || statusFilter !== "all" || overrunFilter !== "all") && (
             <button 
               onClick={() => {
                 setSearchQuery("")
                 setPriorityFilter("all")
                 setGroupFilter("all")
                 setAssigneeFilter("all")
+                setStatusFilter("all")
+                setOverrunFilter("all")
               }}
               className="px-3 py-2 border border-dashed border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted/10 font-bold rounded-xl text-xs transition-colors cursor-pointer h-9 flex items-center justify-center"
             >
@@ -596,6 +656,9 @@ export default function ProjectTickets({ projectData, userId }: ProjectTicketsPr
                 dotColor={column.dotColor}
                 onTicketClick={handleTicketClick}
                 canDrag={canDrag}
+                userRole={userRole}
+                userId={user?.id || ""}
+                isProjectAdminOrOwner={isProjectAdminOrOwner}
               />
             )
           })}
@@ -606,7 +669,7 @@ export default function ProjectTickets({ projectData, userId }: ProjectTicketsPr
             <DraggableTicketCard
               ticket={tickets.find((t) => t.id === activeId)!}
               isOverlay
-              canDrag={canDrag}
+              canDrag={true}
             />
           ) : null}
         </DragOverlay>
@@ -684,9 +747,22 @@ interface TicketColumnProps {
   dotColor: string
   onTicketClick: (ticket: ProjectTicket) => void
   canDrag: boolean
+  userRole: string
+  userId: string
+  isProjectAdminOrOwner: boolean
 }
 
-function TicketColumn({ id, title, tickets, dotColor, onTicketClick, canDrag }: TicketColumnProps) {
+function TicketColumn({
+  id,
+  title,
+  tickets,
+  dotColor,
+  onTicketClick,
+  canDrag,
+  userRole,
+  userId,
+  isProjectAdminOrOwner,
+}: TicketColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id,
   })
@@ -713,14 +789,18 @@ function TicketColumn({ id, title, tickets, dotColor, onTicketClick, canDrag }: 
 
       {/* Cards */}
       <div className="flex-1 flex flex-col gap-2.5 min-h-[350px]">
-        {tickets.map((ticket) => (
-          <DraggableTicketCard
-            key={ticket.id}
-            ticket={ticket}
-            onClick={() => onTicketClick(ticket)}
-            canDrag={canDrag}
-          />
-        ))}
+        {tickets.map((ticket) => {
+          const isAssignee = ticket.assignedUserId === userId
+          const cardCanDrag = isProjectAdminOrOwner || (isAssignee && (userRole === "member" || userRole === "qa"))
+          return (
+            <DraggableTicketCard
+              key={ticket.id}
+              ticket={ticket}
+              onClick={() => onTicketClick(ticket)}
+              canDrag={cardCanDrag}
+            />
+          )
+        })}
         {tickets.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-border/50 rounded-xl py-12 text-center">
             <p className="text-xs text-muted-foreground">Empty column</p>

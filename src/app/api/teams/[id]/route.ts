@@ -28,36 +28,9 @@ export async function GET(
             return NextResponse.json({ message: "Forbidden: unauthorized company access" }, { status: 403 });
         }
 
-        const isRestrictedRole = dbUser.role !== "owner";
-
         const dbUsers = await prisma.user.findMany({
             where: {
                 companyId: workspaceId,
-                ...(isRestrictedRole ? {
-                    OR: [
-                        { id: user.id },
-                        {
-                            projects: {
-                                some: {
-                                    OR: [
-                                        { members: { some: { id: user.id } } },
-                                        { admins: { some: { id: user.id } } }
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            adminProjects: {
-                                some: {
-                                    OR: [
-                                        { members: { some: { id: user.id } } },
-                                        { admins: { some: { id: user.id } } }
-                                    ]
-                                }
-                            }
-                        }
-                    ]
-                } : {})
             },
             select: {
                 id: true,
