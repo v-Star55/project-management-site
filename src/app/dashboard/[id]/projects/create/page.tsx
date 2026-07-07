@@ -8,22 +8,10 @@ import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
 import { Spinner } from "@/components/ui/spinner"
 import { toast } from "sonner"
-import { 
-  PlusIcon, 
-  ArrowLeftIcon, 
-  CheckIcon,
-  FolderIcon,
-  CalendarIcon
-} from "lucide-react"
+import { PlusIcon, ArrowLeftIcon, CheckIcon, CalendarIcon } from "lucide-react";
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/helpers/auth";
 
+export const dynamic = "force-dynamic";
+
 // ─── GET /api/users/me ───────────────────────────────────────────────────────
 // Returns the authenticated user's full profile including their company.
 // Uses the shared getCurrentUser helper for consistent token verification.
@@ -38,7 +40,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
                 : null,
         };
 
-        return NextResponse.json({ user: userProfile });
+        return NextResponse.json({ user: userProfile }, {
+            headers: {
+                "Cache-Control": "no-store, no-cache, must-revalidate",
+            },
+        });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });

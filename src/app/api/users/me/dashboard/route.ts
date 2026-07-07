@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/helpers/permission";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/users/me/dashboard
 // Returns aggregated dashboard stats for the logged-in member
 export async function GET(req: NextRequest) {

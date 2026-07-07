@@ -1,16 +1,7 @@
 "use client"
 
-import * as React from "react"
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Cell, 
-  ResponsiveContainer 
-} from "recharts"
+
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer } from "recharts";
 import { ChevronDown } from "lucide-react"
 
 interface TimeTrackingCardProps {

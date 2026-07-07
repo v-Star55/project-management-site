@@ -17809,8 +17809,18 @@ export namespace Prisma {
 
   export type AggregateFeedback = {
     _count: FeedbackCountAggregateOutputType | null
+    _avg: FeedbackAvgAggregateOutputType | null
+    _sum: FeedbackSumAggregateOutputType | null
     _min: FeedbackMinAggregateOutputType | null
     _max: FeedbackMaxAggregateOutputType | null
+  }
+
+  export type FeedbackAvgAggregateOutputType = {
+    satisfactionLevel: number | null
+  }
+
+  export type FeedbackSumAggregateOutputType = {
+    satisfactionLevel: number | null
   }
 
   export type FeedbackMinAggregateOutputType = {
@@ -17820,6 +17830,7 @@ export namespace Prisma {
     type: string | null
     priority: string | null
     status: string | null
+    satisfactionLevel: number | null
     projectId: string | null
     userId: string | null
     createdAt: Date | null
@@ -17833,6 +17844,7 @@ export namespace Prisma {
     type: string | null
     priority: string | null
     status: string | null
+    satisfactionLevel: number | null
     projectId: string | null
     userId: string | null
     createdAt: Date | null
@@ -17846,6 +17858,7 @@ export namespace Prisma {
     type: number
     priority: number
     status: number
+    satisfactionLevel: number
     projectId: number
     userId: number
     createdAt: number
@@ -17854,6 +17867,14 @@ export namespace Prisma {
   }
 
 
+  export type FeedbackAvgAggregateInputType = {
+    satisfactionLevel?: true
+  }
+
+  export type FeedbackSumAggregateInputType = {
+    satisfactionLevel?: true
+  }
+
   export type FeedbackMinAggregateInputType = {
     id?: true
     subject?: true
@@ -17861,6 +17882,7 @@ export namespace Prisma {
     type?: true
     priority?: true
     status?: true
+    satisfactionLevel?: true
     projectId?: true
     userId?: true
     createdAt?: true
@@ -17874,6 +17896,7 @@ export namespace Prisma {
     type?: true
     priority?: true
     status?: true
+    satisfactionLevel?: true
     projectId?: true
     userId?: true
     createdAt?: true
@@ -17887,6 +17910,7 @@ export namespace Prisma {
     type?: true
     priority?: true
     status?: true
+    satisfactionLevel?: true
     projectId?: true
     userId?: true
     createdAt?: true
@@ -17932,6 +17956,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: FeedbackAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FeedbackSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: FeedbackMinAggregateInputType
@@ -17962,6 +17998,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: FeedbackCountAggregateInputType | true
+    _avg?: FeedbackAvgAggregateInputType
+    _sum?: FeedbackSumAggregateInputType
     _min?: FeedbackMinAggregateInputType
     _max?: FeedbackMaxAggregateInputType
   }
@@ -17972,12 +18010,15 @@ export namespace Prisma {
     description: string
     type: string
     priority: string
-    status: string
+    status: string | null
+    satisfactionLevel: number | null
     projectId: string | null
     userId: string
     createdAt: Date
     updatedAt: Date
     _count: FeedbackCountAggregateOutputType | null
+    _avg: FeedbackAvgAggregateOutputType | null
+    _sum: FeedbackSumAggregateOutputType | null
     _min: FeedbackMinAggregateOutputType | null
     _max: FeedbackMaxAggregateOutputType | null
   }
@@ -18003,6 +18044,7 @@ export namespace Prisma {
     type?: boolean
     priority?: boolean
     status?: boolean
+    satisfactionLevel?: boolean
     projectId?: boolean
     userId?: boolean
     createdAt?: boolean
@@ -18020,6 +18062,7 @@ export namespace Prisma {
     type?: boolean
     priority?: boolean
     status?: boolean
+    satisfactionLevel?: boolean
     projectId?: boolean
     userId?: boolean
     createdAt?: boolean
@@ -18035,6 +18078,7 @@ export namespace Prisma {
     type?: boolean
     priority?: boolean
     status?: boolean
+    satisfactionLevel?: boolean
     projectId?: boolean
     userId?: boolean
     createdAt?: boolean
@@ -18050,13 +18094,14 @@ export namespace Prisma {
     type?: boolean
     priority?: boolean
     status?: boolean
+    satisfactionLevel?: boolean
     projectId?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type FeedbackOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "subject" | "description" | "type" | "priority" | "status" | "projectId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["feedback"]>
+  export type FeedbackOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "subject" | "description" | "type" | "priority" | "status" | "satisfactionLevel" | "projectId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["feedback"]>
   export type FeedbackInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | Feedback$projectArgs<ExtArgs>
     user?: boolean | userDefaultArgs<ExtArgs>
@@ -18085,7 +18130,8 @@ export namespace Prisma {
       description: string
       type: string
       priority: string
-      status: string
+      status: string | null
+      satisfactionLevel: number | null
       projectId: string | null
       userId: string
       createdAt: Date
@@ -18522,6 +18568,7 @@ export namespace Prisma {
     readonly type: FieldRef<"Feedback", 'String'>
     readonly priority: FieldRef<"Feedback", 'String'>
     readonly status: FieldRef<"Feedback", 'String'>
+    readonly satisfactionLevel: FieldRef<"Feedback", 'Int'>
     readonly projectId: FieldRef<"Feedback", 'String'>
     readonly userId: FieldRef<"Feedback", 'String'>
     readonly createdAt: FieldRef<"Feedback", 'DateTime'>
@@ -19001,6 +19048,7 @@ export namespace Prisma {
   export type FeedbackCommentMinAggregateOutputType = {
     id: string | null
     text: string | null
+    isSystem: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
     feedbackId: string | null
@@ -19010,6 +19058,7 @@ export namespace Prisma {
   export type FeedbackCommentMaxAggregateOutputType = {
     id: string | null
     text: string | null
+    isSystem: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
     feedbackId: string | null
@@ -19019,6 +19068,7 @@ export namespace Prisma {
   export type FeedbackCommentCountAggregateOutputType = {
     id: number
     text: number
+    isSystem: number
     createdAt: number
     updatedAt: number
     feedbackId: number
@@ -19030,6 +19080,7 @@ export namespace Prisma {
   export type FeedbackCommentMinAggregateInputType = {
     id?: true
     text?: true
+    isSystem?: true
     createdAt?: true
     updatedAt?: true
     feedbackId?: true
@@ -19039,6 +19090,7 @@ export namespace Prisma {
   export type FeedbackCommentMaxAggregateInputType = {
     id?: true
     text?: true
+    isSystem?: true
     createdAt?: true
     updatedAt?: true
     feedbackId?: true
@@ -19048,6 +19100,7 @@ export namespace Prisma {
   export type FeedbackCommentCountAggregateInputType = {
     id?: true
     text?: true
+    isSystem?: true
     createdAt?: true
     updatedAt?: true
     feedbackId?: true
@@ -19130,6 +19183,7 @@ export namespace Prisma {
   export type FeedbackCommentGroupByOutputType = {
     id: string
     text: string
+    isSystem: boolean
     createdAt: Date
     updatedAt: Date
     feedbackId: string
@@ -19156,6 +19210,7 @@ export namespace Prisma {
   export type FeedbackCommentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     text?: boolean
+    isSystem?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     feedbackId?: boolean
@@ -19167,6 +19222,7 @@ export namespace Prisma {
   export type FeedbackCommentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     text?: boolean
+    isSystem?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     feedbackId?: boolean
@@ -19178,6 +19234,7 @@ export namespace Prisma {
   export type FeedbackCommentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     text?: boolean
+    isSystem?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     feedbackId?: boolean
@@ -19189,13 +19246,14 @@ export namespace Prisma {
   export type FeedbackCommentSelectScalar = {
     id?: boolean
     text?: boolean
+    isSystem?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     feedbackId?: boolean
     userId?: boolean
   }
 
-  export type FeedbackCommentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "text" | "createdAt" | "updatedAt" | "feedbackId" | "userId", ExtArgs["result"]["feedbackComment"]>
+  export type FeedbackCommentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "text" | "isSystem" | "createdAt" | "updatedAt" | "feedbackId" | "userId", ExtArgs["result"]["feedbackComment"]>
   export type FeedbackCommentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     feedback?: boolean | FeedbackDefaultArgs<ExtArgs>
     user?: boolean | userDefaultArgs<ExtArgs>
@@ -19218,6 +19276,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       text: string
+      isSystem: boolean
       createdAt: Date
       updatedAt: Date
       feedbackId: string
@@ -19649,6 +19708,7 @@ export namespace Prisma {
   interface FeedbackCommentFieldRefs {
     readonly id: FieldRef<"FeedbackComment", 'String'>
     readonly text: FieldRef<"FeedbackComment", 'String'>
+    readonly isSystem: FieldRef<"FeedbackComment", 'Boolean'>
     readonly createdAt: FieldRef<"FeedbackComment", 'DateTime'>
     readonly updatedAt: FieldRef<"FeedbackComment", 'DateTime'>
     readonly feedbackId: FieldRef<"FeedbackComment", 'String'>
@@ -20296,6 +20356,7 @@ export namespace Prisma {
     type: 'type',
     priority: 'priority',
     status: 'status',
+    satisfactionLevel: 'satisfactionLevel',
     projectId: 'projectId',
     userId: 'userId',
     createdAt: 'createdAt',
@@ -20308,6 +20369,7 @@ export namespace Prisma {
   export const FeedbackCommentScalarFieldEnum: {
     id: 'id',
     text: 'text',
+    isSystem: 'isSystem',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     feedbackId: 'feedbackId',
@@ -21800,7 +21862,8 @@ export namespace Prisma {
     description?: StringFilter<"Feedback"> | string
     type?: StringFilter<"Feedback"> | string
     priority?: StringFilter<"Feedback"> | string
-    status?: StringFilter<"Feedback"> | string
+    status?: StringNullableFilter<"Feedback"> | string | null
+    satisfactionLevel?: IntNullableFilter<"Feedback"> | number | null
     projectId?: StringNullableFilter<"Feedback"> | string | null
     userId?: StringFilter<"Feedback"> | string
     createdAt?: DateTimeFilter<"Feedback"> | Date | string
@@ -21816,7 +21879,8 @@ export namespace Prisma {
     description?: SortOrder
     type?: SortOrder
     priority?: SortOrder
-    status?: SortOrder
+    status?: SortOrderInput | SortOrder
+    satisfactionLevel?: SortOrderInput | SortOrder
     projectId?: SortOrderInput | SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -21835,7 +21899,8 @@ export namespace Prisma {
     description?: StringFilter<"Feedback"> | string
     type?: StringFilter<"Feedback"> | string
     priority?: StringFilter<"Feedback"> | string
-    status?: StringFilter<"Feedback"> | string
+    status?: StringNullableFilter<"Feedback"> | string | null
+    satisfactionLevel?: IntNullableFilter<"Feedback"> | number | null
     projectId?: StringNullableFilter<"Feedback"> | string | null
     userId?: StringFilter<"Feedback"> | string
     createdAt?: DateTimeFilter<"Feedback"> | Date | string
@@ -21851,14 +21916,17 @@ export namespace Prisma {
     description?: SortOrder
     type?: SortOrder
     priority?: SortOrder
-    status?: SortOrder
+    status?: SortOrderInput | SortOrder
+    satisfactionLevel?: SortOrderInput | SortOrder
     projectId?: SortOrderInput | SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: FeedbackCountOrderByAggregateInput
+    _avg?: FeedbackAvgOrderByAggregateInput
     _max?: FeedbackMaxOrderByAggregateInput
     _min?: FeedbackMinOrderByAggregateInput
+    _sum?: FeedbackSumOrderByAggregateInput
   }
 
   export type FeedbackScalarWhereWithAggregatesInput = {
@@ -21870,7 +21938,8 @@ export namespace Prisma {
     description?: StringWithAggregatesFilter<"Feedback"> | string
     type?: StringWithAggregatesFilter<"Feedback"> | string
     priority?: StringWithAggregatesFilter<"Feedback"> | string
-    status?: StringWithAggregatesFilter<"Feedback"> | string
+    status?: StringNullableWithAggregatesFilter<"Feedback"> | string | null
+    satisfactionLevel?: IntNullableWithAggregatesFilter<"Feedback"> | number | null
     projectId?: StringNullableWithAggregatesFilter<"Feedback"> | string | null
     userId?: StringWithAggregatesFilter<"Feedback"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Feedback"> | Date | string
@@ -21883,6 +21952,7 @@ export namespace Prisma {
     NOT?: FeedbackCommentWhereInput | FeedbackCommentWhereInput[]
     id?: StringFilter<"FeedbackComment"> | string
     text?: StringFilter<"FeedbackComment"> | string
+    isSystem?: BoolFilter<"FeedbackComment"> | boolean
     createdAt?: DateTimeFilter<"FeedbackComment"> | Date | string
     updatedAt?: DateTimeFilter<"FeedbackComment"> | Date | string
     feedbackId?: StringFilter<"FeedbackComment"> | string
@@ -21894,6 +21964,7 @@ export namespace Prisma {
   export type FeedbackCommentOrderByWithRelationInput = {
     id?: SortOrder
     text?: SortOrder
+    isSystem?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     feedbackId?: SortOrder
@@ -21908,6 +21979,7 @@ export namespace Prisma {
     OR?: FeedbackCommentWhereInput[]
     NOT?: FeedbackCommentWhereInput | FeedbackCommentWhereInput[]
     text?: StringFilter<"FeedbackComment"> | string
+    isSystem?: BoolFilter<"FeedbackComment"> | boolean
     createdAt?: DateTimeFilter<"FeedbackComment"> | Date | string
     updatedAt?: DateTimeFilter<"FeedbackComment"> | Date | string
     feedbackId?: StringFilter<"FeedbackComment"> | string
@@ -21919,6 +21991,7 @@ export namespace Prisma {
   export type FeedbackCommentOrderByWithAggregationInput = {
     id?: SortOrder
     text?: SortOrder
+    isSystem?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     feedbackId?: SortOrder
@@ -21934,6 +22007,7 @@ export namespace Prisma {
     NOT?: FeedbackCommentScalarWhereWithAggregatesInput | FeedbackCommentScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"FeedbackComment"> | string
     text?: StringWithAggregatesFilter<"FeedbackComment"> | string
+    isSystem?: BoolWithAggregatesFilter<"FeedbackComment"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"FeedbackComment"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"FeedbackComment"> | Date | string
     feedbackId?: StringWithAggregatesFilter<"FeedbackComment"> | string
@@ -23234,7 +23308,8 @@ export namespace Prisma {
     description: string
     type: string
     priority: string
-    status?: string
+    status?: string | null
+    satisfactionLevel?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     project?: ProjectCreateNestedOneWithoutFeedbacksInput
@@ -23248,7 +23323,8 @@ export namespace Prisma {
     description: string
     type: string
     priority: string
-    status?: string
+    status?: string | null
+    satisfactionLevel?: number | null
     projectId?: string | null
     userId: string
     createdAt?: Date | string
@@ -23262,7 +23338,8 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     priority?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    satisfactionLevel?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     project?: ProjectUpdateOneWithoutFeedbacksNestedInput
@@ -23276,7 +23353,8 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     priority?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    satisfactionLevel?: NullableIntFieldUpdateOperationsInput | number | null
     projectId?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -23290,7 +23368,8 @@ export namespace Prisma {
     description: string
     type: string
     priority: string
-    status?: string
+    status?: string | null
+    satisfactionLevel?: number | null
     projectId?: string | null
     userId: string
     createdAt?: Date | string
@@ -23303,7 +23382,8 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     priority?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    satisfactionLevel?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -23314,7 +23394,8 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     priority?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    satisfactionLevel?: NullableIntFieldUpdateOperationsInput | number | null
     projectId?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -23324,6 +23405,7 @@ export namespace Prisma {
   export type FeedbackCommentCreateInput = {
     id?: string
     text: string
+    isSystem?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     feedback: FeedbackCreateNestedOneWithoutCommentsInput
@@ -23333,6 +23415,7 @@ export namespace Prisma {
   export type FeedbackCommentUncheckedCreateInput = {
     id?: string
     text: string
+    isSystem?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     feedbackId: string
@@ -23342,6 +23425,7 @@ export namespace Prisma {
   export type FeedbackCommentUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    isSystem?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     feedback?: FeedbackUpdateOneRequiredWithoutCommentsNestedInput
@@ -23351,6 +23435,7 @@ export namespace Prisma {
   export type FeedbackCommentUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    isSystem?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     feedbackId?: StringFieldUpdateOperationsInput | string
@@ -23360,6 +23445,7 @@ export namespace Prisma {
   export type FeedbackCommentCreateManyInput = {
     id?: string
     text: string
+    isSystem?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     feedbackId: string
@@ -23369,6 +23455,7 @@ export namespace Prisma {
   export type FeedbackCommentUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    isSystem?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -23376,6 +23463,7 @@ export namespace Prisma {
   export type FeedbackCommentUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    isSystem?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     feedbackId?: StringFieldUpdateOperationsInput | string
@@ -24542,10 +24630,15 @@ export namespace Prisma {
     type?: SortOrder
     priority?: SortOrder
     status?: SortOrder
+    satisfactionLevel?: SortOrder
     projectId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type FeedbackAvgOrderByAggregateInput = {
+    satisfactionLevel?: SortOrder
   }
 
   export type FeedbackMaxOrderByAggregateInput = {
@@ -24555,6 +24648,7 @@ export namespace Prisma {
     type?: SortOrder
     priority?: SortOrder
     status?: SortOrder
+    satisfactionLevel?: SortOrder
     projectId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -24568,10 +24662,15 @@ export namespace Prisma {
     type?: SortOrder
     priority?: SortOrder
     status?: SortOrder
+    satisfactionLevel?: SortOrder
     projectId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type FeedbackSumOrderByAggregateInput = {
+    satisfactionLevel?: SortOrder
   }
 
   export type FeedbackScalarRelationFilter = {
@@ -24582,6 +24681,7 @@ export namespace Prisma {
   export type FeedbackCommentCountOrderByAggregateInput = {
     id?: SortOrder
     text?: SortOrder
+    isSystem?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     feedbackId?: SortOrder
@@ -24591,6 +24691,7 @@ export namespace Prisma {
   export type FeedbackCommentMaxOrderByAggregateInput = {
     id?: SortOrder
     text?: SortOrder
+    isSystem?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     feedbackId?: SortOrder
@@ -24600,6 +24701,7 @@ export namespace Prisma {
   export type FeedbackCommentMinOrderByAggregateInput = {
     id?: SortOrder
     text?: SortOrder
+    isSystem?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     feedbackId?: SortOrder
@@ -27991,7 +28093,8 @@ export namespace Prisma {
     description: string
     type: string
     priority: string
-    status?: string
+    status?: string | null
+    satisfactionLevel?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     project?: ProjectCreateNestedOneWithoutFeedbacksInput
@@ -28004,7 +28107,8 @@ export namespace Prisma {
     description: string
     type: string
     priority: string
-    status?: string
+    status?: string | null
+    satisfactionLevel?: number | null
     projectId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -28024,6 +28128,7 @@ export namespace Prisma {
   export type FeedbackCommentCreateWithoutUserInput = {
     id?: string
     text: string
+    isSystem?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     feedback: FeedbackCreateNestedOneWithoutCommentsInput
@@ -28032,6 +28137,7 @@ export namespace Prisma {
   export type FeedbackCommentUncheckedCreateWithoutUserInput = {
     id?: string
     text: string
+    isSystem?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     feedbackId: string
@@ -28428,7 +28534,8 @@ export namespace Prisma {
     description?: StringFilter<"Feedback"> | string
     type?: StringFilter<"Feedback"> | string
     priority?: StringFilter<"Feedback"> | string
-    status?: StringFilter<"Feedback"> | string
+    status?: StringNullableFilter<"Feedback"> | string | null
+    satisfactionLevel?: IntNullableFilter<"Feedback"> | number | null
     projectId?: StringNullableFilter<"Feedback"> | string | null
     userId?: StringFilter<"Feedback"> | string
     createdAt?: DateTimeFilter<"Feedback"> | Date | string
@@ -28457,6 +28564,7 @@ export namespace Prisma {
     NOT?: FeedbackCommentScalarWhereInput | FeedbackCommentScalarWhereInput[]
     id?: StringFilter<"FeedbackComment"> | string
     text?: StringFilter<"FeedbackComment"> | string
+    isSystem?: BoolFilter<"FeedbackComment"> | boolean
     createdAt?: DateTimeFilter<"FeedbackComment"> | Date | string
     updatedAt?: DateTimeFilter<"FeedbackComment"> | Date | string
     feedbackId?: StringFilter<"FeedbackComment"> | string
@@ -28862,7 +28970,8 @@ export namespace Prisma {
     description: string
     type: string
     priority: string
-    status?: string
+    status?: string | null
+    satisfactionLevel?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: userCreateNestedOneWithoutFeedbacksInput
@@ -28875,7 +28984,8 @@ export namespace Prisma {
     description: string
     type: string
     priority: string
-    status?: string
+    status?: string | null
+    satisfactionLevel?: number | null
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -32611,6 +32721,7 @@ export namespace Prisma {
   export type FeedbackCommentCreateWithoutFeedbackInput = {
     id?: string
     text: string
+    isSystem?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     user: userCreateNestedOneWithoutFeedbackCommentsInput
@@ -32619,6 +32730,7 @@ export namespace Prisma {
   export type FeedbackCommentUncheckedCreateWithoutFeedbackInput = {
     id?: string
     text: string
+    isSystem?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     userId: string
@@ -32796,7 +32908,8 @@ export namespace Prisma {
     description: string
     type: string
     priority: string
-    status?: string
+    status?: string | null
+    satisfactionLevel?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     project?: ProjectCreateNestedOneWithoutFeedbacksInput
@@ -32809,7 +32922,8 @@ export namespace Prisma {
     description: string
     type: string
     priority: string
-    status?: string
+    status?: string | null
+    satisfactionLevel?: number | null
     projectId?: string | null
     userId: string
     createdAt?: Date | string
@@ -32913,7 +33027,8 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     priority?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    satisfactionLevel?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     project?: ProjectUpdateOneWithoutFeedbacksNestedInput
@@ -32926,7 +33041,8 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     priority?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    satisfactionLevel?: NullableIntFieldUpdateOperationsInput | number | null
     projectId?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33443,7 +33559,8 @@ export namespace Prisma {
     description: string
     type: string
     priority: string
-    status?: string
+    status?: string | null
+    satisfactionLevel?: number | null
     projectId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33452,6 +33569,7 @@ export namespace Prisma {
   export type FeedbackCommentCreateManyUserInput = {
     id?: string
     text: string
+    isSystem?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     feedbackId: string
@@ -34055,7 +34173,8 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     priority?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    satisfactionLevel?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     project?: ProjectUpdateOneWithoutFeedbacksNestedInput
@@ -34068,7 +34187,8 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     priority?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    satisfactionLevel?: NullableIntFieldUpdateOperationsInput | number | null
     projectId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34081,7 +34201,8 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     priority?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    satisfactionLevel?: NullableIntFieldUpdateOperationsInput | number | null
     projectId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34090,6 +34211,7 @@ export namespace Prisma {
   export type FeedbackCommentUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    isSystem?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     feedback?: FeedbackUpdateOneRequiredWithoutCommentsNestedInput
@@ -34098,6 +34220,7 @@ export namespace Prisma {
   export type FeedbackCommentUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    isSystem?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     feedbackId?: StringFieldUpdateOperationsInput | string
@@ -34106,6 +34229,7 @@ export namespace Prisma {
   export type FeedbackCommentUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    isSystem?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     feedbackId?: StringFieldUpdateOperationsInput | string
@@ -34191,7 +34315,8 @@ export namespace Prisma {
     description: string
     type: string
     priority: string
-    status?: string
+    status?: string | null
+    satisfactionLevel?: number | null
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34625,7 +34750,8 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     priority?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    satisfactionLevel?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: userUpdateOneRequiredWithoutFeedbacksNestedInput
@@ -34638,7 +34764,8 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     priority?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    satisfactionLevel?: NullableIntFieldUpdateOperationsInput | number | null
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34651,7 +34778,8 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     priority?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    satisfactionLevel?: NullableIntFieldUpdateOperationsInput | number | null
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35185,6 +35313,7 @@ export namespace Prisma {
   export type FeedbackCommentCreateManyFeedbackInput = {
     id?: string
     text: string
+    isSystem?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     userId: string
@@ -35193,6 +35322,7 @@ export namespace Prisma {
   export type FeedbackCommentUpdateWithoutFeedbackInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    isSystem?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: userUpdateOneRequiredWithoutFeedbackCommentsNestedInput
@@ -35201,6 +35331,7 @@ export namespace Prisma {
   export type FeedbackCommentUncheckedUpdateWithoutFeedbackInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    isSystem?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: StringFieldUpdateOperationsInput | string
@@ -35209,6 +35340,7 @@ export namespace Prisma {
   export type FeedbackCommentUncheckedUpdateManyWithoutFeedbackInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    isSystem?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: StringFieldUpdateOperationsInput | string

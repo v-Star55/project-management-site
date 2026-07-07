@@ -1,67 +1,23 @@
 "use client"
 
-import React, { useState } from "react"
-import { UsersIcon, UserPlusIcon, MoreVerticalIcon, SearchIcon, FilterIcon, BriefcaseIcon, CheckIcon, PlusIcon, ShieldIcon, CrownIcon, FolderOpenIcon, UserCheckIcon, SparklesIcon, CircleDotIcon, MailIcon, CalendarIcon } from "lucide-react"
+import { useState } from "react";
+import { UsersIcon, UserPlusIcon, MoreVerticalIcon, SearchIcon, BriefcaseIcon, PlusIcon, FolderOpenIcon, UserCheckIcon, SparklesIcon, CircleDotIcon, CalendarIcon, ClockIcon, RefreshCwIcon, BanIcon } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import axios from "axios"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
 import { Spinner } from "@/components/ui/spinner"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table"
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet"
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import InviteMemberForm from "@/components/dashboard/invite-member-form"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 interface TeamMember {
   id: string
@@ -77,6 +33,8 @@ interface TeamMember {
   imageUrl?: string | null
   assignedTicketsCount?: number
   completedTicketsCount?: number
+  isActive?: boolean
+  isPending?: boolean
 }
 
 export default function TeamsView() {
@@ -95,6 +53,18 @@ export default function TeamsView() {
   const [isAssignToProjectOpen, setIsAssignToProjectOpen] = useState<boolean>(false)
   const [unassignedTargetMember, setUnassignedTargetMember] = useState<TeamMember | null>(null)
   const [selectedSingleProjectId, setSelectedSingleProjectId] = useState<string>("")
+
+  // Role filter state
+  const [roleFilter, setRoleFilter] = useState<string>("all")
+
+  // Change Role dialog state
+  const [isChangeRoleOpen, setIsChangeRoleOpen] = useState<boolean>(false)
+  const [changeRoleTarget, setChangeRoleTarget] = useState<TeamMember | null>(null)
+  const [selectedNewRole, setSelectedNewRole] = useState<string>("")
+
+  // Deactivate/Reactivate confirmation state
+  const [isToggleActiveOpen, setIsToggleActiveOpen] = useState<boolean>(false)
+  const [toggleActiveTarget, setToggleActiveTarget] = useState<TeamMember | null>(null)
   
   const { user } = useSelector((state: RootState) => state.user)
   const companyId = user?.company?.id
@@ -133,8 +103,10 @@ export default function TeamsView() {
 
   // Filter teamList: for non-owners, only show members in their projects
   const rawTeamList: TeamMember[] = data?.teams || []
-  const teamList = rawTeamList.filter((member: TeamMember) => {
+  const activeTeamBase = rawTeamList.filter((member: TeamMember) => {
     if (member.role === "Client") return false
+    if (member.isActive === false) return false // Exclude deactivated
+    if (member.isPending === true) return false // Exclude pending invites
     if (isOwner) return true
     
     // For non-owners (Admin, Member, QA, etc.): only show members who share a project with them, plus themselves
@@ -142,12 +114,30 @@ export default function TeamsView() {
     return member.projects?.some((p: any) => adminManagedProjectIds.includes(p.id))
   })
 
+  // Apply role filter pills
+  const teamList = activeTeamBase.filter((member) => {
+    if (roleFilter === "all") return true
+    return member.role.toLowerCase() === roleFilter
+  })
+
+  // Pending invitations: isPending === true
+  const pendingMembers = rawTeamList.filter(member => {
+    if (member.role === "Client") return false
+    return member.isPending === true
+  })
+
+  // Inactive/deactivated members
+  const inactiveMembers = rawTeamList.filter(member => {
+    if (member.role === "Client") return false
+    return member.isActive === false
+  })
+
   // Stats Calculations
-  const totalCompanyMembers = rawTeamList.filter(m => m.role !== "Client").length
+  const totalCompanyMembers = rawTeamList.filter(m => m.role !== "Client" && m.isActive !== false).length
 
   const totalMembersUnderMe = isOwner
-    ? rawTeamList.filter(m => m.role !== "Client" && m.id !== user?.id).length
-    : rawTeamList.filter(m => m.role !== "Client" && m.id !== user?.id && m.projects?.some(p => adminManagedProjectIds.includes(p.id))).length
+    ? rawTeamList.filter(m => m.role !== "Client" && m.id !== user?.id && m.isActive !== false).length
+    : rawTeamList.filter(m => m.role !== "Client" && m.id !== user?.id && m.isActive !== false && m.projects?.some(p => adminManagedProjectIds.includes(p.id))).length
 
   const totalClientsCount = isOwner
     ? rawTeamList.filter(m => m.role === "Client").length
@@ -157,12 +147,22 @@ export default function TeamsView() {
   const unassignedMembers = rawTeamList.filter(member => {
     if (member.role === "Owner") return false
     if (member.role === "Client") return false
+    if (member.isActive === false) return false
+    if (member.isPending === true) return false
     return !member.projects || member.projects.length === 0
   })
 
-  const onlineCount = teamList.filter(m => m.status === "Online").length
-  const adminCount = teamList.filter(m => m.role === "Admin" || m.role === "Owner").length
+  const onlineCount = activeTeamBase.filter(m => m.status === "Online").length
+  const adminCount = activeTeamBase.filter(m => m.role === "Admin" || m.role === "Owner").length
   const totalProjectsManaged = allowedProjects.length
+
+  // Role pill counts (from activeTeamBase, not filtered)
+  const roleFilterCounts = {
+    all: activeTeamBase.length,
+    admin: activeTeamBase.filter(m => m.role === "Admin").length,
+    member: activeTeamBase.filter(m => m.role === "Member").length,
+    qa: activeTeamBase.filter(m => m.role.toLowerCase() === "qa").length,
+  }
 
   // Mutations
   const assignProjectsMutation = useMutation({
@@ -198,8 +198,57 @@ export default function TeamsView() {
     }
   })
 
+  // Change Role mutation
+  const changeRoleMutation = useMutation({
+    mutationFn: async ({ memberId, newRole }: { memberId: string; newRole: string }) => {
+      const response = await axios.patch(`/api/teams/${companyId}`, { memberId, newRole })
+      return response.data
+    },
+    onSuccess: (data) => {
+      toast.success(data.message || "Role changed successfully")
+      queryClient.invalidateQueries({ queryKey: ["teams", companyId] })
+      setIsChangeRoleOpen(false)
+      setChangeRoleTarget(null)
+      setSelectedNewRole("")
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.error || "Failed to change role")
+    }
+  })
+
+  // Toggle Active mutation
+  const toggleActiveMutation = useMutation({
+    mutationFn: async (memberId: string) => {
+      const response = await axios.patch(`/api/teams/${companyId}`, { memberId, toggleActive: true })
+      return response.data
+    },
+    onSuccess: (data) => {
+      toast.success(data.message || "Member status updated")
+      queryClient.invalidateQueries({ queryKey: ["teams", companyId] })
+      setIsToggleActiveOpen(false)
+      setToggleActiveTarget(null)
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.error || "Failed to update member status")
+    }
+  })
+
   const canRemove = (memberId: string, memberRole: string) => {
     if (memberId === user?.id) return false
+    if (isOwner) return true
+    return false
+  }
+
+  const canChangeRole = (memberId: string, memberRole: string) => {
+    if (memberId === user?.id) return false
+    if (memberRole === "Owner") return false
+    if (isOwner) return true
+    return false
+  }
+
+  const canToggleActive = (memberId: string, memberRole: string) => {
+    if (memberId === user?.id) return false
+    if (memberRole === "Owner") return false
     if (isOwner) return true
     return false
   }
@@ -351,9 +400,22 @@ export default function TeamsView() {
             >
               Unassigned ({unassignedMembers.length})
             </TabsTrigger>
+            {(isOwner || isSystemAdmin) && (
+              <TabsTrigger 
+                value="pending" 
+                className="rounded-lg px-4 py-1.5 text-xs font-semibold data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all cursor-pointer"
+              >
+                Pending ({pendingMembers.length})
+              </TabsTrigger>
+            )}
+            <TabsTrigger 
+              value="inactive" 
+              className="rounded-lg px-4 py-1.5 text-xs font-semibold data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all cursor-pointer"
+            >
+              Inactive ({inactiveMembers.length})
+            </TabsTrigger>
           </TabsList>
 
-          {/* Search & Project Filters */}
           <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
             <div className="relative flex-1 sm:w-64">
               <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
@@ -388,6 +450,34 @@ export default function TeamsView() {
 
         {/* Tab 1: All Team Members */}
         <TabsContent value="all-members" className="outline-none space-y-4">
+          {/* Role Filter Pills */}
+          <div className="flex flex-wrap items-center gap-2 pb-2">
+            <span className="text-xs font-semibold text-muted-foreground mr-1">Filter by Role:</span>
+            {[
+              { id: "all", label: "All Roles", count: roleFilterCounts.all },
+              { id: "admin", label: "Admins", count: roleFilterCounts.admin },
+              { id: "member", label: "Members", count: roleFilterCounts.member },
+              { id: "qa", label: "QA", count: roleFilterCounts.qa },
+            ].map((pill) => (
+              <button
+                key={pill.id}
+                onClick={() => setRoleFilter(pill.id)}
+                className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold transition-all border cursor-pointer ${
+                  roleFilter === pill.id
+                    ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                    : "bg-muted/30 hover:bg-muted/60 border-border/40 text-muted-foreground"
+                }`}
+              >
+                {pill.label}
+                <span className={`ml-1.5 px-1 py-0.2 text-[10px] rounded-full font-bold ${
+                  roleFilter === pill.id ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground border border-border/20"
+                }`}>
+                  {pill.count}
+                </span>
+              </button>
+            ))}
+          </div>
+
           {hasResults ? (
             <div className="bg-card border border-border/50 rounded-2xl overflow-hidden shadow-sm">
               <Table>
@@ -511,6 +601,29 @@ export default function TeamsView() {
                                 Assign Projects
                               </DropdownMenuItem>
                             )}
+                            {canChangeRole(member.id, member.role) && (
+                              <DropdownMenuItem
+                                className="cursor-pointer font-semibold text-foreground/80"
+                                onClick={() => {
+                                  setChangeRoleTarget(member)
+                                  setSelectedNewRole(member.role.toLowerCase())
+                                  setIsChangeRoleOpen(true)
+                                }}
+                              >
+                                Change Role
+                              </DropdownMenuItem>
+                            )}
+                            {canToggleActive(member.id, member.role) && (
+                              <DropdownMenuItem
+                                className="text-amber-600 dark:text-amber-500 font-semibold cursor-pointer"
+                                onClick={() => {
+                                  setToggleActiveTarget(member)
+                                  setIsToggleActiveOpen(true)
+                                }}
+                              >
+                                Deactivate Member
+                              </DropdownMenuItem>
+                            )}
                             {canRemove(member.id, member.role) && (
                               <DropdownMenuItem
                                 className="text-destructive font-semibold cursor-pointer"
@@ -598,6 +711,137 @@ export default function TeamsView() {
               <SparklesIcon className="size-10 text-primary/60 mb-3 animate-pulse" />
               <p className="font-semibold text-foreground">All members are assigned</p>
               <p className="text-sm text-muted-foreground mt-1">Every active user is assigned to at least one project.</p>
+            </div>
+          )}
+        </TabsContent>
+
+        {(isOwner || isSystemAdmin) && (
+          <TabsContent value="pending" className="outline-none space-y-4">
+            {pendingMembers.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {pendingMembers.map((member) => (
+                  <div
+                    key={member.id}
+                    className="p-4 bg-card border border-border/50 rounded-2xl flex flex-col justify-between gap-4 transition-all shadow-xs relative overflow-hidden"
+                  >
+                    {/* Subtle top indicator for pending */}
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-amber-500/30" />
+                    
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="size-11 border border-border bg-amber-500/5">
+                          <AvatarFallback className="text-xs font-semibold text-amber-600 dark:text-amber-500">
+                            {member.initials}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0">
+                          <span className="font-bold text-sm text-foreground block truncate">{member.name}</span>
+                          {member.designation && (
+                            <span className="text-[11px] font-semibold text-muted-foreground block truncate mt-0.5">
+                              {member.designation}
+                            </span>
+                          )}
+                          <span className="text-xs text-muted-foreground block truncate mt-0.5">{member.email}</span>
+                        </div>
+                      </div>
+                      <span className="px-2 py-0.5 text-[9px] font-extrabold rounded-md border border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-500 flex items-center gap-1 shrink-0">
+                        <ClockIcon className="size-2.5 animate-pulse" />
+                        Pending
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between border-t border-border/40 pt-3 mt-1">
+                      <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                        <CalendarIcon className="size-3" />
+                        Invited {formatDate(member.createdAt)}
+                      </span>
+
+                      {isOwner && (
+                        <button
+                          onClick={() => handleRemoveMember(member.id, member.name)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 font-bold rounded-xl text-xs transition-all cursor-pointer"
+                        >
+                          Revoke Invite
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-16 flex flex-col items-center justify-center bg-card/40 rounded-2xl border border-dashed border-border/80 text-center">
+                <ClockIcon className="size-10 text-muted-foreground/60 mb-3" />
+                <p className="font-semibold text-foreground">No pending invitations</p>
+                <p className="text-sm text-muted-foreground mt-1">All invited team members have completed their profile setup.</p>
+              </div>
+            )}
+          </TabsContent>
+        )}
+
+        {/* Tab 4: Inactive Members */}
+        <TabsContent value="inactive" className="outline-none space-y-4">
+          {inactiveMembers.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {inactiveMembers.map((member) => (
+                <div
+                  key={member.id}
+                  className="p-4 bg-card/50 border border-border/50 rounded-2xl flex flex-col justify-between gap-4 opacity-75 hover:opacity-100 transition-all shadow-xs relative overflow-hidden"
+                >
+                  {/* Subtle top indicator for inactive */}
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-stone-500/30" />
+
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="size-11 border border-border filter grayscale">
+                        {member.imageUrl ? (
+                          <AvatarImage src={member.imageUrl} alt={member.name} />
+                        ) : null}
+                        <AvatarFallback className="text-xs font-semibold bg-muted text-muted-foreground">
+                          {member.initials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <span className="font-bold text-sm text-foreground block truncate line-through">{member.name}</span>
+                        {member.designation && (
+                          <span className="text-[11px] font-semibold text-muted-foreground block truncate mt-0.5">
+                            {member.designation}
+                          </span>
+                        )}
+                        <span className="text-xs text-muted-foreground block truncate mt-0.5">{member.email}</span>
+                      </div>
+                    </div>
+                    <span className="px-2 py-0.5 text-[9px] font-extrabold rounded-md border border-stone-500/20 bg-stone-500/10 text-stone-500 dark:text-stone-400 flex items-center gap-1 shrink-0">
+                      <BanIcon className="size-2.5" />
+                      Deactivated
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between border-t border-border/40 pt-3 mt-1">
+                    <span className="text-[10px] text-muted-foreground">
+                      Previous Role: <strong className="text-foreground">{member.role}</strong>
+                    </span>
+
+                    {isOwner && (
+                      <button
+                        onClick={() => {
+                          setToggleActiveTarget(member)
+                          setIsToggleActiveOpen(true)
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 font-bold rounded-xl text-xs transition-all cursor-pointer"
+                      >
+                        <RefreshCwIcon className="size-3" />
+                        Reactivate
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-16 flex flex-col items-center justify-center bg-card/40 rounded-2xl border border-dashed border-border/80 text-center">
+              <BanIcon className="size-10 text-muted-foreground/60 mb-3" />
+              <p className="font-semibold text-foreground">No deactivated members</p>
+              <p className="text-sm text-muted-foreground mt-1">All company accounts are active and functioning.</p>
             </div>
           )}
         </TabsContent>
@@ -769,6 +1013,96 @@ export default function TeamsView() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Change Role Dialog */}
+      <Dialog open={isChangeRoleOpen} onOpenChange={setIsChangeRoleOpen}>
+        <DialogContent className="bg-popover border border-border max-w-sm rounded-3xl p-6">
+          <DialogHeader className="pb-3 border-b border-border/40">
+            <DialogTitle className="text-foreground font-bold text-base">Change Role</DialogTitle>
+            <DialogDescription className="text-muted-foreground text-xs">
+              Change the platform role for <strong className="text-foreground">{changeRoleTarget?.name}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-3">
+            <label className="text-xs font-medium text-muted-foreground">Select New Role</label>
+            <Select
+              value={selectedNewRole}
+              onValueChange={setSelectedNewRole}
+            >
+              <SelectTrigger className="w-full bg-muted/30 border border-border/50 text-foreground cursor-pointer rounded-xl h-10">
+                <SelectValue placeholder="Choose a role" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border border-border text-popover-foreground rounded-xl">
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="member">Member</SelectItem>
+                <SelectItem value="qa">QA</SelectItem>
+                <SelectItem value="client">Client</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <DialogFooter className="pt-3 border-t border-border/40 flex items-center justify-end gap-2">
+            <button
+              onClick={() => {
+                setIsChangeRoleOpen(false)
+                setChangeRoleTarget(null)
+                setSelectedNewRole("")
+              }}
+              className="px-4 py-2 border border-border rounded-xl text-xs font-medium text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              disabled={changeRoleMutation.isPending}
+              onClick={() => {
+                if (!changeRoleTarget || !selectedNewRole) return
+                changeRoleMutation.mutate({
+                  memberId: changeRoleTarget.id,
+                  newRole: selectedNewRole
+                })
+              }}
+              className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/95 font-medium rounded-xl text-xs transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              {changeRoleMutation.isPending ? "Saving..." : "Save"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Toggle Active AlertDialog (Deactivate / Reactivate) */}
+      <AlertDialog open={isToggleActiveOpen} onOpenChange={setIsToggleActiveOpen}>
+        <AlertDialogContent className="bg-popover border border-border max-w-sm rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-foreground">
+              {toggleActiveTarget?.isActive ? "Deactivate Member?" : "Reactivate Member?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground text-xs">
+              {toggleActiveTarget?.isActive
+                ? `Are you sure you want to deactivate ${toggleActiveTarget?.name}? They will lose access immediately, but their assignments and history will remain.`
+                : `Are you sure you want to reactivate ${toggleActiveTarget?.name}? They will regain full access immediately.`
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 sm:gap-0 mt-4">
+            <AlertDialogCancel className="rounded-xl border-border/50 text-xs">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className={`rounded-xl text-xs ${
+                toggleActiveTarget?.isActive
+                  ? "bg-amber-600 hover:bg-amber-750 text-white"
+                  : "bg-primary hover:bg-primary/90 text-primary-foreground"
+              }`}
+              onClick={() => {
+                if (toggleActiveTarget) {
+                  toggleActiveMutation.mutate(toggleActiveTarget.id)
+                }
+              }}
+            >
+              {toggleActiveTarget?.isActive ? "Deactivate" : "Reactivate"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
     </div>
   )

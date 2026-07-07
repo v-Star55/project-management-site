@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useState, useMemo } from "react"
-import { Users, Search, Clock, Briefcase } from "lucide-react"
+import { useState, useMemo } from "react";
+import { Users, Search, Clock } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { AdminTeamWorkload } from "./types"

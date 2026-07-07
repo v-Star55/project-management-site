@@ -1,20 +1,8 @@
-import React from "react"
-import {
-  FilterIcon,
-  SearchIcon,
-  MessageSquareIcon,
-  User2Icon,
-  Loader2Icon,
-} from "lucide-react"
+
+import { FilterIcon, SearchIcon, MessageSquareIcon, Loader2Icon } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatDistanceToNow } from "date-fns"
 import { PROBLEM_TYPES, Feedback, Project, getStatusBadge } from "./types"
 
@@ -32,6 +20,11 @@ interface FeedbackListProps {
   onSelectFeedback: (item: Feedback) => void
   isAdminOrOwner: boolean
   isLoading: boolean
+  activeTab: "active" | "resolved" | "appreciation"
+  onActiveTabChange: (tab: "active" | "resolved" | "appreciation") => void
+  feedbacks: Feedback[]
+  ratingFilter: "all" | "high" | "low"
+  onRatingFilterChange: (filter: "all" | "high" | "low") => void
 }
 
 export function FeedbackList({
@@ -48,9 +41,51 @@ export function FeedbackList({
   onSelectFeedback,
   isAdminOrOwner,
   isLoading,
+  activeTab,
+  onActiveTabChange,
+  feedbacks,
+  ratingFilter,
+  onRatingFilterChange,
 }: FeedbackListProps) {
   return (
     <div className="flex flex-col h-full">
+      {/* Queue Segmented Tabs */}
+      <div className="flex border border-border/40 mb-6 select-none bg-muted/15 p-1 rounded-2xl gap-1 shrink-0">
+        <button
+          type="button"
+          onClick={() => onActiveTabChange("active")}
+          className={`flex-grow py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all duration-200 cursor-pointer text-center ${
+            activeTab === "active"
+              ? "bg-card text-foreground shadow-xs border border-border/20"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/10 border border-transparent"
+          }`}
+        >
+          Active Requests ({feedbacks.filter(f => f.type !== "appreciation" && (f.status === "pending" || f.status === "in_progress")).length})
+        </button>
+        <button
+          type="button"
+          onClick={() => onActiveTabChange("resolved")}
+          className={`flex-grow py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all duration-200 cursor-pointer text-center ${
+            activeTab === "resolved"
+              ? "bg-card text-foreground shadow-xs border border-border/20"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/10 border border-transparent"
+          }`}
+        >
+          Resolved Archive ({feedbacks.filter(f => f.type !== "appreciation" && (f.status === "resolved" || f.status === "rejected")).length})
+        </button>
+        <button
+          type="button"
+          onClick={() => onActiveTabChange("appreciation")}
+          className={`flex-grow py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all duration-200 cursor-pointer text-center ${
+            activeTab === "appreciation"
+              ? "bg-card text-foreground shadow-xs border border-pink-500/25 text-pink-500"
+              : "text-muted-foreground hover:text-foreground hover:bg-pink-500/5 border border-transparent"
+          }`}
+        >
+          Appreciations ({feedbacks.filter(f => f.type === "appreciation").length})
+        </button>
+      </div>
+
       {/* Filtering Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 border-b border-border/40 pb-5">
         <div className="flex items-center gap-2 select-none">
@@ -72,31 +107,82 @@ export function FeedbackList({
           </div>
 
           {/* Type Filter */}
-          <Select value={selectedTypeFilter} onValueChange={onTypeFilterChange}>
-            <SelectTrigger className="w-[120px] h-8 text-xs rounded-xl bg-muted/20 border-border">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="all" className="text-xs rounded-lg cursor-pointer">All Types</SelectItem>
-              {PROBLEM_TYPES.map((t) => (
-                <SelectItem key={t.value} value={t.value} className="text-xs rounded-lg cursor-pointer">{t.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {activeTab !== "appreciation" && (
+            <Select value={selectedTypeFilter} onValueChange={onTypeFilterChange}>
+              <SelectTrigger className="w-[120px] h-8 text-xs rounded-xl bg-muted/20 border-border">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl">
+                <SelectItem value="all" className="text-xs rounded-lg cursor-pointer">All Types</SelectItem>
+                {PROBLEM_TYPES.map((t) => (
+                  <SelectItem key={t.value} value={t.value} className="text-xs rounded-lg cursor-pointer">{t.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
           {/* Status Filter */}
-          <Select value={selectedStatusFilter} onValueChange={onStatusFilterChange}>
-            <SelectTrigger className="w-[120px] h-8 text-xs rounded-xl bg-muted/20 border-border">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="all" className="text-xs rounded-lg cursor-pointer">All Statuses</SelectItem>
-              <SelectItem value="pending" className="text-xs rounded-lg cursor-pointer">Pending</SelectItem>
-              <SelectItem value="in_progress" className="text-xs rounded-lg cursor-pointer">In Progress</SelectItem>
-              <SelectItem value="resolved" className="text-xs rounded-lg cursor-pointer">Resolved</SelectItem>
-              <SelectItem value="rejected" className="text-xs rounded-lg cursor-pointer">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
+          {activeTab !== "appreciation" && (
+            <Select value={selectedStatusFilter} onValueChange={onStatusFilterChange}>
+              <SelectTrigger className="w-[120px] h-8 text-xs rounded-xl bg-muted/20 border-border">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl">
+                {activeTab === "active" ? (
+                  <>
+                    <SelectItem value="all" className="text-xs rounded-lg cursor-pointer">All Active</SelectItem>
+                    <SelectItem value="pending" className="text-xs rounded-lg cursor-pointer">Pending</SelectItem>
+                    <SelectItem value="in_progress" className="text-xs rounded-lg cursor-pointer">In Progress</SelectItem>
+                  </>
+                ) : (
+                  <>
+                    <SelectItem value="all" className="text-xs rounded-lg cursor-pointer">All Resolved</SelectItem>
+                    <SelectItem value="resolved" className="text-xs rounded-lg cursor-pointer">Resolved</SelectItem>
+                    <SelectItem value="rejected" className="text-xs rounded-lg cursor-pointer">Rejected</SelectItem>
+                  </>
+                )}
+              </SelectContent>
+            </Select>
+          )}
+
+          {/* Rating Filters (Only for Appreciation Tab) */}
+          {activeTab === "appreciation" && (
+            <div className="flex border border-pink-500/10 select-none bg-pink-500/5 p-0.5 rounded-xl gap-0.5 shrink-0 h-8 items-center">
+              <button
+                type="button"
+                onClick={() => onRatingFilterChange("all")}
+                className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all duration-200 cursor-pointer text-center ${
+                  ratingFilter === "all"
+                    ? "bg-card text-pink-500 shadow-xs border border-pink-500/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-pink-500/5 border border-transparent"
+                }`}
+              >
+                All
+              </button>
+              <button
+                type="button"
+                onClick={() => onRatingFilterChange("high")}
+                className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all duration-200 cursor-pointer text-center ${
+                  ratingFilter === "high"
+                    ? "bg-card text-emerald-500 shadow-xs border border-emerald-500/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-emerald-500/5 border border-transparent"
+                }`}
+              >
+                9+ Rating
+              </button>
+              <button
+                type="button"
+                onClick={() => onRatingFilterChange("low")}
+                className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all duration-200 cursor-pointer text-center ${
+                  ratingFilter === "low"
+                    ? "bg-card text-amber-500 shadow-xs border border-pink-500/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-pink-500/5 border border-transparent"
+                }`}
+              >
+                Under 7
+              </button>
+            </div>
+          )}
 
           {/* Project Filter */}
           <Select value={selectedProjectFilter} onValueChange={onProjectFilterChange}>
@@ -113,6 +199,8 @@ export function FeedbackList({
           </Select>
         </div>
       </div>
+
+
 
       {/* Main List Area */}
       {isLoading ? (
@@ -138,7 +226,11 @@ export function FeedbackList({
             <div
               key={item.id}
               onClick={() => onSelectFeedback(item)}
-              className="group flex flex-col gap-3 p-4 rounded-2xl border border-border/40 bg-muted/5 hover:bg-card hover:border-primary/25 hover:shadow-xs transition-all duration-200 cursor-pointer"
+              className={`group flex flex-col gap-3 p-4 rounded-2xl border transition-all duration-200 cursor-pointer ${
+                item.type === "appreciation"
+                  ? "border-pink-500/20 bg-pink-500/5 hover:bg-pink-500/10 hover:border-pink-500/40 hover:shadow-xs"
+                  : "border-border/40 bg-muted/5 hover:bg-card hover:border-primary/25 hover:shadow-xs"
+              }`}
             >
               {/* Top Row: User & Date & Status */}
               <div className="flex items-center justify-between gap-3">
@@ -180,9 +272,18 @@ export function FeedbackList({
               {/* Bottom Metadata row */}
               <div className="flex items-center justify-between gap-3 border-t border-border/20 pt-2.5 mt-0.5 text-[10px] text-muted-foreground select-none">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-foreground bg-muted px-1.5 py-0.5 rounded uppercase text-[8px] tracking-wide">
+                  <span className={`font-bold uppercase text-[8px] tracking-wide px-1.5 py-0.5 rounded ${
+                    item.type === "appreciation" 
+                      ? "text-pink-600 bg-pink-500/10 border border-pink-500/20" 
+                      : "text-foreground bg-muted"
+                  }`}>
                     {item.type}
                   </span>
+                  {item.type === "appreciation" && item.satisfactionLevel && (
+                    <span className="font-bold text-pink-500 bg-pink-500/10 px-1.5 py-0.5 rounded text-[8.5px] border border-pink-500/25 flex items-center gap-1">
+                      ❤️ {item.satisfactionLevel}/10
+                    </span>
+                  )}
                   {item.project && (
                     <>
                       <span>in</span>

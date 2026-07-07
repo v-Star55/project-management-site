@@ -69,32 +69,48 @@ export async function PATCH(
         }
 
         const body = await req.json();
-        const { status, subject, description, type, priority, projectId } = body;
+        const { status, subject, description, type, priority, projectId, satisfactionLevel } = body;
 
         const isCreator = feedback.userId === dbUser.id;
         const isAdminOrOwner = dbUser.role === "owner" || dbUser.role === "admin";
 
         const updateData: any = {};
+        const finalType = type !== undefined ? type : feedback.type;
 
         // 1. Status update (Admins & Owners only)
         if (status !== undefined) {
             if (!isAdminOrOwner) {
                 return NextResponse.json({ error: "Only admins or owners can update feedback status" }, { status: 403 });
             }
-            const allowedStatuses = ["pending", "in_progress", "resolved", "rejected"];
+            if (finalType === "appreciation" && status !== null) {
+                return NextResponse.json({ error: "Appreciations cannot have a status" }, { status: 400 });
+            }
+            const allowedStatuses = ["pending", "in_progress", "resolved", "rejected", null];
             if (!allowedStatuses.includes(status)) {
                 return NextResponse.json({ error: "Invalid status value" }, { status: 400 });
             }
             updateData.status = status;
+            if (status !== "resolved" && finalType !== "appreciation") {
+                updateData.satisfactionLevel = null;
+            }
         }
 
-        // 2. Creator updates (only if status is "pending")
-        if (subject !== undefined || description !== undefined || type !== undefined || priority !== undefined || projectId !== undefined) {
+        // 2. Creator updates (only if status is "pending" or null, or only satisfactionLevel for "resolved" feedback)
+        if (subject !== undefined || description !== undefined || type !== undefined || priority !== undefined || projectId !== undefined || satisfactionLevel !== undefined) {
             if (!isCreator) {
                 return NextResponse.json({ error: "Only the creator can edit this feedback" }, { status: 403 });
             }
-            if (feedback.status !== "pending") {
-                return NextResponse.json({ error: "Feedback cannot be edited once it is in progress or resolved" }, { status: 400 });
+            if (feedback.status !== "pending" && feedback.status !== null) {
+                const isChangingOtherFields = 
+                    (subject !== undefined && subject.trim() !== feedback.subject) ||
+                    (description !== undefined && description.trim() !== feedback.description) ||
+                    (type !== undefined && type !== feedback.type) ||
+                    (priority !== undefined && priority !== feedback.priority) ||
+                    (projectId !== undefined && (projectId === "none" ? null : projectId) !== feedback.projectId);
+
+                if (isChangingOtherFields || feedback.status !== "resolved") {
+                    return NextResponse.json({ error: "Feedback cannot be edited once it is in progress or resolved" }, { status: 400 });
+                }
             }
 
             if (subject !== undefined) {
@@ -105,7 +121,14 @@ export async function PATCH(
                 if (!description.trim()) return NextResponse.json({ error: "Description cannot be empty" }, { status: 400 });
                 updateData.description = description.trim();
             }
-            if (type !== undefined) updateData.type = type;
+            if (type !== undefined) {
+                updateData.type = type;
+                if (type === "appreciation") {
+                    updateData.status = null;
+                } else if (feedback.status === null) {
+                    updateData.status = "pending";
+                }
+            }
             if (priority !== undefined) updateData.priority = priority;
             if (projectId !== undefined) {
                 if (projectId) {
@@ -116,7 +139,26 @@ export async function PATCH(
                 }
                 updateData.projectId = projectId || null;
             }
+
+            if (finalType === "appreciation" || feedback.status === "resolved") {
+                const sl = satisfactionLevel !== undefined ? satisfactionLevel : (feedback as any).satisfactionLevel;
+                if (finalType === "appreciation" && (sl === undefined || sl === null || sl === "")) {
+                    return NextResponse.json({ error: "Satisfaction level is required for appreciations" }, { status: 400 });
+                }
+                if (sl !== undefined && sl !== null && sl !== "") {
+                    const lvl = parseInt(String(sl), 10);
+                    if (isNaN(lvl) || lvl < 1 || lvl > 10) {
+                        return NextResponse.json({ error: "Satisfaction level must be an integer between 1 and 10" }, { status: 400 });
+                    }
+                    updateData.satisfactionLevel = lvl;
+                }
+            } else {
+                updateData.satisfactionLevel = null;
+            }
         }
+
+        const oldStatus = feedback.status;
+        const oldSatisfactionLevel = feedback.satisfactionLevel;
 
         const updatedFeedback = await prisma.feedback.update({
             where: { id: feedbackId },
@@ -139,6 +181,35 @@ export async function PATCH(
                 },
             },
         });
+
+        // Triage Timeline / Audit log entries
+        const newStatus = updatedFeedback.status;
+        const newSatisfactionLevel = updatedFeedback.satisfactionLevel;
+
+        if (newStatus !== oldStatus) {
+            const statusLabel = newStatus === null 
+                ? "removed triage status" 
+                : `marked triage status as ${newStatus.replace('_', ' ')}`;
+            await prisma.feedbackComment.create({
+                data: {
+                    text: statusLabel,
+                    isSystem: true,
+                    feedbackId,
+                    userId: dbUser.id,
+                }
+            });
+        }
+
+        if (newSatisfactionLevel !== oldSatisfactionLevel && newSatisfactionLevel !== null) {
+            await prisma.feedbackComment.create({
+                data: {
+                    text: `rated this resolution satisfaction ${newSatisfactionLevel}/10`,
+                    isSystem: true,
+                    feedbackId,
+                    userId: dbUser.id,
+                }
+            });
+        }
 
         return NextResponse.json({ feedback: updatedFeedback });
     } catch (error) {

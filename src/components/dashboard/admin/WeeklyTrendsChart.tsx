@@ -1,17 +1,7 @@
 "use client"
 
-import React from "react"
-import {
-  ComposedChart,
-  Line,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend
-} from "recharts"
+
+import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { AdminWeeklyPerformance } from "./types"
 
 const ChartTooltip = ({ active, payload, label }: any) => {

@@ -1,85 +1,21 @@
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
-import {
-  UsersIcon,
-  Trash2Icon,
-  Search,
-  Mail,
-  Briefcase,
-  X,
-  ChevronRight,
-  UserPlusIcon,
-  CheckIcon,
-  ShieldAlertIcon,
-  Loader2Icon,
-  FilterIcon,
-  Trophy,
-  Crown,
-  Sparkles,
-  Clock,
-  TrendingUp,
-  ThumbsUp,
-  Award
-} from "lucide-react"
+import { UsersIcon, Trash2Icon, Search, Mail, Briefcase, X, ChevronRight, UserPlusIcon, CheckIcon, ShieldAlertIcon, Loader2Icon, FilterIcon, Trophy, Crown, Sparkles, Clock, TrendingUp, ThumbsUp, Award } from "lucide-react";
 import { ProjectDetail, getInitials } from "./utils"
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import axios from "axios"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select"
-import {
-  Avatar,
-  AvatarImage,
-  AvatarFallback
-} from "@/components/ui/avatar"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog"
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-  SheetFooter,
-} from "@/components/ui/sheet"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 
 interface ProjectTeamProps {
   projectData: ProjectDetail
@@ -1128,7 +1064,7 @@ export default function ProjectTeam({ projectData, userId, companyId, userRole }
                           )}
                         </TableCell>
                         {canManageTeam && (
-                          <TableCell className="py-4 pr-6 text-right" onClick={(e) => e.stopPropagation()}>
+                          <TableCell className="py-4 pr-6 text-right" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                             {canRemoveMember(member) && (
                               <button
                                 onClick={() => {

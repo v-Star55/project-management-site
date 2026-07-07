@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/helpers/permission";
 
+export const dynamic = "force-dynamic";
+
 // GET all notes for user
 export async function GET(req: NextRequest) {
     const user = await requireRole(["owner", "admin", "member", "client"], req);
@@ -27,7 +29,9 @@ export async function GET(req: NextRequest) {
             },
         });
 
-        return NextResponse.json({ notes });
+        return NextResponse.json({ notes }, {
+            headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+        });
     } catch (error) {
         console.error("Failed to fetch notes:", error);
         return NextResponse.json({ error: "Failed to fetch notes" }, { status: 500 });

@@ -11,17 +11,8 @@
  * visual consistency across the dashboard.
  */
 
-import React from "react"
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Cell,
-  ResponsiveContainer,
-} from "recharts"
+
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer } from "recharts";
 import { WeeklyEntry } from "./types"
 
 // ─── Custom tooltip (shared style) ───────────────────────────────────────────

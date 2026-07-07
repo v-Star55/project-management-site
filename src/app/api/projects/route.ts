@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/helpers/permission";
 import { $Enums } from "@/generated/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
     const user = await requireRole(["owner", "admin", "member", "qa", "client"], req);
 
@@ -71,7 +73,9 @@ export async function GET(req: NextRequest) {
             });
         }
 
-        return NextResponse.json({ projects });
+        return NextResponse.json({ projects }, {
+            headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+        });
     } catch (error) {
         console.error("Error fetching projects:", error);
         return NextResponse.json({ error: "Failed to fetch projects" }, { status: 500 });

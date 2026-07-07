@@ -6,23 +6,16 @@ import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { TerminalSquareIcon, BotIcon, BookOpenIcon, Settings2Icon, LifeBuoyIcon, SendIcon, FrameIcon, PieChartIcon, MapIcon, TerminalIcon, ChevronRight, User2Icon, ClockIcon } from "lucide-react"
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { TerminalSquareIcon, BookOpenIcon, Settings2Icon, LifeBuoyIcon, SendIcon, FrameIcon, PieChartIcon, MapIcon, TerminalIcon, User2Icon, ClockIcon } from "lucide-react";
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
-import { Button } from "./ui/button"
-import Link from "next/link"
+
+
 import { usePathname } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
+import { OwnerNote } from "./dashboard/owner/types"
 
 const data = {
 
@@ -230,6 +223,20 @@ export function AppSidebar({
     icon: <FrameIcon />,
   }))
 
+  // Fetch pending notes count for the sidebar badge (owner only)
+  const { data: notesData } = useQuery<{ notes: OwnerNote[] }>({
+    queryKey: ["sidebarNotesBadge", user?.id],
+    queryFn: async () => {
+      const response = await axios.get("/api/users/me/notes")
+      return response.data
+    },
+    enabled: !!user?.id && user?.role === "owner",
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: false,
+  })
+
+  const pendingNotesCount = (notesData?.notes || []).filter((n) => !n.isCompleted).length
+
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
@@ -258,7 +265,8 @@ export function AppSidebar({
       <SidebarContent>
         <NavMain 
           items={filteredNavMain} 
-          activeTab={activeTab} 
+          activeTab={activeTab}
+          badges={{ Dashboard: pendingNotesCount }}
         />
         {showProjects && (
           <NavProjects 

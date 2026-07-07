@@ -379,17 +379,33 @@ export async function DELETE(
                 }
             }
 
-            await prisma.project.update({
-                where: { id: projectId },
-                data: {
-                    members: {
-                        disconnect: { id: targetUser.id }
+            await prisma.$transaction([
+                // 1. Unassign all uncompleted tickets in this project for the target member
+                prisma.ticket.updateMany({
+                    where: {
+                        projectId: projectId,
+                        assignedUserId: targetUser.id,
+                        status: { not: "completed" },
+                        isDeleted: false
                     },
-                    admins: {
-                        disconnect: { id: targetUser.id }
+                    data: {
+                        assignedUserId: null,
+                        assignedById: null
                     }
-                }
-            });
+                }),
+                // 2. Disconnect from project members and admins lists
+                prisma.project.update({
+                    where: { id: projectId },
+                    data: {
+                        members: {
+                            disconnect: { id: targetUser.id }
+                        },
+                        admins: {
+                            disconnect: { id: targetUser.id }
+                        }
+                    }
+                })
+            ]);
 
             return NextResponse.json({ message: "Member removed from project successfully" });
         }

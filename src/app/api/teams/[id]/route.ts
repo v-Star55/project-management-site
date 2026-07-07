@@ -325,7 +325,7 @@ export async function PATCH(
         }
 
         const body = await req.json();
-        const { memberId, projectIds, addMemberToProjectId } = body;
+        const { memberId, projectIds, addMemberToProjectId, newRole, toggleActive } = body;
 
         if (!memberId) {
             return NextResponse.json({ error: "Member ID is required" }, { status: 400 });
@@ -341,6 +341,81 @@ export async function PATCH(
 
         if (!targetUser || targetUser.companyId !== workspaceId) {
             return NextResponse.json({ error: "Member not found in this company" }, { status: 404 });
+        }
+
+        // Feature: Change Role (Owner only)
+        if (newRole) {
+            if (dbUser.role !== "owner") {
+                return NextResponse.json({ error: "Forbidden: Only owners can change member roles" }, { status: 403 });
+            }
+
+            if (memberId === dbUser.id) {
+                return NextResponse.json({ error: "Cannot change your own role" }, { status: 400 });
+            }
+
+            if (targetUser.role === "owner") {
+                return NextResponse.json({ error: "Cannot change the role of another owner" }, { status: 400 });
+            }
+
+            const validRoles = ["admin", "member", "qa", "client"];
+            const lowerRole = newRole.toLowerCase();
+            if (!validRoles.includes(lowerRole)) {
+                return NextResponse.json({ error: `Invalid role: ${newRole}. Allowed: ${validRoles.join(", ")}` }, { status: 400 });
+            }
+
+            const oldRole = targetUser.role;
+            const updateData: any = { role: lowerRole };
+
+            // Migrate project relations when switching to/from admin
+            if (oldRole === "admin" && lowerRole !== "admin") {
+                // Moving FROM admin to non-admin: move adminProjects → projects
+                const adminProjectIds = targetUser.adminProjects.map(p => p.id);
+                if (adminProjectIds.length > 0) {
+                    updateData.adminProjects = { disconnect: adminProjectIds.map(id => ({ id })) };
+                    updateData.projects = { connect: adminProjectIds.map(id => ({ id })) };
+                }
+            } else if (oldRole !== "admin" && lowerRole === "admin") {
+                // Moving TO admin from non-admin: move projects → adminProjects
+                const memberProjectIds = targetUser.projects.map(p => p.id);
+                if (memberProjectIds.length > 0) {
+                    updateData.projects = { disconnect: memberProjectIds.map(id => ({ id })) };
+                    updateData.adminProjects = { connect: memberProjectIds.map(id => ({ id })) };
+                }
+            }
+
+            await prisma.user.update({
+                where: { id: targetUser.id },
+                data: updateData
+            });
+
+            return NextResponse.json({ message: `Role changed to ${lowerRole} successfully` });
+        }
+
+        // Feature: Toggle Active Status (Owner only)
+        if (toggleActive === true) {
+            if (dbUser.role !== "owner") {
+                return NextResponse.json({ error: "Forbidden: Only owners can deactivate or reactivate members" }, { status: 403 });
+            }
+
+            if (memberId === dbUser.id) {
+                return NextResponse.json({ error: "Cannot deactivate yourself" }, { status: 400 });
+            }
+
+            if (targetUser.role === "owner") {
+                return NextResponse.json({ error: "Cannot deactivate another owner" }, { status: 400 });
+            }
+
+            const newStatus = !targetUser.isActive;
+
+            await prisma.user.update({
+                where: { id: targetUser.id },
+                data: { isActive: newStatus }
+            });
+
+            return NextResponse.json({
+                message: newStatus ? "Member reactivated successfully" : "Member deactivated successfully",
+                isActive: newStatus
+            });
         }
 
         // Feature 1: Add a member directly to a specific project ("add member to project")

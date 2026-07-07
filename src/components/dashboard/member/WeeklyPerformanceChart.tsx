@@ -12,16 +12,8 @@
  *  - Custom tooltip avoids recharts' default tooltip that ignores theme tokens.
  */
 
-import React from "react"
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts"
+
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { WeeklyEntry } from "./types"
 
 // ─── Custom Tooltip ───────────────────────────────────────────────────────────

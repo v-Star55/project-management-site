@@ -1,7 +1,7 @@
 "use client"
 
-import React from "react"
-import { AlertCircle, ArrowUpRight, HelpCircle, User, RefreshCw, XCircle } from "lucide-react"
+
+import { AlertCircle, ArrowUpRight, User, XCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { AdminBlockedTicket } from "./types"

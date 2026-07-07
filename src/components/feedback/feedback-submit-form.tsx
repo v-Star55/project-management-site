@@ -22,6 +22,7 @@ interface FeedbackSubmitFormProps {
     type: string
     priority: string
     projectId: string
+    satisfactionLevel: string
   }
   onFormChange: (field: string, value: string) => void
   onSubmit: (e: React.FormEvent) => void
@@ -66,7 +67,7 @@ export function FeedbackSubmitForm({
   }
 
   return (
-    <Card className="border-border/50 shadow-sm rounded-3xl overflow-hidden bg-card">
+    <Card className="border-border/50 shadow-sm rounded-3xl overflow-hidden bg-card pt-0 pb-0 gap-0">
       <CardHeader className="border-b border-border/40 bg-muted/15 py-4 px-6">
         <CardTitle className="text-sm font-black uppercase tracking-wider text-foreground">
           Submit New Request
@@ -124,15 +125,22 @@ export function FeedbackSubmitForm({
 
             {/* Priority Select */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-foreground">Priority Level</Label>
+              <Label className="text-xs font-semibold text-foreground">
+                Priority Level {formData.type === "appreciation" && "(Optional)"}
+              </Label>
               <Select
                 value={formData.priority}
                 onValueChange={(val) => onFormChange("priority", val)}
               >
                 <SelectTrigger className="text-xs h-9 bg-muted/10 border-border rounded-xl">
-                  <SelectValue placeholder="Select priority" />
+                  <SelectValue placeholder={formData.type === "appreciation" ? "None / Not Applicable" : "Select priority"} />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
+                  {formData.type === "appreciation" && (
+                    <SelectItem value="none" className="text-xs rounded-lg cursor-pointer">
+                      None / Not Applicable
+                    </SelectItem>
+                  )}
                   {PRIORITY_LEVELS.map((p) => (
                     <SelectItem key={p.value} value={p.value} className="text-xs rounded-lg cursor-pointer">
                       <div className="flex items-center gap-2">
@@ -145,6 +153,43 @@ export function FeedbackSubmitForm({
               </Select>
             </div>
           </div>
+
+          {/* Satisfaction Level Selector (only for Appreciation) */}
+          {formData.type === "appreciation" && (
+            <div className="space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-200">
+              <Label className="text-xs font-bold text-foreground flex items-center justify-between">
+                <span>Client Satisfaction Level</span>
+                <span className="text-pink-500 font-extrabold text-[12px] bg-pink-500/10 px-2.5 py-0.5 rounded-full select-none">
+                  {formData.satisfactionLevel || "10"} / 10
+                </span>
+              </Label>
+              <div className="grid grid-cols-10 gap-1 bg-muted/20 p-1.5 border border-border/50 rounded-2xl select-none">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => {
+                  const rating = String(num)
+                  const isSelected = formData.satisfactionLevel === rating
+                  
+                  let colorClass = "hover:bg-muted-foreground/15 text-muted-foreground hover:scale-105"
+                  if (isSelected) {
+                    if (num <= 3) colorClass = "bg-red-500 text-white font-black shadow-md shadow-red-500/20 hover:bg-red-600 scale-105"
+                    else if (num <= 6) colorClass = "bg-amber-500 text-white font-black shadow-md shadow-amber-500/20 hover:bg-amber-600 scale-105"
+                    else if (num <= 8) colorClass = "bg-emerald-500 text-white font-black shadow-md shadow-emerald-500/20 hover:bg-emerald-600 scale-105"
+                    else colorClass = "bg-pink-500 text-white font-black shadow-md shadow-pink-500/20 hover:bg-pink-600 scale-105"
+                  }
+
+                  return (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => onFormChange("satisfactionLevel", rating)}
+                      className={`h-7 w-full flex items-center justify-center text-xs font-bold rounded-xl transition-all duration-200 cursor-pointer ${colorClass}`}
+                    >
+                      {num}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Subject Field */}
           <div className="space-y-1.5">

@@ -8,6 +8,8 @@ export async function proxy(request: NextRequest) {
     const isPublicPath =
         path === "/" || path === "/login" || path === "/signup";
 
+    const isWorkspaceCreatePath = path === "/workspace/create";
+
     if (!token) {
         if (!isPublicPath) {
             return NextResponse.redirect(
@@ -22,6 +24,26 @@ export async function proxy(request: NextRequest) {
             token,
             new TextEncoder().encode(process.env.JWT_SECRET!)
         );
+
+        const hasCompany = !!payload.companyId;
+
+        // If user is authenticated but has no company
+        if (!hasCompany) {
+            // They are only allowed to see /workspace/create
+            if (!isWorkspaceCreatePath) {
+                return NextResponse.redirect(
+                    new URL("/workspace/create", request.url)
+                );
+            }
+            return NextResponse.next();
+        }
+
+        // If user is authenticated and HAS a company, they shouldn't access /workspace/create
+        if (isWorkspaceCreatePath) {
+            return NextResponse.redirect(
+                new URL(`/dashboard/${payload.id}`, request.url)
+            );
+        }
 
         if (path === "/dashboard") {
             return NextResponse.redirect(new URL(`/dashboard/${payload.id}`, request.url));
@@ -42,7 +64,6 @@ export async function proxy(request: NextRequest) {
             return NextResponse.redirect(new URL(`/dashboard/${payload.id}`, request.url));
         }
 
-
         return NextResponse.next();
     } catch (error) {
         console.log(error, "Jwt Token Invalid");
@@ -57,5 +78,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/dashboard", "/dashboard/:path*", "/login", "/signup"],
+    matcher: ["/dashboard", "/dashboard/:path*", "/login", "/signup", "/workspace/:path*"],
 };

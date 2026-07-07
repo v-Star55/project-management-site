@@ -1,10 +1,5 @@
-import React from "react"
-import {
-  MessageSquareIcon,
-  ClockIcon,
-  CheckCircle2Icon,
-  AlertCircleIcon,
-} from "lucide-react"
+
+import { MessageSquareIcon, ClockIcon, CheckCircle2Icon, AlertCircleIcon, HeartIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card"
 
 interface FeedbackStatsProps {
@@ -12,6 +7,8 @@ interface FeedbackStatsProps {
   pendingCount: number
   inProgressCount: number
   resolvedCount: number
+  averageSatisfaction: string
+  ratedCount: number
 }
 
 export function FeedbackStats({
@@ -19,6 +16,8 @@ export function FeedbackStats({
   pendingCount,
   inProgressCount,
   resolvedCount,
+  averageSatisfaction,
+  ratedCount,
 }: FeedbackStatsProps) {
   const statsConfig = [
     {
@@ -53,10 +52,20 @@ export function FeedbackStats({
       color: "from-emerald-500/10 to-emerald-500/5",
       border: "border-emerald-500/10",
     },
+    {
+      label: "Net Delight Index",
+      value: averageSatisfaction !== "N/A" ? `${averageSatisfaction}/10` : "N/A",
+      description: ratedCount > 0 
+        ? `Based on ${ratedCount} client rating${ratedCount > 1 ? "s" : ""}`
+        : "No client ratings yet",
+      icon: <HeartIcon className="size-4 text-pink-500 fill-pink-500 animate-pulse" />,
+      color: "from-pink-500/10 to-pink-500/5",
+      border: "border-pink-500/10",
+    },
   ]
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
       {statsConfig.map((stat, idx) => (
         <Card key={idx} className={`relative overflow-hidden border ${stat.border} shadow-xs rounded-3xl bg-card`}>
           <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-40`} />

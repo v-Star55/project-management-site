@@ -6,12 +6,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
 import { toast } from "sonner"
-import { ArrowRightIcon } from "lucide-react"
+
 
 import { FeedbackStats } from "@/components/feedback/feedback-stats"
 import { FeedbackSubmitForm } from "@/components/feedback/feedback-submit-form"
 import { FeedbackList } from "@/components/feedback/feedback-list"
 import { FeedbackDetailModal } from "@/components/feedback/feedback-detail-modal"
+import { FeedbackBreakdownCard } from "@/components/feedback/feedback-breakdown-card"
 import { Feedback, FeedbackComment, Project } from "@/components/feedback/types"
 
 export default function FeedbackDashboardPage() {
@@ -24,6 +25,14 @@ export default function FeedbackDashboardPage() {
   const [selectedTypeFilter, setSelectedTypeFilter] = useState("all")
   const [selectedStatusFilter, setSelectedStatusFilter] = useState("all")
   const [selectedProjectFilter, setSelectedProjectFilter] = useState("all")
+  const [activeTab, setActiveTab] = useState<"active" | "resolved" | "appreciation">("active")
+  const [ratingFilter, setRatingFilter] = useState<"all" | "high" | "low">("all")
+
+  const handleTabChange = (tab: "active" | "resolved" | "appreciation") => {
+    setActiveTab(tab)
+    setSelectedStatusFilter("all")
+    setRatingFilter("all")
+  }
   
   // Selected feedback for details drawer
   const [activeFeedback, setActiveFeedback] = useState<Feedback | null>(null)
@@ -37,6 +46,7 @@ export default function FeedbackDashboardPage() {
     type: "",
     priority: "",
     projectId: "none",
+    satisfactionLevel: "10",
   })
 
   const handleSelectFeedback = (item: Feedback) => {
@@ -47,6 +57,7 @@ export default function FeedbackDashboardPage() {
       type: item.type,
       priority: item.priority,
       projectId: item.projectId || "none",
+      satisfactionLevel: item.satisfactionLevel ? String(item.satisfactionLevel) : "10",
     })
     setIsEditing(false)
   }
@@ -58,6 +69,7 @@ export default function FeedbackDashboardPage() {
     type: "",
     priority: "",
     projectId: "none",
+    satisfactionLevel: "10",
   })
 
   // Queries
@@ -97,6 +109,8 @@ export default function FeedbackDashboardPage() {
       const body = {
         ...newFeedback,
         projectId: newFeedback.projectId === "none" ? null : newFeedback.projectId,
+        priority: newFeedback.type === "appreciation" && (newFeedback.priority === "none" || !newFeedback.priority) ? "low" : newFeedback.priority,
+        satisfactionLevel: newFeedback.type === "appreciation" ? parseInt(newFeedback.satisfactionLevel, 10) : null,
       }
       const res = await fetch("/api/feedback", {
         method: "POST",
@@ -117,6 +131,7 @@ export default function FeedbackDashboardPage() {
         type: "",
         priority: "",
         projectId: "none",
+        satisfactionLevel: "10",
       })
       queryClient.invalidateQueries({ queryKey: ["feedbacks"] })
     },
@@ -170,6 +185,7 @@ export default function FeedbackDashboardPage() {
           type: data.feedback.type,
           priority: data.feedback.priority,
           projectId: data.feedback.projectId || "none",
+          satisfactionLevel: data.feedback.satisfactionLevel ? String(data.feedback.satisfactionLevel) : "10",
         })
       }
       queryClient.invalidateQueries({ queryKey: ["feedbacks"] })
@@ -187,6 +203,7 @@ export default function FeedbackDashboardPage() {
       type,
       priority,
       projectId,
+      satisfactionLevel,
     }: {
       id: string
       subject: string
@@ -194,11 +211,12 @@ export default function FeedbackDashboardPage() {
       type: string
       priority: string
       projectId: string | null
+      satisfactionLevel?: number | null
     }) => {
       const res = await fetch(`/api/feedback/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject, description, type, priority, projectId }),
+        body: JSON.stringify({ subject, description, type, priority, projectId, satisfactionLevel }),
       })
       if (!res.ok) {
         const errData = await res.json()
@@ -244,7 +262,8 @@ export default function FeedbackDashboardPage() {
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.subject.trim() || !formData.description.trim() || !formData.type || !formData.priority) {
+    const isAppreciation = formData.type === "appreciation";
+    if (!formData.subject.trim() || !formData.description.trim() || !formData.type || (!isAppreciation && (!formData.priority || formData.priority === "none"))) {
       toast.error("Please fill in all fields")
       return
     }
@@ -257,11 +276,45 @@ export default function FeedbackDashboardPage() {
     postCommentMutation.mutate(newCommentText)
   }
 
+  const isAdminOrOwner = user?.role === "admin" || user?.role === "owner"
+  const isAllowedRole = user?.role === "owner" || user?.role === "admin" || user?.role === "client"
+
   const feedbacks = feedbacksData?.feedbacks || []
   const projects = projectsData?.projects || []
 
+  // Exclusively appreciations for owner/admin right panel
+  const appreciationFeedbacks = feedbacks.filter((f) => {
+    if (f.type !== "appreciation") return false
+    const score = f.satisfactionLevel ?? 0
+    if (ratingFilter === "high") return score >= 9
+    if (ratingFilter === "low") return score > 0 && score < 7
+    return true
+  })
+
   // Filtered feedbacks
   const filteredFeedbacks = feedbacks.filter((f) => {
+    // Active vs Resolved vs Appreciation tab filtering
+    if (activeTab === "active") {
+      if (f.type === "appreciation") return false
+      if (f.status !== "pending" && f.status !== "in_progress") {
+        return false
+      }
+    } else if (activeTab === "resolved") {
+      if (f.type === "appreciation") return false
+      if (f.status !== "resolved" && f.status !== "rejected") {
+        return false
+      }
+    } else if (activeTab === "appreciation") {
+      if (f.type !== "appreciation") return false
+      // Filter by rating score
+      const score = f.satisfactionLevel ?? 0
+      if (ratingFilter === "high") {
+        if (score < 9) return false
+      } else if (ratingFilter === "low") {
+        if (score === 0 || score >= 7) return false
+      }
+    }
+
     const matchesSearch =
       f.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
       f.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -274,14 +327,33 @@ export default function FeedbackDashboardPage() {
     return matchesSearch && matchesType && matchesStatus && matchesProject
   })
 
-  // Stats calculation
-  const totalSubmitted = feedbacks.length
-  const pendingCount = feedbacks.filter((f) => f.status === "pending").length
-  const inProgressCount = feedbacks.filter((f) => f.status === "in_progress").length
-  const resolvedCount = feedbacks.filter((f) => f.status === "resolved").length
+  // Filter feedbacks for stats based on project filter
+  const statsFeedbacks = selectedProjectFilter === "all"
+    ? feedbacks
+    : feedbacks.filter((f) => 
+        selectedProjectFilter === "none" ? !f.projectId : f.projectId === selectedProjectFilter
+      )
 
-  const isAdminOrOwner = user?.role === "admin" || user?.role === "owner"
-  const isAllowedRole = user?.role === "owner" || user?.role === "admin" || user?.role === "client"
+  // Stats calculation
+  const totalSubmitted = statsFeedbacks.length
+  const pendingCount = statsFeedbacks.filter((f) => f.status === "pending").length
+  const inProgressCount = statsFeedbacks.filter((f) => f.status === "in_progress").length
+  const resolvedCount = statsFeedbacks.filter((f) => f.status === "resolved").length
+
+  const statsBugs = statsFeedbacks.filter((f) => f.type === "bug").length
+  const statsFeatures = statsFeedbacks.filter((f) => f.type === "feature").length
+  const statsImprovements = statsFeedbacks.filter((f) => f.type === "improvement").length
+  const statsAppreciations = statsFeedbacks.filter((f) => f.type === "appreciation").length
+  const statsOthers = statsFeedbacks.filter((f) => 
+    f.type !== "bug" && f.type !== "feature" && f.type !== "improvement" && f.type !== "appreciation"
+  ).length
+
+  // Calculate Net Delight Index (Average Satisfaction Score)
+  const ratedFeedbacks = statsFeedbacks.filter((f) => f.satisfactionLevel !== null && f.satisfactionLevel !== undefined)
+  const averageSatisfaction = ratedFeedbacks.length > 0
+    ? (ratedFeedbacks.reduce((sum, f) => sum + (f.satisfactionLevel ?? 0), 0) / ratedFeedbacks.length).toFixed(1)
+    : "N/A"
+  const ratedCount = ratedFeedbacks.length
 
   if (user && !isAllowedRole) {
     return (
@@ -328,6 +400,8 @@ export default function FeedbackDashboardPage() {
         pendingCount={pendingCount}
         inProgressCount={inProgressCount}
         resolvedCount={resolvedCount}
+        averageSatisfaction={averageSatisfaction}
+        ratedCount={ratedCount}
       />
 
       {/* ── Dashboard Grid ── */}
@@ -349,19 +423,35 @@ export default function FeedbackDashboardPage() {
             onSelectFeedback={handleSelectFeedback}
             isAdminOrOwner={isAdminOrOwner}
             isLoading={isFeedbacksLoading}
+            activeTab={activeTab}
+            onActiveTabChange={handleTabChange}
+            feedbacks={feedbacks}
+            ratingFilter={ratingFilter}
+            onRatingFilterChange={setRatingFilter}
           />
         </div>
 
-        {/* Right Side Form Column */}
+        {/* Right Side Form/Appreciation Column */}
         <div className="lg:col-span-1">
-          <FeedbackSubmitForm
-            isAdminOrOwner={isAdminOrOwner}
-            formData={formData}
-            onFormChange={handleFormChange}
-            onSubmit={handleFormSubmit}
-            projects={projects}
-            isPending={createFeedbackMutation.isPending}
-          />
+          {isAdminOrOwner ? (
+            <FeedbackBreakdownCard
+              bugs={statsBugs}
+              features={statsFeatures}
+              improvements={statsImprovements}
+              appreciations={statsAppreciations}
+              others={statsOthers}
+              total={statsFeedbacks.length}
+            />
+          ) : (
+            <FeedbackSubmitForm
+              isAdminOrOwner={isAdminOrOwner}
+              formData={formData}
+              onFormChange={handleFormChange}
+              onSubmit={handleFormSubmit}
+              projects={projects}
+              isPending={createFeedbackMutation.isPending}
+            />
+          )}
         </div>
 
       </div>

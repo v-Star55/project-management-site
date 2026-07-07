@@ -15,7 +15,7 @@
  *  • Three-column mini stats (Total / Done / Active tickets)
  */
 
-import React, { useState } from "react"
+import { useState } from "react";
 import { Briefcase, Layers } from "lucide-react"
 import { DashboardProject } from "./types"
 import { PROJECT_STATUS_COLOR, PROJECT_STATUS_LABEL } from "./constants"

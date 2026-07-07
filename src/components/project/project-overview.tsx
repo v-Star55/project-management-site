@@ -1,34 +1,14 @@
 "use client"
 
-import React from "react"
+
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 import { format, differenceInDays } from "date-fns"
-import { 
-  TrendingUp, 
-  Users, 
-  Layers, 
-  Calendar, 
-  CheckCircle2, 
-  Clock, 
-  AlertTriangle, 
-  ShieldAlert, 
-  FolderOpen,
-  ArrowRight,
-  Crown,
-  ChevronRight,
-  Info
-} from "lucide-react"
-import { 
-  PieChart, 
-  Pie, 
-  Cell, 
-  Tooltip, 
-  ResponsiveContainer 
-} from "recharts"
+import { TrendingUp, Users, Layers, Calendar, CheckCircle2, Clock, AlertTriangle, ShieldAlert, FolderOpen, ArrowRight, Crown, ChevronRight, Info } from "lucide-react";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 import { ProjectDetail, formatDate, getInitials } from "./utils"
-import { Button } from "@/components/ui/button"
+
 import ProjectActivityCard from "./project-activity-card"
 
 interface ProjectOverviewProps {

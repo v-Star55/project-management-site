@@ -6,59 +6,21 @@ import { useParams } from "next/navigation"
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query"
 import axios from "axios"
 import { format, formatDistanceToNow } from "date-fns"
-import { 
-  ArrowLeftIcon, 
-  CheckCircle2Icon, 
-  ClockIcon, 
-  EyeIcon, 
-  FileTextIcon, 
-  LayersIcon, 
-  LayoutListIcon, 
-  SearchIcon,
-  SettingsIcon,
-  TrendingUpIcon,
-  UsersIcon,
-  CalendarIcon,
-  LinkIcon,
-  ActivityIcon,
-  MoreVerticalIcon,
-  EditIcon,
-  PlusIcon
-} from "lucide-react"
+import { ArrowLeftIcon, CheckCircle2Icon, ClockIcon, EyeIcon, FileTextIcon, LayersIcon, LayoutListIcon, SearchIcon, SettingsIcon, TrendingUpIcon, UsersIcon, CalendarIcon, LinkIcon, ActivityIcon, MoreVerticalIcon, EditIcon, PlusIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Input } from "@/components/ui/input"
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner"
 import CreateTicket from "@/components/ticket/create-ticket"
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription,
-  DialogFooter
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 

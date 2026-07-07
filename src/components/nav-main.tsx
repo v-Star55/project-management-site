@@ -22,6 +22,7 @@ import Link from "next/link"
 export function NavMain({
   items,
   activeTab,
+  badges,
 }: {
   items: {
     title: string
@@ -34,6 +35,7 @@ export function NavMain({
     }[]
   }[]
   activeTab?: string
+  badges?: Record<string, number>
 }) {
   return (
     <SidebarGroup>
@@ -53,6 +55,11 @@ export function NavMain({
                   <Link href={item.url}>
                     {item.icon}
                     <span>{item.title}</span>
+                    {badges && badges[item.title] > 0 && (
+                      <span className="ml-auto flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full bg-primary/15 text-primary border border-primary/20 animate-in fade-in zoom-in duration-300">
+                        {badges[item.title]}
+                      </span>
+                    )}
                   </Link>
                 </SidebarMenuButton>
                 {item.items?.length ? (

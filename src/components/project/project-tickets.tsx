@@ -1,81 +1,24 @@
 "use client"
 
-import React, { useState } from "react"
+import { useState } from "react";
 import axios from "axios"
-import {
-  PlusIcon,
-  CalendarIcon,
-  CheckSquareIcon,
-  ClockIcon,
-  AlertCircleIcon,
-  RotateCcwIcon,
-  EyeIcon,
-  MoreVertical as MoreVerticalIcon,
-  Trash as TrashIcon,
-  Edit as EditIcon,
-  Search,
-  X
-} from "lucide-react"
+import { PlusIcon, CalendarIcon, CheckSquareIcon, ClockIcon, AlertCircleIcon, RotateCcwIcon, EyeIcon, MoreVertical as MoreVerticalIcon, Trash as TrashIcon, Edit as EditIcon, Search, X, PlayCircle, CheckCircle2 } from "lucide-react";
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import {
-  DndContext,
-  useDraggable,
-  useDroppable,
-  DragEndEvent,
-  DragStartEvent,
-  DragOverlay,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core"
+import { DndContext, useDraggable, useDroppable, DragEndEvent, DragStartEvent, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 
-import {
-  ProjectDetail,
-  ProjectTicket,
-  ProjectMember,
-  getTicketStatusIcon,
-  getTicketStatusColor,
-  getTicketStatusLabel,
-  getPriorityColor,
-  formatDate,
-  getInitials
-} from "./utils"
+import { ProjectDetail, ProjectTicket, ProjectMember, getTicketStatusColor, getTicketStatusLabel, getPriorityColor, formatDate, getInitials } from "./utils";
 
 import TicketDetail from "../ticket/ticket-detail"
 import ReasonDialog from "../ticket/reason-dialog"
-import CreateTicket from "../ticket/create-ticket"
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select"
-import { 
-  Avatar, 
-  AvatarImage, 
-  AvatarFallback 
-} from "@/components/ui/avatar"
+import CreateTicket from "@/components/ticket/create-ticket"
+
+
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface ProjectTicketsProps {
   projectData: ProjectDetail
@@ -230,6 +173,15 @@ export default function ProjectTickets({ projectData, userId }: ProjectTicketsPr
   }).filter((u): u is ProjectMember => !!u && u.role !== "client")
 
   const tickets = projectData.tickets || []
+
+  // Stats for the project board
+  const totalTicketsCount = tickets.length
+  const todoCount = tickets.filter(t => t.status === "pending" || t.status === "reopen" || t.status === "todo").length
+  const inProgressCount = tickets.filter(t => t.status === "in_progress").length
+  const inReviewCount = tickets.filter(t => t.status === "in_review").length
+  const blockedCount = tickets.filter(t => t.status === "blocked").length
+  const completedCount = tickets.filter(t => t.status === "completed").length
+  const completionPercent = totalTicketsCount > 0 ? Math.round((completedCount / totalTicketsCount) * 100) : 0
 
   // Filtered Tickets
   const filteredTickets = tickets.filter((ticket) => {
@@ -493,7 +445,7 @@ export default function ProjectTickets({ projectData, userId }: ProjectTicketsPr
   }
 
   return (
-    <div className="flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="flex flex-col gap-6 w-full min-w-0 animate-in fade-in slide-in-from-bottom-4 duration-300">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -509,6 +461,58 @@ export default function ProjectTickets({ projectData, userId }: ProjectTicketsPr
             Create Ticket
           </button>
         )}
+      </div>
+
+      {/* Ticket Stats Pill Strip */}
+      <div className="bg-card/40 backdrop-blur border border-border/40 rounded-2xl md:rounded-full py-3 px-6 flex flex-wrap items-center gap-y-3 gap-x-6 w-full md:w-max shadow-2xs">
+        <div className="flex items-center gap-2">
+          <CheckSquareIcon className="size-4 text-emerald-500" />
+          <span className="font-bold text-foreground">{totalTicketsCount}</span>
+          <span className="text-muted-foreground text-[11px] font-medium">Total Tickets</span>
+        </div>
+
+        <div className="hidden sm:block h-4 w-px bg-border/60" />
+
+        <div className="flex items-center gap-2">
+          <CheckSquareIcon className="size-4 text-stone-400" />
+          <span className="font-bold text-foreground">{todoCount}</span>
+          <span className="text-muted-foreground text-[11px] font-medium">Todo</span>
+        </div>
+
+        <div className="hidden sm:block h-4 w-px bg-border/60" />
+
+        <div className="flex items-center gap-2">
+          <PlayCircle className="size-4 text-blue-500" />
+          <span className="font-bold text-foreground">{inProgressCount}</span>
+          <span className="text-muted-foreground text-[11px] font-medium">In Progress</span>
+        </div>
+
+        <div className="hidden sm:block h-4 w-px bg-border/60" />
+
+        <div className="flex items-center gap-2">
+          <EyeIcon className="size-4 text-purple-500" />
+          <span className="font-bold text-foreground">{inReviewCount}</span>
+          <span className="text-muted-foreground text-[11px] font-medium">In Review</span>
+        </div>
+
+        {blockedCount > 0 && (
+          <>
+            <div className="hidden sm:block h-4 w-px bg-border/60" />
+            <div className="flex items-center gap-2">
+              <AlertCircleIcon className="size-4 text-rose-500" />
+              <span className="font-bold text-rose-500">{blockedCount}</span>
+              <span className="text-rose-500 text-[11px] font-medium">Blocked</span>
+            </div>
+          </>
+        )}
+
+        <div className="hidden sm:block h-4 w-px bg-border/60" />
+
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="size-4 text-emerald-500" />
+          <span className="font-bold text-foreground">{completedCount}</span>
+          <span className="text-muted-foreground text-[11px] font-medium">Completed ({completionPercent}%)</span>
+        </div>
       </div>
 
       {/* Control Bar (Search & Filter) */}

@@ -1,47 +1,20 @@
 "use client"
 
-import React, { useState } from "react"
+import { useState } from "react";
 import TicketDetail from "../ticket/ticket-detail"
 import ReasonDialog from "../ticket/reason-dialog"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import {
-  SearchIcon,
-  PlusIcon,
-  CalendarIcon,
-  CheckSquareIcon,
-  ClockIcon,
-  AlertCircleIcon,
-  RotateCcwIcon,
-  Loader2Icon,
-  EyeIcon,
-  ChevronDown
-} from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+
+
+
+import { SearchIcon, CalendarIcon, CheckSquareIcon, ClockIcon, AlertCircleIcon, RotateCcwIcon, Loader2Icon, EyeIcon, ChevronDown } from "lucide-react";
 import Image from "next/image"
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
 import { toast } from "sonner"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import {
-  DndContext,
-  useDraggable,
-  useDroppable,
-  DragEndEvent,
-  DragStartEvent,
-  DragOverlay,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core"
+import { DndContext, useDraggable, useDroppable, DragEndEvent, DragStartEvent, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 
 export interface TicketAttachment {
   id: string
@@ -497,7 +470,7 @@ export default function TicketsView() {
   }
 
   return (
-    <div className="flex-1 flex flex-col gap-6 p-6 md:p-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="flex-1 min-w-0 flex flex-col gap-6 p-6 md:p-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground">My Tickets</h1>
@@ -543,7 +516,7 @@ export default function TicketsView() {
           <div className="w-full sm:w-56">
             <Select
               value={sortBy}
-              onValueChange={(value) => setSortBy(value as any)}
+              onValueChange={(value: string) => setSortBy(value as any)}
             >
               <SelectTrigger className="w-full bg-muted/50 border-border/40 rounded-xl py-2 h-9 text-muted-foreground font-medium focus-visible:ring-primary/20 focus-visible:border-primary/50">
                 <SelectValue placeholder="Sort by" />
@@ -622,7 +595,7 @@ export default function TicketsView() {
           onDragEnd={handleDragEnd}
           onDragCancel={handleDragCancel}
         >
-          <div className="flex flex-col lg:flex-row gap-4 overflow-x-auto pb-4 items-start select-none">
+          <div className="flex flex-col lg:flex-row gap-4 overflow-x-auto pb-4 items-start select-none w-full">
             {COLUMNS.map((column) => {
               const columnTickets = getTicketsForColumn(column.statuses)
               return (

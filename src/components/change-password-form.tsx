@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input"
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { Spinner } from "./ui/spinner";
 import { useDispatch } from "react-redux";
@@ -29,6 +29,7 @@ export function ChangePasswordForm({
 }: React.ComponentProps<"div">) {
   const router = useRouter();
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [buttonDisabled, setButtonDisabled] = useState(false);
@@ -63,6 +64,8 @@ export function ChangePasswordForm({
       });
       // Clear user session and state
       dispatch(clearUser());
+      // Clear React Query cache to prevent stale user status/session
+      queryClient.clear();
       router.push("/login");
     },
     onError: (error: any) => {

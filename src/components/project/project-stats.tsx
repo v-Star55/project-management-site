@@ -1,11 +1,6 @@
-import React from "react"
+
 import { ClockIcon, CalendarIcon, CheckSquareIcon } from "lucide-react"
-import { 
-  ProjectDetail, 
-  getProjectStatusLabel, 
-  getProjectStatusBadge, 
-  formatDate 
-} from "./utils"
+import { ProjectDetail, getProjectStatusLabel, formatDate } from "./utils";
 
 interface ProjectStatsProps {
   projectData: ProjectDetail

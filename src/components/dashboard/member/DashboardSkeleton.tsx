@@ -8,7 +8,7 @@
  * does not jump when data arrives.
  */
 
-import React from "react"
+
 
 export default function DashboardSkeleton() {
   return (

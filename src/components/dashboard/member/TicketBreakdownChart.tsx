@@ -10,14 +10,8 @@
  * Legend component so we have full control over spacing and typography.
  */
 
-import React from "react"
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts"
+
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { DashboardStats } from "./types"
 import { PIE_COLORS } from "./constants"
 

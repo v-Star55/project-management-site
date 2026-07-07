@@ -1,12 +1,7 @@
 "use client"
 
-import * as React from "react"
-import { 
-  PieChart, 
-  Pie, 
-  Cell, 
-  ResponsiveContainer 
-} from "recharts"
+
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 interface TaskOverviewCardProps {
   ticketStats: {

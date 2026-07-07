@@ -1,49 +1,17 @@
 "use client"
 
 import React, { useState } from "react"
-import {
-  UsersIcon,
-  UserPlusIcon,
-  MailIcon,
-  ShieldCheckIcon,
-  MoreVerticalIcon,
-  SearchIcon,
-  EyeIcon,
-  PencilIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  Loader2Icon,
-  CircleDotIcon,
-  Trash2Icon,
-  SparklesIcon
-} from "lucide-react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { UsersIcon, UserPlusIcon, MailIcon, MoreVerticalIcon, SearchIcon, EyeIcon, PencilIcon, ChevronLeftIcon, ChevronRightIcon, Loader2Icon, CircleDotIcon, Trash2Icon, SparklesIcon, FolderIcon } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios"
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
 import { Spinner } from "@/components/ui/spinner"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import InviteClientForm from "@/components/dashboard/invite-client-form"
 
 interface TeamMember {
@@ -59,6 +27,8 @@ interface TeamMember {
   isActive?: boolean
   isPending?: boolean
   designation?: string | null
+  assignedTicketsCount?: number
+  completedTicketsCount?: number
 }
 
 export default function ClientsPage() {
@@ -67,9 +37,9 @@ export default function ClientsPage() {
   const [search, setSearch] = useState<string>("")
   const [activeTab, setActiveTab] = useState<"all" | "active" | "inactive" | "pending">("all")
   
-  // Pagination State
+  // Pagination State (Locked to 10 per page)
   const [page, setPage] = useState<number>(1)
-  const [pageSize, setPageSize] = useState<number>(10)
+  const pageSize = 10
   
   // Modal / Dialog States
   const [isInviteOpen, setIsInviteOpen] = useState<boolean>(false)
@@ -77,10 +47,22 @@ export default function ClientsPage() {
   const [editingClient, setEditingClient] = useState<TeamMember | null>(null)
   const [editName, setEditName] = useState<string>("")
   const [editDesignation, setEditDesignation] = useState<string>("")
+  const [editProjectIds, setEditProjectIds] = useState<string[]>([])
   const [isEditSubmitting, setIsEditSubmitting] = useState<boolean>(false)
 
   const { user } = useSelector((state: RootState) => state.user)
   const companyId = user?.company?.id
+
+  // Fetch projects to list inside Edit Dialog
+  const { data: projectsData } = useQuery({
+    queryKey: ["projects", user?.id],
+    queryFn: async () => {
+      const response = await axios.get("/api/projects")
+      return response.data.projects
+    },
+    enabled: !!user?.id,
+  })
+  const projectsList = projectsData || []
 
   // Fetch all team/client members
   const { data, isLoading, isError, refetch } = useQuery({
@@ -176,6 +158,7 @@ export default function ClientsPage() {
     setEditingClient(client)
     setEditName(client.name)
     setEditDesignation(client.designation || "Client Representative")
+    setEditProjectIds(client.projects?.map(p => p.id) || [])
     setIsEditOpen(true)
   }
 
@@ -185,11 +168,19 @@ export default function ClientsPage() {
 
     setIsEditSubmitting(true)
     try {
+      // 1. Update basic profile
       await axios.patch(`/api/users/${editingClient.id}/profile`, {
         name: editName,
         designation: editDesignation,
       })
-      toast.success("Client profile updated successfully")
+      
+      // 2. Update projects list
+      await axios.patch(`/api/teams/${companyId}`, {
+        memberId: editingClient.id,
+        projectIds: editProjectIds,
+      })
+
+      toast.success("Client profile and projects updated successfully")
       setIsEditOpen(false)
       queryClient.invalidateQueries({ queryKey: ["teams", companyId] })
       refetch()
@@ -270,6 +261,82 @@ export default function ClientsPage() {
         )}
       </div>
 
+      {/* Metrics Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in slide-in-from-top-4 duration-500 delay-150">
+        {/* Total Clients Card */}
+        <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-5 hover:shadow-lg transition-all duration-300 group hover:border-primary/20">
+          <div className="flex justify-between items-start">
+            <div className="space-y-1">
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Total Clients</p>
+              <h3 className="text-3xl font-extrabold tracking-tight text-foreground transition-all duration-300 group-hover:scale-105 origin-left">
+                {clientList.length}
+              </h3>
+            </div>
+            <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-300">
+              <UsersIcon className="size-5" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground font-semibold">
+            <span className="text-indigo-400">Company</span> registered clients
+          </div>
+        </div>
+
+        {/* Active Engagement Card */}
+        <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-5 hover:shadow-lg transition-all duration-300 group hover:border-emerald/20">
+          <div className="flex justify-between items-start">
+            <div className="space-y-1">
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Active Engagement</p>
+              <h3 className="text-3xl font-extrabold tracking-tight text-foreground transition-all duration-300 group-hover:scale-105 origin-left">
+                {clientList.filter(c => c.isActive && !c.isPending && (c.status === "Online" || c.status === "Away")).length}
+              </h3>
+            </div>
+            <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300">
+              <SparklesIcon className="size-5" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground font-semibold">
+            <span className="flex size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-emerald-400 font-bold">{clientList.filter(c => c.status === "Online").length} Online</span> right now
+          </div>
+        </div>
+
+        {/* Pending Invites Card */}
+        <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-5 hover:shadow-lg transition-all duration-300 group hover:border-amber/20">
+          <div className="flex justify-between items-start">
+            <div className="space-y-1">
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Pending Invites</p>
+              <h3 className="text-3xl font-extrabold tracking-tight text-foreground transition-all duration-300 group-hover:scale-105 origin-left">
+                {clientList.filter(c => c.isPending).length}
+              </h3>
+            </div>
+            <div className="p-3 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20 group-hover:bg-amber-500 group-hover:text-white transition-all duration-300">
+              <MailIcon className="size-5" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground font-semibold">
+            <span className="text-amber-400 font-bold">Awaiting</span> client registration
+          </div>
+        </div>
+
+        {/* Project Engagements Card */}
+        <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-5 hover:shadow-lg transition-all duration-300 group hover:border-sky/20">
+          <div className="flex justify-between items-start">
+            <div className="space-y-1">
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Project Engagements</p>
+              <h3 className="text-3xl font-extrabold tracking-tight text-foreground transition-all duration-300 group-hover:scale-105 origin-left">
+                {clientList.reduce((acc, c) => acc + (c.projects?.length || 0), 0)}
+              </h3>
+            </div>
+            <div className="p-3 bg-sky-500/10 text-sky-400 rounded-xl border border-sky-500/20 group-hover:bg-sky-500 group-hover:text-white transition-all duration-300">
+              <FolderIcon className="size-5" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground font-semibold">
+            <span className="text-sky-400">Total</span> active client projects
+          </div>
+        </div>
+      </div>
+
       {/* Filter Tabs & Search Row */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         
@@ -347,146 +414,186 @@ export default function ClientsPage() {
       </div>
 
       {/* Clients Tabular List */}
-      <div className="bg-card border border-border/50 rounded-2xl overflow-x-auto shadow-sm">
-        {paginatedClients.length > 0 ? (
-          <table className="w-full text-left border-collapse min-w-[900px]">
-            <thead>
-              <tr className="border-b border-border/40 bg-muted/20 text-muted-foreground text-[10px] font-bold uppercase tracking-wider">
-                <th className="py-4 px-6">Client</th>
-                <th className="py-4 px-6">Status</th>
-                <th className="py-4 px-6 text-center">Projects</th>
-                <th className="py-4 px-6 text-center">Members</th>
-                <th className="py-4 px-6 text-center">Today's Activity</th>
-                <th className="py-4 px-6">Joined On</th>
-                <th className="py-4 px-6 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/30">
-              {paginatedClients.map((client) => {
-                const status = getClientStatus(client)
-                const projectsCount = client.projects?.length || 0
-                // Dynamic realistic members count based on projects they are member of
-                const membersCount = projectsCount > 0 
-                  ? 2 + (projectsCount * 3) + (client.name.charCodeAt(0) % 5)
-                  : 0
+    <div className="bg-card border border-border/50 rounded-2xl overflow-x-auto shadow-sm">
+      {paginatedClients.length > 0 ? (
+        <table className="w-full text-left border-collapse min-w-[900px]">
+          <thead>
+            <tr className="border-b border-border/40 bg-muted/20 text-muted-foreground text-[10px] font-bold uppercase tracking-wider">
+              <th className="py-4 px-6">Client</th>
+              <th className="py-4 px-6">Status</th>
+              <th className="py-4 px-6">Assigned Projects</th>
+              <th className="py-4 px-6 text-center">Ticket Progress</th>
+              <th className="py-4 px-6">Joined On</th>
+              <th className="py-4 px-6 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border/30">
+            {paginatedClients.map((client) => {
+              const status = getClientStatus(client)
 
-                return (
-                  <tr
-                    key={client.id}
-                    id={client.id}
-                    className="group border-border/30 hover:bg-muted/10 transition-colors duration-200"
-                  >
-                    {/* Client Name / Email Column */}
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-3">
-                        <div className="relative shrink-0">
-                          <div className={`size-10 rounded-xl bg-gradient-to-br ${getAvatarGradient(client.name)} flex items-center justify-center text-xs font-black border border-border/20 shadow-inner`}>
-                            {client.initials}
-                          </div>
-                          {/* Mini Status Badge on Avatar corner */}
-                          <span className={`absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-card ${getStatusDotColor(status)}`} />
+              return (
+                <tr
+                  key={client.id}
+                  id={client.id}
+                  className="group border-border/30 hover:bg-muted/10 transition-colors duration-200"
+                >
+                  {/* Client Name / Email Column */}
+                  <td className="py-4 px-6">
+                    <div className="flex items-center gap-3">
+                      <div className="relative shrink-0">
+                        <div className={`size-10 rounded-xl bg-gradient-to-br ${getAvatarGradient(client.name)} flex items-center justify-center text-xs font-black border border-border/20 shadow-inner`}>
+                          {client.initials}
                         </div>
-                        <div className="flex flex-col min-w-0">
-                          <span className="font-bold text-sm text-foreground hover:text-primary transition-colors truncate">
-                            {client.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground truncate">{client.email}</span>
-                        </div>
+                        {/* Mini Status Badge on Avatar corner */}
+                        <span className={`absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-card ${getStatusDotColor(status)}`} />
                       </div>
-                    </td>
-
-                    {/* Status badge Column */}
-                    <td className="py-4 px-6">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border ${getStatusColorClasses(status)}`}>
-                        <span className={`size-1.5 rounded-full ${getStatusDotColor(status)}`} />
-                        {status}
-                      </span>
-                    </td>
-
-                    {/* Projects Column */}
-                    <td className="py-4 px-6 text-center font-bold text-sm text-foreground/80">
-                      {projectsCount}
-                    </td>
-
-                    {/* Members Column */}
-                    <td className="py-4 px-6 text-center font-bold text-sm text-foreground/80">
-                      {membersCount}
-                    </td>
-
-                    {/* Sparkline Column */}
-                    <td className="py-4 px-6 text-center">
-                      <div className="flex justify-center items-center">
-                        {status === "Online" && (
-                          <svg className="w-24 h-8 opacity-85 hover:opacity-100 transition-opacity" viewBox="0 0 100 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0,20 Q15,5 30,22 T60,8 T90,25 L100,15" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                        {status === "Offline" && (
-                          <svg className="w-24 h-8 opacity-60" viewBox="0 0 100 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0,20 Q15,10 30,25 T60,15 T90,20 L100,18" stroke="#a8a29e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                        {status === "Inactive" && (
-                          <svg className="w-24 h-8 opacity-75" viewBox="0 0 100 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0,18 Q15,25 30,12 T60,28 T90,15 L100,22" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                        {status === "Pending" && (
-                          <svg className="w-24 h-8 opacity-75" viewBox="0 0 100 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <line x1="0" y1="15" x2="100" y2="15" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" />
-                          </svg>
-                        )}
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-bold text-sm text-foreground hover:text-primary transition-colors truncate">
+                          {client.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground truncate">{client.email}</span>
+                        <span className="text-[10px] text-muted-foreground/60 font-semibold">{client.lastActive}</span>
                       </div>
-                    </td>
+                    </div>
+                  </td>
 
-                    {/* Joined On Column */}
-                    <td className="py-4 px-6 text-xs text-muted-foreground font-semibold">
-                      {formatJoinedDate(client.createdAt)}
-                    </td>
+                  {/* Status badge Column */}
+                  <td className="py-4 px-6">
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border ${getStatusColorClasses(status)}`}>
+                      <span className={`size-1.5 rounded-full ${getStatusDotColor(status)}`} />
+                      {status}
+                    </span>
+                  </td>
 
-                    {/* Actions Column */}
-                    <td className="py-4 px-6 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => router.push(`/dashboard/${client.id}/profile`)}
-                          className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer"
-                          title="View Profile"
-                        >
-                          <EyeIcon className="size-4" />
-                        </button>
-                        {(user?.role === "owner" || user?.role === "admin") && (
-                          <>
-                            <button
-                              onClick={() => openEditDialog(client)}
-                              className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer"
-                              title="Edit Client"
+                  {/* Assigned Projects Column */}
+                  <td className="py-4 px-6">
+                    <div className="flex flex-wrap gap-1.5 max-w-[200px]">
+                      {client.projects && client.projects.length > 0 ? (
+                        <>
+                          {client.projects.slice(0, 2).map((proj) => (
+                            <span
+                              key={proj.id}
+                              className="px-2 py-0.5 text-[10px] font-bold rounded bg-primary/10 text-primary border border-primary/20 max-w-[90px] truncate"
+                              title={proj.title}
                             >
-                              <PencilIcon className="size-4" />
-                            </button>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <button className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer">
-                                  <MoreVerticalIcon className="size-4" />
-                                </button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-40 bg-popover border border-border text-popover-foreground rounded-xl">
-                                <DropdownMenuItem
-                                  className="text-destructive font-semibold cursor-pointer flex items-center gap-2"
-                                  onClick={() => handleRemoveClient(client.id, client.name)}
-                                >
-                                  <Trash2Icon className="size-3.5 text-destructive" />
-                                  Remove Client
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
+                              {proj.title}
+                            </span>
+                          ))}
+                          {client.projects.length > 2 && (
+                            <span
+                              className="px-2 py-0.5 text-[10px] font-bold rounded bg-muted text-muted-foreground border border-border cursor-help"
+                              title={client.projects.slice(2).map(p => p.title).join(", ")}
+                            >
+                              +{client.projects.length - 2} more
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-xs text-muted-foreground italic font-medium">None</span>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Ticket Progress Column */}
+                  <td className="py-4 px-6">
+                    <div className="flex flex-col gap-1 items-center justify-center min-w-[120px]">
+                      {client.assignedTicketsCount && client.assignedTicketsCount > 0 ? (
+                        <>
+                          <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground/80">
+                            <span>{client.completedTicketsCount || 0}</span>
+                            <span className="text-muted-foreground">/</span>
+                            <span>{client.assignedTicketsCount}</span>
+                            <span className="text-[10px] text-muted-foreground/80">tickets</span>
+                          </div>
+                          <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden border border-border/40">
+                            <div
+                              className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                              style={{
+                                width: `${Math.min(
+                                  100,
+                                  Math.round(
+                                    ((client.completedTicketsCount || 0) /
+                                      client.assignedTicketsCount) *
+                                      100
+                                  )
+                                )}%`,
+                              }}
+                            />
+                          </div>
+                          <span className="text-[9px] font-bold text-emerald-500/80">
+                            {Math.round(
+                              ((client.completedTicketsCount || 0) /
+                                client.assignedTicketsCount) *
+                                100
+                            )}% done
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-xs text-muted-foreground italic font-medium">No tickets</span>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Joined On Column */}
+                  <td className="py-4 px-6 text-xs text-muted-foreground font-semibold">
+                    {formatJoinedDate(client.createdAt)}
+                  </td>
+
+                  {/* Actions Column */}
+                  <td className="py-4 px-6 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      {status === "Pending" && (
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(client.email);
+                            toast.success("Client email copied to clipboard!");
+                          }}
+                          className="p-1.5 rounded-lg text-amber-500 hover:bg-amber-500/10 transition-all cursor-pointer"
+                          title="Copy Invitation Email"
+                        >
+                          <MailIcon className="size-4" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => router.push(`/dashboard/${client.id}/profile`)}
+                        className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer"
+                        title="View Profile"
+                      >
+                        <EyeIcon className="size-4" />
+                      </button>
+                      {(user?.role === "owner" || user?.role === "admin") && (
+                        <>
+                          <button
+                            onClick={() => openEditDialog(client)}
+                            className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer"
+                            title="Edit Client"
+                          >
+                            <PencilIcon className="size-4" />
+                          </button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer">
+                                <MoreVerticalIcon className="size-4" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-40 bg-popover border border-border text-popover-foreground rounded-xl">
+                              <DropdownMenuItem
+                                className="text-destructive font-semibold cursor-pointer flex items-center gap-2"
+                                onClick={() => handleRemoveClient(client.id, client.name)}
+                              >
+                                <Trash2Icon className="size-3.5 text-destructive" />
+                                Remove Client
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
           </table>
         ) : (
           <div className="py-20 flex flex-col items-center justify-center text-center">
@@ -548,22 +655,6 @@ export default function ClientsPage() {
                 <ChevronRightIcon className="size-4" />
               </button>
             </div>
-
-            {/* Page Size Select */}
-            <div className="flex items-center gap-1.5">
-              <select
-                value={pageSize}
-                onChange={(e) => {
-                  setPageSize(Number(e.target.value))
-                  setPage(1)
-                }}
-                className="bg-card text-foreground border border-border/50 rounded-xl px-2 py-1.5 text-xs font-bold outline-none cursor-pointer hover:bg-muted/30 transition-all"
-              >
-                <option value={5}>5 / page</option>
-                <option value={10}>10 / page</option>
-                <option value={20}>20 / page</option>
-              </select>
-            </div>
           </div>
         </div>
       )}
@@ -624,6 +715,43 @@ export default function ClientsPage() {
                 required
                 className="w-full px-4 py-2 bg-muted/50 rounded-xl border border-border/40 focus:border-primary/50 text-sm outline-none transition-all text-foreground font-medium"
               />
+            </div>
+
+            {/* Projects Assignment */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                <FolderIcon className="size-3.5 text-primary" />
+                Assign to Projects
+              </label>
+              {projectsList.length === 0 ? (
+                <p className="text-xs text-muted-foreground italic py-1">No projects available</p>
+              ) : (
+                <div className="max-h-[140px] overflow-y-auto border border-border/40 rounded-xl p-2.5 space-y-1.5 bg-muted/20">
+                  {projectsList.map((project: any) => {
+                    const isChecked = editProjectIds.includes(project.id)
+                    return (
+                      <label
+                        key={project.id}
+                        className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-muted/60 cursor-pointer transition-colors text-xs"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          className="size-3.5 rounded border-border/60 text-primary focus:ring-primary accent-primary"
+                          onChange={() => {
+                            if (isChecked) {
+                              setEditProjectIds(editProjectIds.filter(id => id !== project.id))
+                            } else {
+                              setEditProjectIds([...editProjectIds, project.id])
+                            }
+                          }}
+                        />
+                        <span className="font-semibold truncate">{project.title}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+              )}
             </div>
 
             <DialogFooter className="pt-3 border-t border-border/40 flex items-center justify-end gap-2">

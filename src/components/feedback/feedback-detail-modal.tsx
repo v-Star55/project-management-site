@@ -74,6 +74,7 @@ interface FeedbackDetailModalProps {
     type: string
     priority: string
     projectId: string
+    satisfactionLevel: string
   }
   onEditFormDataChange: (val: any) => void
   projects: Project[]
@@ -109,7 +110,7 @@ export function FeedbackDetailModal({
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 select-none">
                   {getTypeBadge(activeFeedback.type)}
-                  {getPriorityBadge(activeFeedback.priority)}
+                  {activeFeedback.type !== "appreciation" && getPriorityBadge(activeFeedback.priority)}
                 </div>
                 <div className="flex items-center gap-2">
                   {getStatusBadge(activeFeedback.status)}
@@ -260,15 +261,18 @@ export function FeedbackDetailModal({
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-foreground">Priority</Label>
+                      <Label className="text-xs font-semibold text-foreground">Priority {editFormData.type === "appreciation" && "(Optional)"}</Label>
                       <Select
                         value={editFormData.priority}
                         onValueChange={(val) => onEditFormDataChange({ ...editFormData, priority: val })}
                       >
                         <SelectTrigger className="text-xs h-9 bg-muted/15 border-border/80 rounded-xl focus:ring-1 focus:ring-primary">
-                          <SelectValue placeholder="Select priority" />
+                          <SelectValue placeholder={editFormData.type === "appreciation" ? "None / Not Applicable" : "Select priority"} />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl">
+                          {editFormData.type === "appreciation" && (
+                            <SelectItem value="none" className="text-xs rounded-lg cursor-pointer">None / Not Applicable</SelectItem>
+                          )}
                           {PRIORITY_LEVELS.map((p) => (
                             <SelectItem key={p.value} value={p.value} className="text-xs rounded-lg cursor-pointer">
                               <div className="flex items-center gap-2">
@@ -281,6 +285,43 @@ export function FeedbackDetailModal({
                       </Select>
                     </div>
                   </div>
+
+                  {/* Satisfaction level selector inside edit mode */}
+                  {editFormData.type === "appreciation" && (
+                    <div className="space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <Label className="text-xs font-bold text-foreground flex items-center justify-between">
+                        <span>Client Satisfaction Level</span>
+                        <span className="text-pink-500 font-extrabold text-[12px] bg-pink-500/10 px-2.5 py-0.5 rounded-full select-none">
+                          {editFormData.satisfactionLevel || "10"} / 10
+                        </span>
+                      </Label>
+                      <div className="grid grid-cols-10 gap-1 bg-muted/20 p-1.5 border border-border/50 rounded-2xl select-none">
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => {
+                          const rating = String(num)
+                          const isSelected = editFormData.satisfactionLevel === rating
+                          
+                          let colorClass = "hover:bg-muted-foreground/15 text-muted-foreground hover:scale-105"
+                          if (isSelected) {
+                            if (num <= 3) colorClass = "bg-red-500 text-white font-black shadow-md hover:bg-red-600 scale-105"
+                            else if (num <= 6) colorClass = "bg-amber-500 text-white font-black shadow-md hover:bg-amber-600 scale-105"
+                            else if (num <= 8) colorClass = "bg-emerald-500 text-white font-black shadow-md hover:bg-emerald-600 scale-105"
+                            else colorClass = "bg-pink-500 text-white font-black shadow-md hover:bg-pink-600 scale-105"
+                          }
+
+                          return (
+                            <button
+                              key={num}
+                              type="button"
+                              onClick={() => onEditFormDataChange({ ...editFormData, satisfactionLevel: rating })}
+                              className={`h-7 w-full flex items-center justify-center text-xs font-bold rounded-xl transition-all duration-200 cursor-pointer ${colorClass}`}
+                            >
+                              {num}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
 
                   <div className="space-y-1.5">
                     <Label className="text-xs font-semibold text-foreground">Project Relation (Optional)</Label>
@@ -304,7 +345,8 @@ export function FeedbackDetailModal({
                     <Button
                       size="sm"
                       onClick={() => {
-                        if (!editFormData.subject.trim() || !editFormData.description.trim() || !editFormData.type || !editFormData.priority) {
+                        const isApprec = editFormData.type === "appreciation";
+                        if (!editFormData.subject.trim() || !editFormData.description.trim() || !editFormData.type || (!isApprec && (!editFormData.priority || editFormData.priority === "none"))) {
                           return
                         }
                         updateFeedbackMutation.mutate({
@@ -312,8 +354,9 @@ export function FeedbackDetailModal({
                           subject: editFormData.subject,
                           description: editFormData.description,
                           type: editFormData.type,
-                          priority: editFormData.priority,
+                          priority: isApprec && (editFormData.priority === "none" || !editFormData.priority) ? "low" : editFormData.priority,
                           projectId: editFormData.projectId === "none" ? null : editFormData.projectId,
+                          satisfactionLevel: isApprec ? parseInt(editFormData.satisfactionLevel, 10) : null,
                         })
                       }}
                       disabled={updateFeedbackMutation.isPending}
@@ -335,6 +378,49 @@ export function FeedbackDetailModal({
               ) : (
                 /* ── READ MODE DETAIL ── */
                 <>
+                  {/* Satisfaction Level Display */}
+                  {(activeFeedback.type === "appreciation" || activeFeedback.status === "resolved") && activeFeedback.satisfactionLevel && (
+                    <div className="space-y-2.5 animate-in fade-in duration-200">
+                      <div className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                        <svg className="size-3.5 text-pink-500 fill-pink-500" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                        <span>Client Satisfaction Rating</span>
+                      </div>
+                      <div className="relative overflow-hidden rounded-2xl border border-pink-500/20 bg-pink-500/5 p-4 flex items-center justify-between gap-4">
+                        <div className="space-y-1">
+                          <p className="text-[10px] uppercase font-extrabold text-pink-500 tracking-wider">Client Delight Index</p>
+                          <h3 className="text-[13px] font-black text-foreground">
+                            Satisfaction is rated at <span className="text-pink-500 font-extrabold">{activeFeedback.satisfactionLevel}/10</span>
+                          </h3>
+                        </div>
+                        {/* Rating dots display */}
+                        <div className="flex items-center gap-1.5 select-none">
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => {
+                            const score = activeFeedback.satisfactionLevel ?? 0
+                            const active = score > 0 && num <= score
+                            return (
+                              <span
+                                key={num}
+                                className={`size-3 rounded-full transition-all duration-300 ${
+                                  active 
+                                    ? score <= 3 
+                                      ? "bg-red-500 shadow-xs shadow-red-500/50 scale-110" 
+                                      : score <= 6 
+                                        ? "bg-amber-500 shadow-xs shadow-amber-500/50 scale-110" 
+                                        : score <= 8 
+                                          ? "bg-emerald-500 shadow-xs shadow-emerald-500/50 scale-110" 
+                                          : "bg-pink-500 shadow-xs shadow-pink-500/50 scale-115"
+                                    : "bg-muted/40 border border-border/60"
+                                }`}
+                              />
+                            )
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Description Box */}
                   <div className="space-y-2.5">
                     <div className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
@@ -392,6 +478,63 @@ export function FeedbackDetailModal({
                     </div>
                   )}
 
+                  {/* Client resolution satisfaction rating prompt */}
+                  {activeFeedback.status === "resolved" && activeFeedback.user.id === user?.id && (
+                    <div className="space-y-3 p-5 rounded-2xl border border-border bg-muted/15">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-1.5 text-[11px] font-bold text-foreground uppercase tracking-wider">
+                          <svg className="size-3.5 text-pink-500 fill-pink-500" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                          </svg>
+                          <span>{activeFeedback.satisfactionLevel ? "Update Resolution Rating" : "Rate Resolution Satisfaction"}</span>
+                        </div>
+                        {activeFeedback.satisfactionLevel && (
+                          <span className="text-[10px] text-pink-500 font-extrabold bg-pink-500/10 px-2 py-0.5 rounded-full select-none">
+                            {activeFeedback.satisfactionLevel} / 10
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-normal">
+                        Please rate your satisfaction with how the product team resolved this request:
+                      </p>
+                      <div className="grid grid-cols-10 gap-1 bg-background p-1.5 border border-border/50 rounded-2xl select-none">
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => {
+                          const rating = String(num)
+                          const isSelected = activeFeedback.satisfactionLevel === num
+                          
+                          let colorClass = "hover:bg-muted-foreground/15 text-muted-foreground hover:scale-105"
+                          if (isSelected) {
+                            if (num <= 3) colorClass = "bg-red-500 text-white font-black shadow-md hover:bg-red-600 scale-105"
+                            else if (num <= 6) colorClass = "bg-amber-500 text-white font-black shadow-md hover:bg-amber-600 scale-105"
+                            else if (num <= 8) colorClass = "bg-emerald-500 text-white font-black shadow-md hover:bg-emerald-600 scale-105"
+                            else colorClass = "bg-pink-500 text-white font-black shadow-md hover:bg-pink-600 scale-105"
+                          }
+
+                          return (
+                            <button
+                              key={num}
+                              type="button"
+                              onClick={() => {
+                                updateFeedbackMutation.mutate({
+                                  id: activeFeedback.id,
+                                  subject: activeFeedback.subject,
+                                  description: activeFeedback.description,
+                                  type: activeFeedback.type,
+                                  priority: activeFeedback.priority,
+                                  projectId: activeFeedback.projectId,
+                                  satisfactionLevel: num
+                                })
+                              }}
+                              className={`h-7 w-full flex items-center justify-center text-xs font-bold rounded-xl transition-all duration-200 cursor-pointer ${colorClass}`}
+                            >
+                              {num}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Comment / Conversation Thread */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
@@ -416,6 +559,25 @@ export function FeedbackDetailModal({
                     ) : (
                       <div className="space-y-4">
                         {commentsData.comments.map((comment: any) => {
+                          if (comment.isSystem) {
+                            return (
+                              <div key={comment.id} className="flex items-start gap-3 pl-3 py-1 select-none animate-in fade-in duration-200">
+                                <div className="relative flex h-full flex-col items-center shrink-0">
+                                  <div className="size-2 rounded-full bg-primary/40 border border-primary/60 mt-1.5" />
+                                  <div className="w-0.5 grow bg-border/40 mt-1 min-h-[16px]" />
+                                </div>
+                                <div className="space-y-0.5">
+                                  <p className="text-[11px] text-muted-foreground leading-normal">
+                                    <span className="font-bold text-foreground">{comment.user.id === user?.id ? "You" : comment.user.name}</span>{" "}
+                                    <span className="italic font-medium text-muted-foreground/85">{comment.text}</span>
+                                  </p>
+                                  <span className="text-[9px] text-muted-foreground/50">
+                                    {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                                  </span>
+                                </div>
+                              </div>
+                            )
+                          }
                           const isCommentAdmin = comment.user.role === "admin" || comment.user.role === "owner"
                           const isSelf = comment.user.id === user?.id
                           return (

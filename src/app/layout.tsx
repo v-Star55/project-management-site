@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "The House of Engineers — Project Management Platform",
+  title: "Relay - Move The Work Forward",
   description: "A premium, multi-tenant B2B Project & Task Management SaaS designed for collaborative engineering teams. Role-based access, Kanban boards, time tracking, and client portals.",
 };
 

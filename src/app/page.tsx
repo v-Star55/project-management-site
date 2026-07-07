@@ -234,10 +234,10 @@ export default function Home() {
         }`}>
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-sm font-extrabold text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] animate-pulse-glow">
-              H
+              R
             </div>
             <span className="font-bold text-sm tracking-wider bg-gradient-to-r from-zinc-100 to-zinc-400 bg-clip-text text-transparent">
-              THE HOUSE OF ENGINEERS
+              RELAY - MOVE THE WORK FORWARD
             </span>
           </div>
 
@@ -647,16 +647,16 @@ export default function Home() {
             <div>
               <div className="flex items-center gap-3 mb-4">
                 <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-xs font-bold text-white shadow-md shadow-emerald-500/20">
-                  H
+                  R
                 </div>
-                <span className="font-extrabold text-sm tracking-widest text-white">THE HOUSE OF ENGINEERS</span>
+                <span className="font-extrabold text-sm tracking-widest text-white">RELAY - MOVE THE WORK FORWARD</span>
               </div>
               <p className="text-zinc-500 text-xs leading-relaxed max-w-sm">
                 A premium, multi-tenant B2B project & task management platform built to accelerate agile cycles for engineering teams.
               </p>
             </div>
             <p className="text-[10px] text-zinc-700 font-mono mt-8 hidden md:block">
-              © {new Date().getFullYear()} House of Engineers. All rights reserved.
+              © {new Date().getFullYear()} Relay - Move The Work Forward. All rights reserved.
             </p>
           </div>
 
@@ -682,7 +682,7 @@ export default function Home() {
           </div>
 
           <p className="text-[10px] text-zinc-700 font-mono mt-4 md:hidden block">
-            © {new Date().getFullYear()} House of Engineers. All rights reserved.
+            © {new Date().getFullYear()} Relay - Move The Work Forward. All rights reserved.
           </p>
 
         </div>

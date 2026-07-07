@@ -3,32 +3,20 @@
 import * as React from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { Separator } from "@/components/ui/separator"
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useEffect, useMemo } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import { RootState } from "@/lib/store"
 import axios from "axios"
 import { setUser } from "@/lib/redux/userSlice"
-import OnBoarding from "@/components/dashboard/onBoarding"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import Link from "next/link"
+
 import { Spinner } from "@/components/ui/spinner"
 import { useQuery } from "@tanstack/react-query"
 import { useTheme } from "next-themes"
 import { Sun, Moon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch()
@@ -267,13 +255,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </Button>
         </header>
 
-        {user?.company?.id ? (
-          children
-        ) : (
-          <div className="flex flex-1 flex-col items-center justify-center p-6 md:p-10">
-            <OnBoarding />
-          </div>
-        )}
+        {children}
       </SidebarInset>
     </SidebarProvider>
   )

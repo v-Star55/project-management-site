@@ -1,17 +1,7 @@
 "use client"
 
-import React, { useState, useMemo } from "react"
-import {
-  Layers,
-  Search,
-  Calendar,
-  Compass,
-  ArrowRight,
-  User,
-  Clock,
-  Sparkles,
-  ChevronDown
-} from "lucide-react"
+import { useState, useMemo } from "react";
+import { Layers, Search, Compass, ArrowRight, User, Clock, Sparkles, ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"

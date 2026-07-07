@@ -8,7 +8,7 @@
  * when the member has nothing urgent.
  */
 
-import React from "react"
+
 import { CalendarCheck2, CheckCircle2 } from "lucide-react"
 import { DashboardTicket } from "./types"
 import { PRIORITY_COLORS, STATUS_COLORS, STATUS_LABEL } from "./constants"

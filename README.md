@@ -1,4 +1,4 @@
-<![CDATA[# 🛠️ The House of Engineers — Project Management Platform
+<![CDATA[# 🛠️ Relay - Move The Work Forward
 
 > **Status:** 🚧 In Active Development
 

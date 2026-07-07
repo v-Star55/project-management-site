@@ -1,35 +1,21 @@
 "use client";
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+
 
 import { Input } from "@/components/ui/input"
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Link from "next/link"
 import { Spinner } from "./ui/spinner";
+import { useDispatch } from "react-redux";
+import { clearUser } from "@/lib/redux/userSlice";
 
 interface User {
   email: string;
@@ -48,6 +34,9 @@ export function LoginForm({
     email: "",
     password: "",
   });
+
+  const queryClient = useQueryClient();
+  const dispatch = useDispatch();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -69,6 +58,10 @@ export function LoginForm({
         email: "",
         password: "",
       });
+      // Clear stale Redux user state so the previous user's navbar/dashboard isn't shown
+      dispatch(clearUser());
+      // Clear React Query cache to prevent stale user status/session
+      queryClient.clear();
       if (response.user.isPending) {
         router.push("/change-password");
       } else {

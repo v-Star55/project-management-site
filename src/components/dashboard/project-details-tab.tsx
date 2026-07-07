@@ -3,28 +3,9 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { 
-  BriefcaseIcon, 
-  CalendarIcon, 
-  ListTodoIcon, 
-  SearchIcon,
-  FolderIcon
-} from "lucide-react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BriefcaseIcon, CalendarIcon, SearchIcon, FolderIcon } from "lucide-react";
 
 interface Ticket {
   id: string

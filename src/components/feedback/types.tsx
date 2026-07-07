@@ -1,12 +1,5 @@
-import React from "react"
-import {
-  BugIcon,
-  LightbulbIcon,
-  ActivityIcon,
-  HeartIcon,
-  PlusIcon,
-  HelpCircleIcon,
-} from "lucide-react"
+
+import { BugIcon, LightbulbIcon, ActivityIcon, HeartIcon, PlusIcon, HelpCircleIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge"
 
 export interface FeedbackComment {
@@ -27,7 +20,7 @@ export interface Feedback {
   description: string
   type: string
   priority: string
-  status: string
+  status: string | null
   projectId: string | null
   project: {
     id: string
@@ -45,6 +38,7 @@ export interface Feedback {
     comments: number
   }
   createdAt: string
+  satisfactionLevel?: number | null
 }
 
 export interface Project {
@@ -90,7 +84,8 @@ export const getPriorityBadge = (priority: string) => {
   )
 }
 
-export const getStatusBadge = (status: string) => {
+export const getStatusBadge = (status: string | null) => {
+  if (!status) return null
   let classes = ""
   switch (status) {
     case "pending":

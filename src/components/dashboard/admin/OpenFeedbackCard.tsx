@@ -1,7 +1,7 @@
 "use client"
 
-import React from "react"
-import { MessageSquare, ArrowUpRight, Check, AlertCircle, XCircle } from "lucide-react"
+
+import { MessageSquare, ArrowUpRight, Check } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { AdminFeedback } from "./types"
@@ -59,12 +59,14 @@ export default function OpenFeedbackCard({ feedbacks, userId }: OpenFeedbackCard
                   >
                     {item.priority}
                   </Badge>
-                  <Badge
-                    className={`text-[8px] py-0 px-1 border uppercase font-bold ${FEEDBACK_STATUS_COLORS[item.status] || ""
-                      }`}
-                  >
-                    {item.status.replace("_", " ")}
-                  </Badge>
+                  {item.status && (
+                    <Badge
+                      className={`text-[8px] py-0 px-1 border uppercase font-bold ${FEEDBACK_STATUS_COLORS[item.status] || ""
+                        }`}
+                    >
+                      {item.status.replace("_", " ")}
+                    </Badge>
+                  )}
                 </div>
               </div>
 

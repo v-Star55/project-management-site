@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
         }
 
         const body = await req.json();
-        const { subject, description, type, priority, projectId } = body;
+        const { subject, description, type, priority, projectId, satisfactionLevel } = body;
 
         if (!subject || !subject.trim()) {
             return NextResponse.json({ error: "Subject is required" }, { status: 400 });
@@ -138,8 +138,21 @@ export async function POST(req: NextRequest) {
         if (!type) {
             return NextResponse.json({ error: "Type is required" }, { status: 400 });
         }
-        if (!priority) {
+        if (type !== "appreciation" && (!priority || priority === "none")) {
             return NextResponse.json({ error: "Priority is required" }, { status: 400 });
+        }
+
+        // Validate satisfactionLevel if type is appreciation
+        let parsedSatisfactionLevel: number | null = null;
+        if (type === "appreciation") {
+            if (satisfactionLevel === undefined || satisfactionLevel === null || satisfactionLevel === "") {
+                return NextResponse.json({ error: "Satisfaction level is required for appreciations" }, { status: 400 });
+            }
+            const lvl = parseInt(String(satisfactionLevel), 10);
+            if (isNaN(lvl) || lvl < 1 || lvl > 10) {
+                return NextResponse.json({ error: "Satisfaction level must be an integer between 1 and 10" }, { status: 400 });
+            }
+            parsedSatisfactionLevel = lvl;
         }
 
         // If projectId is provided, verify it belongs to the company
@@ -160,9 +173,11 @@ export async function POST(req: NextRequest) {
                 subject: subject.trim(),
                 description: description.trim(),
                 type,
-                priority,
+                priority: type === "appreciation" && (priority === "none" || !priority) ? "low" : priority,
                 projectId: projectId || null,
                 userId: dbUser.id,
+                status: type === "appreciation" ? null : "pending",
+                satisfactionLevel: parsedSatisfactionLevel,
             },
             include: {
                 project: {
@@ -187,6 +202,28 @@ export async function POST(req: NextRequest) {
                 },
             },
         });
+
+        // Create initial system comment/audit log
+        await prisma.feedbackComment.create({
+            data: {
+                text: "submitted this request",
+                isSystem: true,
+                feedbackId: feedback.id,
+                userId: dbUser.id,
+            }
+        });
+
+        // If satisfaction level was provided, create a rating system comment
+        if (type === "appreciation" && parsedSatisfactionLevel) {
+            await prisma.feedbackComment.create({
+                data: {
+                    text: `rated this resolution satisfaction ${parsedSatisfactionLevel}/10`,
+                    isSystem: true,
+                    feedbackId: feedback.id,
+                    userId: dbUser.id,
+                }
+            });
+        }
 
         return NextResponse.json({ feedback });
     } catch (error) {

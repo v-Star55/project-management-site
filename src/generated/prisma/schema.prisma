@@ -453,12 +453,13 @@ enum TicketReasonType {
 }
 
 model Feedback {
-  id          String @id @default(cuid())
-  subject     String
-  description String
-  type        String // "bug", "feature", "improvement", "add_remove", "question", "other"
-  priority    String // "low", "medium", "high", "critical"
-  status      String @default("pending") // "pending", "in_progress", "resolved", "rejected"
+  id                String  @id @default(cuid())
+  subject           String
+  description       String
+  type              String // "bug", "feature", "improvement", "add_remove", "question", "other"
+  priority          String // "low", "medium", "high", "critical"
+  status            String? @default("pending") // "pending", "in_progress", "resolved", "rejected"
+  satisfactionLevel Int?
 
   projectId String?
   project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -478,6 +479,7 @@ model Feedback {
 model FeedbackComment {
   id        String   @id @default(cuid())
   text      String
+  isSystem  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

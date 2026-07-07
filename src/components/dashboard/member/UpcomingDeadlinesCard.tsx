@@ -8,7 +8,7 @@
  * the project name, and the formatted deadline date.
  */
 
-import React from "react"
+
 import { CalendarClock, Target } from "lucide-react"
 import { DashboardTicket } from "./types"
 import { formatDate, daysUntil } from "./utils"

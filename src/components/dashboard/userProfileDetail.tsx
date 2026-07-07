@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useQuery, useInfiniteQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios"
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
@@ -9,28 +9,12 @@ import { Spinner } from "@/components/ui/spinner"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner"
 import { PencilIcon } from "lucide-react"
-import { formatDistanceToNow } from "date-fns"
+
 
 const DESIGNATIONS = [
   {
@@ -116,27 +100,8 @@ const DESIGNATIONS = [
 
 
 
-import { 
-  ClockIcon, 
-  BriefcaseIcon, 
-  CalendarIcon, 
-  MailIcon, 
-  ActivityIcon, 
-  FolderIcon, 
-  ListTodoIcon,
-  AlertTriangleIcon,
-  Clock3Icon,
-  BarChart3Icon,
-  SearchIcon
-} from "lucide-react"
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table"
+import { ClockIcon, BriefcaseIcon, CalendarIcon, MailIcon, ActivityIcon, FolderIcon, ListTodoIcon, AlertTriangleIcon, Clock3Icon, BarChart3Icon, SearchIcon } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import TimeTrackingCard from "@/components/dashboard/time-tracking-card"
 import TaskOverviewCard from "@/components/dashboard/task-overview-card"
 import ProjectDetailsTab from "@/components/dashboard/project-details-tab"

@@ -1,11 +1,11 @@
 "use client"
 
-import React from "react"
+
 import { Clock, ArrowUpRight, User, AlertTriangle } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { AdminOverdueTicket } from "./types"
-import { TICKET_PRIORITY_COLORS, TICKET_STATUS_COLORS } from "./constants"
+import { TICKET_PRIORITY_COLORS } from "./constants";
 
 interface OverdueTasksCardProps {
   tickets: AdminOverdueTicket[]

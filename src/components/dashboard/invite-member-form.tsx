@@ -7,16 +7,7 @@ import { EyeIcon, EyeOffIcon, Loader2Icon, UserPlusIcon } from "lucide-react"
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
 
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const DESIGNATIONS = [
   {

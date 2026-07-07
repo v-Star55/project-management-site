@@ -1,31 +1,15 @@
 "use client"
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar"
-import { ChevronsUpDownIcon, SparklesIcon, BadgeCheckIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import { ChevronsUpDownIcon, BadgeCheckIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react";
 import { useDispatch } from "react-redux"
 import axios from "axios"
 import { clearUser } from "@/lib/redux/userSlice"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { useQueryClient } from "@tanstack/react-query"
 
 export function NavUser({
   user,
@@ -39,11 +23,13 @@ export function NavUser({
 }) {
   const dispatch = useDispatch();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const logout = async () => {
     try {
       await axios.post("/api/users/logout");
       toast.success("Logout successful", { position: "top-center" });
       dispatch(clearUser());
+      queryClient.clear();
       router.push("/login");
     } catch (error: any) {
       toast.error(error.response?.data?.error || error.message, { position: "top-center" });

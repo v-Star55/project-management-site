@@ -1,27 +1,15 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/store"
 import { Spinner } from "@/components/ui/spinner"
-import { 
-  FolderIcon, 
-  CheckSquareIcon, 
-  EditIcon, 
-  ArrowLeftIcon, 
-  MessageSquareIcon,
-  UsersIcon,
-  LayersIcon
-} from "lucide-react"
+import { FolderIcon, EditIcon, ArrowLeftIcon, MessageSquareIcon, UsersIcon, LayersIcon } from "lucide-react";
 
-import { 
-  ProjectDetail, 
-  getProjectStatusBadge, 
-  getProjectStatusLabel 
-} from "@/components/project/utils"
+import { ProjectDetail, getProjectStatusBadge, getProjectStatusLabel } from "@/components/project/utils";
 import ProjectOverview from "@/components/project/project-overview"
 import ProjectTickets from "@/components/project/project-tickets"
 import ProjectTeam from "@/components/project/project-team"
@@ -101,7 +89,7 @@ export default function ProjectDetailPage() {
   const isMessagesTab = activeTab === "messages"
 
   return (
-    <div className={`flex-1 flex flex-col w-full animate-in fade-in slide-in-from-bottom-4 duration-300 ${
+    <div className={`flex-1 min-w-0 flex flex-col w-full animate-in fade-in slide-in-from-bottom-4 duration-300 ${
       isMessagesTab ? "h-[calc(100vh-64px)] overflow-hidden" : "gap-6 p-6 md:p-8"
     }`}>
       

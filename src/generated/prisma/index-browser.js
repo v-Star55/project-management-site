@@ -294,6 +294,7 @@ exports.Prisma.FeedbackScalarFieldEnum = {
   type: 'type',
   priority: 'priority',
   status: 'status',
+  satisfactionLevel: 'satisfactionLevel',
   projectId: 'projectId',
   userId: 'userId',
   createdAt: 'createdAt',
@@ -303,6 +304,7 @@ exports.Prisma.FeedbackScalarFieldEnum = {
 exports.Prisma.FeedbackCommentScalarFieldEnum = {
   id: 'id',
   text: 'text',
+  isSystem: 'isSystem',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   feedbackId: 'feedbackId',
