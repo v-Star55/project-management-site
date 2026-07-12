@@ -1,4 +1,4 @@
-<![CDATA[# 🛠️ Relay - Move The Work Forward
+# Relay - Move The Work Forward
 
 > **Status:** 🚧 In Active Development
 
@@ -370,5 +370,4 @@ After seeding, log in with any of these accounts (password: `hashed_password`):
 
 ## 📄 License
 
-This project is private and not currently licensed for public distribution.
-]]>
+This project is private and not currently licensed for public distribution
