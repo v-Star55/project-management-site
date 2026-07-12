@@ -1,6 +1,6 @@
 # Relay - Move The Work Forward
 
-> **Status:** 🚧 In Active Development
+> **Status:** 🚧 In Last Phase of Development (Optimization and polishing left)
 
 A premium, multi-tenant **B2B Project & Task Management SaaS** built for collaborative engineering and development teams. The platform delivers role-based dashboards, interactive Kanban boards, sprint/milestone planning, real-time messaging, granular time-tracking, and a built-in feedback system — all wrapped in a polished dark-mode UI.
 
